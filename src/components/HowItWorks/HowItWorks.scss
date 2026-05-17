@@ -1,0 +1,123 @@
+@import '../../styles/variables';
+
+.how-it-works {
+  padding: $spacing-20 0;
+  background: $bg-white;
+  border-top: 1px solid $border-color;
+
+  &__header {
+    text-align: center;
+    margin-bottom: $spacing-12;
+
+    h2 {
+      font-size: $font-size-3xl;
+      font-weight: 800;
+      color: $text-dark;
+      letter-spacing: -0.5px;
+      margin-bottom: $spacing-3;
+    }
+
+    p {
+      font-size: $font-size-base;
+      color: $text-muted;
+      max-width: 500px;
+      margin: 0 auto;
+      line-height: 1.7;
+    }
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: $spacing-6;
+
+    @media (max-width: $bp-md) {
+      grid-template-columns: 1fr;
+      max-width: 400px;
+      margin: 0 auto;
+    }
+  }
+
+  &__step {
+    background: $primary-lighter;
+    border-radius: $radius-lg;
+    padding: $spacing-8 $spacing-6;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: $spacing-4;
+    position: relative;
+    transition: all $transition-base;
+
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: $shadow-md;
+
+      .how-it-works__step-icon-wrap {
+        background: $primary;
+        transform: scale(1.08);
+
+        svg { stroke: $text-light; }
+      }
+    }
+  }
+
+  &__step-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: $spacing-3;
+    position: relative;
+  }
+
+  &__step-number {
+    position: absolute;
+    top: -12px;
+    right: calc(50% - 38px);
+    width: 26px;
+    height: 26px;
+    background: $primary;
+    color: $text-light;
+    border-radius: 50%;
+    font-size: $font-size-xs;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+    box-shadow: 0 2px 8px rgba($primary, 0.4);
+  }
+
+  &__step-icon-wrap {
+    width: 56px;
+    height: 56px;
+    background: rgba($primary, 0.1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all $transition-base;
+
+    svg {
+      width: 26px;
+      height: 26px;
+      stroke: $primary;
+      fill: none;
+      stroke-width: 1.8;
+      transition: stroke $transition-base;
+    }
+  }
+
+  &__step-title {
+    font-size: $font-size-lg;
+    font-weight: 700;
+    color: $text-dark;
+  }
+
+  &__step-desc {
+    font-size: $font-size-sm;
+    color: $text-body;
+    line-height: 1.75;
+  }
+}

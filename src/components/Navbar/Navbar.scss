@@ -1,0 +1,167 @@
+@import '../../styles/variables';
+
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: $bg-white;
+  border-bottom: 1px solid $border-color;
+  box-shadow: $shadow-sm;
+
+  &__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+    gap: $spacing-5;
+  }
+
+  &__logo {
+    font-size: $font-size-xl;
+    font-weight: 800;
+    color: $primary;
+    letter-spacing: -0.5px;
+    white-space: nowrap;
+    flex-shrink: 0;
+
+    span {
+      color: $text-dark;
+    }
+  }
+
+  &__nav {
+    display: flex;
+    align-items: center;
+    gap: $spacing-1;
+
+    @media (max-width: $bp-md) {
+      display: none;
+    }
+  }
+
+  &__link {
+    font-size: $font-size-sm;
+    font-weight: 500;
+    color: $text-body;
+    padding: $spacing-2 $spacing-3;
+    border-radius: $radius-sm;
+    transition: color $transition-base, background $transition-base;
+    position: relative;
+
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 2px;
+      background: $primary;
+      border-radius: $radius-full;
+      transition: width $transition-base;
+    }
+
+    &:hover {
+      color: $primary;
+
+      &::after {
+        width: 60%;
+      }
+    }
+
+    &--active {
+      color: $primary;
+      font-weight: 600;
+
+      &::after {
+        width: 60%;
+      }
+    }
+  }
+
+  &__search {
+    display: flex;
+    align-items: center;
+    background: #f5f5f7;
+    border: 1.5px solid $border-color;
+    border-radius: $radius-full;
+    padding: $spacing-2 $spacing-4;
+    gap: $spacing-2;
+    transition: border-color $transition-base, box-shadow $transition-base;
+    flex: 0 1 220px;
+
+    @media (max-width: $bp-md) {
+      display: none;
+    }
+
+    &:focus-within {
+      border-color: $primary;
+      box-shadow: 0 0 0 3px rgba($primary, 0.1);
+    }
+
+    svg {
+      color: $text-muted;
+      flex-shrink: 0;
+    }
+
+    input {
+      background: transparent;
+      border: none;
+      outline: none;
+      font-size: $font-size-sm;
+      color: $text-dark;
+      width: 100%;
+      font-family: $font-family;
+
+      &::placeholder {
+        color: $text-muted;
+      }
+    }
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: $spacing-3;
+    flex-shrink: 0;
+  }
+
+  &__login-btn {
+    font-size: $font-size-sm;
+    font-weight: 500;
+    color: $text-body;
+    background: transparent;
+    padding: $spacing-2 $spacing-4;
+    border-radius: $radius-full;
+    border: 1.5px solid transparent;
+    transition: all $transition-base;
+
+    &:hover {
+      color: $primary;
+      border-color: $primary;
+    }
+  }
+
+  &__donate-btn {
+    font-size: $font-size-sm;
+    font-weight: 600;
+    color: $text-light;
+    background: $primary;
+    padding: $spacing-2 $spacing-5;
+    border-radius: $radius-full;
+    border: 2px solid $primary;
+    transition: all $transition-base;
+    box-shadow: 0 2px 10px rgba($primary, 0.3);
+
+    &:hover {
+      background: $primary-dark;
+      border-color: $primary-dark;
+      box-shadow: 0 4px 16px rgba($primary, 0.4);
+      transform: translateY(-1px);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+  }
+}

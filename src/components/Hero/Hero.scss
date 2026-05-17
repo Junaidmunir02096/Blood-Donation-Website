@@ -1,0 +1,220 @@
+@import '../../styles/variables';
+
+.hero {
+  background-color: $bg-light;
+  padding: $spacing-20 0;
+  overflow: hidden;
+
+  @media (max-width: $bp-md) {
+    padding: $spacing-12 0;
+  }
+
+  &__inner {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    gap: $spacing-16;
+
+    @media (max-width: $bp-lg) {
+      gap: $spacing-10;
+    }
+
+    @media (max-width: $bp-md) {
+      grid-template-columns: 1fr;
+      gap: $spacing-10;
+    }
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-5;
+    animation: fadeInLeft 0.7s ease both;
+  }
+
+  &__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-2;
+    background: rgba($primary, 0.1);
+    color: $primary;
+    font-size: $font-size-xs;
+    font-weight: 600;
+    padding: $spacing-2 $spacing-3;
+    border-radius: $radius-full;
+    border: 1px solid rgba($primary, 0.2);
+    width: fit-content;
+    letter-spacing: 0.3px;
+
+    .badge-dot {
+      width: 7px;
+      height: 7px;
+      background: $primary;
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+  }
+
+  &__heading {
+    font-size: $font-size-4xl;
+    font-weight: 800;
+    line-height: 1.15;
+    color: $text-dark;
+    letter-spacing: -1px;
+
+    @media (max-width: $bp-lg) {
+      font-size: $font-size-3xl;
+    }
+
+    .highlight {
+      color: $primary;
+    }
+  }
+
+  &__description {
+    font-size: $font-size-base;
+    color: $text-body;
+    line-height: 1.75;
+    max-width: 440px;
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: $spacing-4;
+    flex-wrap: wrap;
+    margin-top: $spacing-2;
+  }
+
+  &__btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-2;
+    background: $primary-dark;
+    color: $text-light;
+    font-size: $font-size-sm;
+    font-weight: 600;
+    padding: $spacing-3 $spacing-6;
+    border-radius: $radius-full;
+    border: 2px solid $primary-dark;
+    transition: all $transition-base;
+    box-shadow: 0 4px 16px rgba($primary, 0.35);
+
+    svg {
+      transition: transform $transition-base;
+    }
+
+    &:hover {
+      background: $primary;
+      border-color: $primary;
+      box-shadow: 0 6px 20px rgba($primary, 0.45);
+      transform: translateY(-2px);
+
+      svg {
+        transform: translateX(3px);
+      }
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+  }
+
+  &__btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-2;
+    background: transparent;
+    color: $text-dark;
+    font-size: $font-size-sm;
+    font-weight: 600;
+    padding: $spacing-3 $spacing-6;
+    border-radius: $radius-full;
+    border: 2px solid $border-color;
+    transition: all $transition-base;
+
+    &:hover {
+      border-color: $primary;
+      color: $primary;
+      background: rgba($primary, 0.04);
+      transform: translateY(-2px);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+  }
+
+  &__image-wrapper {
+    position: relative;
+    animation: fadeInRight 0.7s ease 0.15s both;
+
+    @media (max-width: $bp-md) {
+      order: -1;
+    }
+  }
+
+  &__image-card {
+    border-radius: $radius-xl;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+    position: relative;
+    aspect-ratio: 4/3;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+  }
+
+  &__image-decoration {
+    position: absolute;
+    width: 160px;
+    height: 160px;
+    background: rgba($primary, 0.12);
+    border-radius: 50%;
+    bottom: -40px;
+    right: -40px;
+    z-index: -1;
+  }
+
+  &__image-decoration-2 {
+    position: absolute;
+    width: 80px;
+    height: 80px;
+    background: rgba($primary, 0.08);
+    border-radius: 50%;
+    top: -20px;
+    left: -20px;
+    z-index: -1;
+  }
+}
+
+@keyframes fadeInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.8); }
+}

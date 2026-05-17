@@ -1,0 +1,82 @@
+@import '../../styles/variables';
+
+.stats {
+  padding: $spacing-16 0;
+  background: $bg-white;
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: $spacing-5;
+
+    @media (max-width: $bp-md) {
+      grid-template-columns: 1fr;
+      max-width: 360px;
+      margin: 0 auto;
+    }
+  }
+
+  &__card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: $spacing-3;
+    padding: $spacing-8 $spacing-6;
+    border-radius: $radius-lg;
+    border: 1.5px solid $border-color;
+    background: $bg-white;
+    text-align: center;
+    transition: all $transition-base;
+    cursor: default;
+
+    &:hover {
+      box-shadow: $shadow-md;
+      transform: translateY(-3px);
+    }
+
+    &--featured {
+      background: $primary;
+      border-color: $primary;
+      box-shadow: $shadow-lg;
+
+      &:hover {
+        background: $primary-dark;
+        border-color: $primary-dark;
+        box-shadow: 0 12px 36px rgba($primary, 0.3);
+        transform: translateY(-3px);
+      }
+
+      .stats__icon { color: rgba(255, 255, 255, 0.85); }
+      .stats__number { color: $text-light; }
+      .stats__label { color: rgba(255, 255, 255, 0.8); }
+    }
+  }
+
+  &__icon {
+    color: $primary;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    svg {
+      width: 36px;
+      height: 36px;
+    }
+  }
+
+  &__number {
+    font-size: $font-size-2xl;
+    font-weight: 800;
+    color: $text-dark;
+    letter-spacing: -0.5px;
+    line-height: 1;
+  }
+
+  &__label {
+    font-size: $font-size-sm;
+    color: $text-muted;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+  }
+}
