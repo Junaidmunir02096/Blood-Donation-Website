@@ -1,0 +1,500 @@
+@use '../../styles/variables' as *;
+
+/* ═══════════════════════════════════════════════
+   AUTH PAGE – Split-panel layout
+   ═══════════════════════════════════════════════ */
+
+.auth {
+  display: flex;
+  min-height: 100vh;
+  font-family: $font-family;
+
+  /* ── Left (hero) panel ──────────────────── */
+  &__left {
+    position: relative;
+    flex: 0 0 50%;
+    background: linear-gradient(160deg, #0e7c7b 0%, #0a5a5a 55%, #07403f 100%);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+
+    /* Decorative diagonal rays */
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(135deg, rgba(255,255,255,0.06) 0%, transparent 50%),
+        linear-gradient(45deg, rgba(255,255,255,0.03) 0%, transparent 60%);
+      pointer-events: none;
+    }
+  }
+
+  &__top-bar {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: $spacing-3;
+    padding: $spacing-5 $spacing-6 0;
+  }
+
+  &__back-btn {
+    display: flex;
+    align-items: center;
+    gap: $spacing-1;
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: $radius-full;
+    padding: $spacing-2 $spacing-4;
+    color: #fff;
+    font-family: $font-family;
+    font-size: $font-size-sm;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background $transition-fast, transform $transition-fast;
+
+    &:hover {
+      background: rgba(255,255,255,0.22);
+      transform: translateX(-2px);
+    }
+  }
+
+  &__back-icon {
+    width: 18px;
+    height: 18px;
+    fill: currentColor;
+  }
+
+  &__brand {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: $spacing-2;
+    font-size: $font-size-xl;
+    font-weight: 700;
+    color: $text-light;
+    letter-spacing: -0.02em;
+    text-decoration: none;
+    cursor: pointer;
+    transition: opacity $transition-fast;
+
+    &:hover { opacity: 0.85; }
+
+    span { color: $accent; }
+  }
+
+  &__brand-icon {
+    width: 26px;
+    height: 26px;
+    fill: $accent;
+  }
+
+
+  &__hero-img-wrap {
+    position: relative;
+    z-index: 1;
+    flex: 1;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding-top: $spacing-4;
+  }
+
+  &__hero-img {
+    width: 100%;
+    max-width: 420px;
+    height: auto;
+    object-fit: contain;
+    display: block;
+    filter: drop-shadow(0 20px 40px rgba(0,0,0,0.4));
+    animation: auth-float 5s ease-in-out infinite;
+  }
+
+  &__left-text {
+    position: absolute;
+    bottom: $spacing-10;
+    left: $spacing-8;
+    right: $spacing-8;
+    z-index: 3;
+    color: $text-light;
+    background: linear-gradient(to top, rgba(7,64,63,0.95), rgba(7,64,63,0.6) 80%, transparent);
+    padding: $spacing-6 $spacing-6 $spacing-4;
+    border-radius: $radius-lg;
+  }
+
+  &__hero-title {
+    font-size: $font-size-3xl;
+    font-weight: 800;
+    margin: 0 0 $spacing-3;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    line-height: 1.1;
+  }
+
+  &__hero-subtitle {
+    font-size: $font-size-sm;
+    line-height: 1.6;
+    opacity: 0.85;
+    margin: 0 0 $spacing-4;
+  }
+
+  &__hero-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: $radius-full;
+    padding: $spacing-2 $spacing-5;
+    font-size: $font-size-xs;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: #fff;
+  }
+
+  /* ── Right (form) panel ─────────────────── */
+  &__right {
+    flex: 0 0 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #faf6f5;
+    padding: $spacing-12 $spacing-10;
+    overflow-y: auto;
+  }
+
+  /* ── Form wrapper ───────────────────────── */
+  &__form-wrapper {
+    width: 100%;
+    max-width: 420px;
+  }
+
+  &__title {
+    font-size: $font-size-2xl;
+    font-weight: 800;
+    color: $text-dark;
+    margin: 0 0 $spacing-1;
+    letter-spacing: -0.02em;
+  }
+
+  &__subtitle {
+    font-size: $font-size-sm;
+    color: $text-muted;
+    margin: 0 0 $spacing-6;
+  }
+
+  /* ── Google button ──────────────────────── */
+  &__google-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: $spacing-3;
+    padding: $spacing-3 $spacing-5;
+    background: $bg-white;
+    border: 1.5px solid $border-color;
+    border-radius: $radius-md;
+    font-family: $font-family;
+    font-size: $font-size-base;
+    font-weight: 500;
+    color: $text-dark;
+    cursor: pointer;
+    transition: border-color $transition-fast, box-shadow $transition-fast;
+    margin-bottom: $spacing-5;
+
+    &:hover {
+      border-color: darken(#e8e0df, 10%);
+      box-shadow: $shadow-sm;
+    }
+  }
+
+  &__google-icon {
+    width: 20px;
+    height: 20px;
+  }
+
+  /* ── Divider ────────────────────────────── */
+  &__divider {
+    display: flex;
+    align-items: center;
+    gap: $spacing-3;
+    color: $text-muted;
+    font-size: $font-size-xs;
+    letter-spacing: 0.08em;
+    font-weight: 600;
+    margin-bottom: $spacing-5;
+
+    &::before,
+    &::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: $border-color;
+    }
+  }
+
+  /* ── Form ───────────────────────────────── */
+  &__form {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-4;
+  }
+
+  &__field {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-2;
+
+    &--error .auth__input-wrap {
+      border-color: $primary;
+      box-shadow: 0 0 0 3px rgba($primary, 0.12);
+    }
+  }
+
+  &__label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: $font-size-sm;
+    font-weight: 600;
+    color: $text-dark;
+  }
+
+  &__optional {
+    font-weight: 400;
+    color: $text-muted;
+    font-size: $font-size-xs;
+  }
+
+  &__input-wrap {
+    display: flex;
+    align-items: center;
+    background: $bg-white;
+    border: 1.5px solid $border-color;
+    border-radius: $radius-md;
+    padding: 0 $spacing-4;
+    transition: border-color $transition-fast, box-shadow $transition-fast;
+
+    &:focus-within {
+      border-color: $primary;
+      box-shadow: 0 0 0 3px rgba($primary, 0.12);
+    }
+  }
+
+  &__input-icon {
+    width: 18px;
+    height: 18px;
+    fill: $text-muted;
+    flex-shrink: 0;
+    margin-right: $spacing-3;
+  }
+
+  &__input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: $spacing-3 0;
+    font-family: $font-family;
+    font-size: $font-size-base;
+    color: $text-dark;
+    outline: none;
+
+    &::placeholder { color: #bbb; }
+  }
+
+  &__toggle-pw {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: $font-size-base;
+    padding: $spacing-2;
+    opacity: 0.6;
+    transition: opacity $transition-fast;
+    &:hover { opacity: 1; }
+  }
+
+  &__error {
+    font-size: $font-size-xs;
+    color: $primary;
+    font-weight: 500;
+  }
+
+  /* ── Blood group selector ───────────────── */
+  &__blood-group-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $spacing-2;
+  }
+
+  &__blood-btn {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: $spacing-2 $spacing-4;
+    border: 1.5px solid $border-color;
+    border-radius: $radius-md;
+    background: $bg-white;
+    font-family: $font-family;
+    font-size: $font-size-sm;
+    font-weight: 600;
+    color: $text-dark;
+    cursor: pointer;
+    transition: all $transition-fast;
+
+    &:hover {
+      border-color: $primary;
+      color: $primary;
+    }
+
+    &--active {
+      background: $primary;
+      border-color: $primary;
+      color: #fff;
+
+      &:hover {
+        background: $primary-dark;
+        border-color: $primary-dark;
+        color: #fff;
+      }
+    }
+  }
+
+  &__drop-icon {
+    width: 14px;
+    height: 14px;
+    fill: currentColor;
+  }
+
+  /* ── Primary button ─────────────────────── */
+  &__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: $spacing-2;
+    padding: $spacing-3 $spacing-6;
+    border-radius: $radius-md;
+    font-family: $font-family;
+    font-size: $font-size-base;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+    border: none;
+    transition: background $transition-fast, transform $transition-fast, box-shadow $transition-fast;
+
+    &--primary {
+      background: $primary;
+      color: #fff;
+
+      &:hover {
+        background: $primary-dark;
+        transform: translateY(-1px);
+        box-shadow: 0 6px 20px rgba($primary, 0.35);
+      }
+
+      &:active { transform: translateY(0); }
+    }
+
+    &--full {
+      width: 100%;
+      margin-top: $spacing-2;
+      padding: $spacing-4;
+      font-size: $font-size-base;
+    }
+  }
+
+  /* ── Switch link ────────────────────────── */
+  &__switch-text {
+    margin-top: $spacing-5;
+    text-align: center;
+    font-size: $font-size-sm;
+    color: $text-muted;
+  }
+
+  &__switch-link {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: $font-family;
+    font-size: $font-size-sm;
+    font-weight: 600;
+    color: $primary;
+    padding: 0;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+
+    &:hover { color: $primary-dark; }
+  }
+
+  &__forgot-link {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: $font-family;
+    font-size: $font-size-xs;
+    font-weight: 500;
+    color: $primary;
+    padding: 0;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+
+    &:hover { color: $primary-dark; }
+  }
+
+  /* ── Success state ──────────────────────── */
+  &__success {
+    text-align: center;
+    padding: $spacing-8;
+
+    h2 {
+      font-size: $font-size-2xl;
+      font-weight: 800;
+      color: $text-dark;
+      margin: $spacing-4 0 $spacing-3;
+    }
+
+    p {
+      color: $text-muted;
+      font-size: $font-size-sm;
+      margin-bottom: $spacing-6;
+      line-height: 1.6;
+    }
+  }
+
+  &__success-icon {
+    font-size: 3rem;
+    animation: auth-pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+}
+
+/* ══ Animations ══════════════════════════════════════════════ */
+@keyframes auth-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes auth-pop {
+  0% { transform: scale(0); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* ══ Responsive ══════════════════════════════════════════════ */
+@media (max-width: $bp-md) {
+  .auth {
+    flex-direction: column;
+
+    &__left {
+      flex: none;
+      min-height: 280px;
+    }
+
+    &__hero-img { max-width: 220px; }
+
+    &__right {
+      flex: none;
+      padding: $spacing-8 $spacing-5;
+    }
+
+    &__left-text { bottom: $spacing-4; left: $spacing-5; right: $spacing-5; }
+    &__hero-title { font-size: $font-size-xl; }
+  }
+}

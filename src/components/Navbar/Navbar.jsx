@@ -1,29 +1,55 @@
 import React from 'react';
 import './Navbar.scss';
 
-const Navbar = () => {
+const Navbar = ({ activePage = 'landing', onLoginClick, onDonateClick, onHomeClick, onSearchClick, onAboutClick }) => {
   return (
     <nav className="navbar" role="navigation" aria-label="Main navigation">
       <div className="container">
         <div className="navbar__inner">
           {/* Logo */}
-          <a href="#" className="navbar__logo" id="nav-logo">
+          <button
+            className="navbar__logo"
+            id="nav-logo"
+            onClick={onHomeClick}
+            aria-label="Go to home"
+          >
             Life<span>Stream</span>
-          </a>
+          </button>
 
           {/* Nav Links */}
           <ul className="navbar__nav" role="menubar">
             <li role="none">
-              <a href="#home" className="navbar__link navbar__link--active" id="nav-home" role="menuitem">Home</a>
+              <button
+                className={`navbar__link ${activePage === 'landing' ? 'navbar__link--active' : ''}`}
+                id="nav-home"
+                role="menuitem"
+                onClick={onHomeClick}
+              >
+                Home
+              </button>
             </li>
             <li role="none">
-              <a href="#search" className="navbar__link" id="nav-search" role="menuitem">Search Blood</a>
+              <button
+                className={`navbar__link ${activePage === 'search' ? 'navbar__link--active' : ''}`}
+                id="nav-search-blood"
+                role="menuitem"
+                onClick={onSearchClick}
+              >
+                Search Blood
+              </button>
             </li>
             <li role="none">
               <a href="#requests" className="navbar__link" id="nav-requests" role="menuitem">Requests</a>
             </li>
             <li role="none">
-              <a href="#about" className="navbar__link" id="nav-about" role="menuitem">About Us</a>
+              <button
+                className={`navbar__link ${activePage === 'about' ? 'navbar__link--active' : ''}`}
+                id="nav-about"
+                role="menuitem"
+                onClick={onAboutClick}
+              >
+                About Us
+              </button>
             </li>
           </ul>
 
@@ -38,8 +64,22 @@ const Navbar = () => {
 
           {/* Actions */}
           <div className="navbar__actions">
-            <button className="navbar__login-btn" id="btn-login" aria-label="Login">Login</button>
-            <button className="navbar__donate-btn" id="btn-donate-nav" aria-label="Donate Now">Donate Now</button>
+            <button
+              className="navbar__login-btn"
+              id="btn-login"
+              aria-label="Login"
+              onClick={onLoginClick}
+            >
+              Login
+            </button>
+            <button
+              className="navbar__donate-btn"
+              id="btn-donate-nav"
+              aria-label="Donate Now"
+              onClick={onDonateClick}
+            >
+              Donate Now
+            </button>
           </div>
         </div>
       </div>
@@ -48,3 +88,4 @@ const Navbar = () => {
 };
 
 export default Navbar;
+
