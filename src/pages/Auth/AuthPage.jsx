@@ -194,7 +194,7 @@ const RegisterForm = ({ onSwitch }) => {
 };
 
 // ─── Login Form ───────────────────────────────────────────────────────────────
-const LoginForm = ({ onSwitch }) => {
+const LoginForm = ({ onSwitch, onSuccess }) => {
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
@@ -226,7 +226,13 @@ const LoginForm = ({ onSwitch }) => {
         <div className="auth__success-icon">✅</div>
         <h2>Welcome back!</h2>
         <p>You've successfully logged in to LifeStream.</p>
-        <a href="/" className="auth__btn auth__btn--primary">Go to Dashboard →</a>
+        <button
+          type="button"
+          className="auth__btn auth__btn--primary"
+          onClick={onSuccess}
+        >
+          Go to Dashboard →
+        </button>
       </div>
     );
   }
@@ -323,7 +329,7 @@ const LoginForm = ({ onSwitch }) => {
 };
 
 // ─── Main Auth Page ───────────────────────────────────────────────────────────
-const AuthPage = ({ onBack }) => {
+const AuthPage = ({ onBack, onLoginSuccess }) => {
   const [mode, setMode] = useState('register'); // 'register' | 'login'
 
   return (
@@ -373,7 +379,7 @@ const AuthPage = ({ onBack }) => {
         {mode === 'register' ? (
           <RegisterForm onSwitch={() => setMode('login')} />
         ) : (
-          <LoginForm onSwitch={() => setMode('register')} />
+          <LoginForm onSwitch={() => setMode('register')} onSuccess={onLoginSuccess} />
         )}
       </div>
     </div>

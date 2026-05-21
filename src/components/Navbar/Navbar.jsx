@@ -1,7 +1,7 @@
 import React from 'react';
 import './Navbar.scss';
 
-const Navbar = ({ activePage = 'landing', onLoginClick, onDonateClick, onHomeClick, onSearchClick, onAboutClick }) => {
+const Navbar = ({ activePage = 'landing', onLoginClick, onDonateClick, onHomeClick, onSearchClick, onRequestClick, onAboutClick }) => {
   return (
     <nav className="navbar" role="navigation" aria-label="Main navigation">
       <div className="container">
@@ -39,7 +39,14 @@ const Navbar = ({ activePage = 'landing', onLoginClick, onDonateClick, onHomeCli
               </button>
             </li>
             <li role="none">
-              <a href="#requests" className="navbar__link" id="nav-requests" role="menuitem">Requests</a>
+              <button
+                className={`navbar__link ${activePage === 'request' ? 'navbar__link--active' : ''}`}
+                id="nav-requests"
+                role="menuitem"
+                onClick={onRequestClick}
+              >
+                Requests
+              </button>
             </li>
             <li role="none">
               <button
