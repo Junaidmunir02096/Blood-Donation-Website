@@ -1,0 +1,81 @@
+@import '../../styles/variables';
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+.dashboard-page {
+  height: 100%;
+  background: radial-gradient(circle at top right, rgba(250, 219, 216, 0.8), transparent 45%),
+    radial-gradient(circle at 10% 20%, rgba(253, 242, 240, 0.9), transparent 40%),
+    $primary-lighter;
+  font-family: 'Space Grotesk', 'Segoe UI', sans-serif;
+  overflow: hidden;
+}
+
+.dashboard-layout {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: $spacing-8;
+  align-items: start;
+  height: 100%;
+}
+
+.dashboard-main {
+  min-width: 0;
+  overflow-y: auto;
+  padding-right: $spacing-2;
+}
+
+.dashboard-placeholder {
+  background: $bg-white;
+  border-radius: $radius-xl;
+  border: 1px solid $border-color;
+  padding: $spacing-10;
+  box-shadow: $shadow-sm;
+  animation: dashboard-rise 0.5s ease both;
+}
+
+.dashboard-placeholder__title {
+  text-transform: capitalize;
+  font-size: $font-size-2xl;
+  font-weight: 600;
+  color: $text-dark;
+  margin-bottom: $spacing-2;
+}
+
+.dashboard-placeholder__text {
+  color: $text-body;
+}
+
+@keyframes dashboard-rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: $bp-lg) {
+  .dashboard-page {
+    height: auto;
+    padding: $spacing-6;
+  }
+
+  .dashboard-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-main {
+    overflow: visible;
+    padding-right: 0;
+  }
+}
+
+@media (max-width: $bp-sm) {
+  .dashboard-page {
+    padding: $spacing-4;
+  }
+}

@@ -1,0 +1,119 @@
+@import '../../styles/variables';
+
+.dashboard-sidebar {
+  background: $bg-white;
+  border-radius: $radius-xl;
+  border: 1px solid $border-color;
+  padding: $spacing-6;
+  box-shadow: $shadow-sm;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-6;
+  animation: dashboard-rise 0.5s ease both;
+  height: 100%;
+  position: sticky;
+  top: 0;
+}
+
+.dashboard-sidebar__profile {
+  display: flex;
+  align-items: center;
+  gap: $spacing-4;
+}
+
+.dashboard-sidebar__avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: $radius-full;
+  background: linear-gradient(135deg, #f3b3ab, #c0392b);
+  color: $text-light;
+  font-weight: 600;
+  display: grid;
+  place-items: center;
+  letter-spacing: 0.5px;
+}
+
+.dashboard-sidebar__welcome {
+  font-size: $font-size-sm;
+  color: $text-muted;
+}
+
+.dashboard-sidebar__name {
+  font-size: $font-size-base;
+  font-weight: 600;
+  color: $text-dark;
+}
+
+.dashboard-sidebar__cta {
+  background: $primary;
+  color: $text-light;
+  padding: $spacing-3 $spacing-4;
+  border-radius: $radius-full;
+  font-weight: 600;
+  transition: transform $transition-fast, box-shadow $transition-fast;
+  box-shadow: 0 8px 18px rgba(192, 57, 43, 0.2);
+}
+
+.dashboard-sidebar__cta:hover {
+  transform: translateY(-1px);
+}
+
+.dashboard-sidebar__nav {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-2;
+  flex: 1;
+  overflow-y: auto;
+  padding-right: $spacing-2;
+}
+
+.dashboard-sidebar__tab {
+  display: flex;
+  align-items: center;
+  gap: $spacing-3;
+  padding: $spacing-3 $spacing-4;
+  border-radius: $radius-lg;
+  background: transparent;
+  color: $text-body;
+  font-weight: 500;
+  transition: background $transition-base, color $transition-base;
+}
+
+.dashboard-sidebar__tab-icon {
+  font-size: 18px;
+  display: grid;
+  place-items: center;
+}
+
+.dashboard-sidebar__tab--active {
+  background: $primary-light;
+  color: $primary-dark;
+  box-shadow: inset 0 0 0 1px rgba(192, 57, 43, 0.2);
+}
+
+.dashboard-sidebar__footer {
+  margin-top: auto;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  gap: $spacing-3;
+}
+
+.dashboard-sidebar__footer-link {
+  background: none;
+  text-align: left;
+  color: $text-body;
+  font-weight: 500;
+}
+
+.dashboard-sidebar__footer-link--muted {
+  color: $text-muted;
+}
+
+@media (max-width: $bp-lg) {
+  .dashboard-sidebar {
+    position: relative;
+    top: auto;
+    height: auto;
+  }
+}
