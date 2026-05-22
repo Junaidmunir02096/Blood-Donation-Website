@@ -7,6 +7,9 @@ import {
   faGear,
   faShieldHalved,
   faTableColumns,
+  faCircleQuestion,
+  faRightFromBracket,
+  faPlus,
 } from '@fortawesome/free-solid-svg-icons';
 import './DashboardSidebar.scss';
 
@@ -16,15 +19,16 @@ const tabs = [
   { id: 'active-requests', label: 'Active Requests', icon: faDroplet },
   { id: 'messages', label: 'Messages', icon: faEnvelope },
   { id: 'admin-panel', label: 'Admin Panel', icon: faShieldHalved },
-  { id: 'settings', label: 'Settings', icon: faGear },
+  { id: 'settings', label: 'Settings', icon: faGear },  
 ];
 
 const DashboardSidebar = ({ activeTab, onTabChange }) => {
   return (
     <aside className="dashboard-sidebar" aria-label="Dashboard navigation">
+      {/* Profile */}
       <div className="dashboard-sidebar__profile">
-        <div className="dashboard-sidebar__avatar" aria-hidden="true">
-          <span>AJ</span>
+        <div className="dashboard-sidebar__avatar-fallback" aria-hidden="true">
+          AJ
         </div>
         <div>
           <p className="dashboard-sidebar__welcome">Welcome back,</p>
@@ -32,11 +36,19 @@ const DashboardSidebar = ({ activeTab, onTabChange }) => {
         </div>
       </div>
 
-      <button className="dashboard-sidebar__cta" id="dashboard-new-request" type="button">
-        + New Request
+      {/* New Request CTA */}
+      <button
+        className="dashboard-sidebar__cta"
+        id="dashboard-new-request"
+        type="button"
+        onClick={() => onTabChange('active-requests')}
+      >
+        <FontAwesomeIcon icon={faPlus} />
+        New Request
       </button>
 
-      <nav className="dashboard-sidebar__nav">
+      {/* Main Navigation */}
+      <nav className="dashboard-sidebar__nav" aria-label="Main navigation">
         {tabs.map((tab) => (
           <button
             key={tab.id}
@@ -45,7 +57,7 @@ const DashboardSidebar = ({ activeTab, onTabChange }) => {
             onClick={() => onTabChange(tab.id)}
             aria-current={activeTab === tab.id ? 'page' : undefined}
           >
-            <span className="dashboard-sidebar__tab-icon">
+            <span className="dashboard-sidebar__tab-icon" aria-hidden="true">
               <FontAwesomeIcon icon={tab.icon} />
             </span>
             <span>{tab.label}</span>
@@ -53,19 +65,28 @@ const DashboardSidebar = ({ activeTab, onTabChange }) => {
         ))}
       </nav>
 
+      {/* Footer Links */}
       <div className="dashboard-sidebar__footer">
         <button
           type="button"
           className="dashboard-sidebar__footer-link"
           onClick={() => onTabChange('help-center')}
+          id="sidebar-help"
         >
+          <span className="dashboard-sidebar__footer-icon" aria-hidden="true">
+            <FontAwesomeIcon icon={faCircleQuestion} />
+          </span>
           Help Center
         </button>
         <button
           type="button"
           className="dashboard-sidebar__footer-link dashboard-sidebar__footer-link--muted"
           onClick={() => onTabChange('logout')}
+          id="sidebar-logout"
         >
+          <span className="dashboard-sidebar__footer-icon" aria-hidden="true">
+            <FontAwesomeIcon icon={faRightFromBracket} />
+          </span>
           Logout
         </button>
       </div>

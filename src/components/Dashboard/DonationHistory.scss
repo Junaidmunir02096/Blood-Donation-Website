@@ -1,0 +1,220 @@
+@import '../../styles/variables';
+
+// ─── Section wrapper ─────────────────────────────────────────────────────────
+.donation-history {
+  animation: dashboard-rise 0.4s ease both;
+}
+
+// ─── Card ────────────────────────────────────────────────────────────────────
+.dh-card {
+  background: $bg-white;
+  border-radius: $radius-xl;
+  border: 1px solid $border-color;
+  box-shadow: $shadow-sm;
+  overflow: hidden;
+}
+
+.dh-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-4;
+  padding: $spacing-5 $spacing-6;
+  border-bottom: 1px solid $border-color;
+  background: $bg-white;
+}
+
+.dh-card__title {
+  font-size: $font-size-lg;
+  font-weight: 700;
+  color: $text-dark;
+  letter-spacing: -0.2px;
+}
+
+// ─── Export Button ───────────────────────────────────────────────────────────
+.dh-card__export-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-2;
+  padding: 8px $spacing-4;
+  border-radius: $radius-md;
+  border: 1px solid $border-color;
+  background: $bg-white;
+  color: $text-dark;
+  font-size: $font-size-sm;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background $transition-fast, border-color $transition-fast,
+    box-shadow $transition-fast, transform $transition-fast;
+
+  svg {
+    font-size: 13px;
+    color: $text-muted;
+    transition: color $transition-fast;
+  }
+
+  &:hover {
+    background: $primary-lighter;
+    border-color: rgba(192, 57, 43, 0.3);
+    color: $primary-dark;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(192, 57, 43, 0.1);
+
+    svg {
+      color: $primary;
+    }
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: none;
+  }
+}
+
+// ─── Table Wrapper (horizontal scroll on small screens) ──────────────────────
+.dh-table-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+
+  &:focus {
+    outline: none;
+  }
+}
+
+// ─── Table ───────────────────────────────────────────────────────────────────
+.dh-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: $font-size-sm;
+}
+
+// ─── Table Head ──────────────────────────────────────────────────────────────
+.dh-table__th {
+  padding: 10px $spacing-6;
+  text-align: left;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.7px;
+  text-transform: uppercase;
+  color: $text-muted;
+  background: $primary-lighter;
+  border-bottom: 1px solid $border-color;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.dh-table__th--sortable {
+  cursor: pointer;
+
+  &:hover {
+    color: $primary-dark;
+    background: $primary-light;
+  }
+}
+
+.dh-table__th--sorted {
+  color: $primary-dark;
+}
+
+.dh-table__sort-icon {
+  margin-left: 6px;
+  font-size: 10px;
+  vertical-align: middle;
+}
+
+.dh-table__sort-icon--idle {
+  color: $border-color;
+}
+
+.dh-table__sort-icon--active {
+  color: $primary;
+}
+
+// ─── Table Rows ──────────────────────────────────────────────────────────────
+.dh-table__row {
+  border-bottom: 1px solid $border-color;
+  animation: dashboard-rise 0.35s ease both;
+  transition: background $transition-fast;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:hover {
+    background: $primary-lighter;
+  }
+}
+
+.dh-table__td {
+  padding: $spacing-4 $spacing-6;
+  color: $text-body;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.dh-table__td--date {
+  color: $text-dark;
+  font-weight: 500;
+}
+
+// ─── Status Badge ────────────────────────────────────────────────────────────
+.dh-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 12px;
+  border-radius: $radius-full;
+  font-size: $font-size-xs;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.dh-badge--completed {
+  background: rgba(39, 174, 96, 0.1);
+  color: #1a7a3e;
+  border: 1px solid rgba(39, 174, 96, 0.25);
+
+  svg {
+    font-size: 11px;
+    color: #27ae60;
+  }
+}
+
+.dh-badge--pending {
+  background: rgba(243, 156, 18, 0.1);
+  color: #a0700e;
+  border: 1px solid rgba(243, 156, 18, 0.25);
+}
+
+.dh-badge--cancelled {
+  background: rgba(192, 57, 43, 0.08);
+  color: $primary-dark;
+  border: 1px solid rgba(192, 57, 43, 0.2);
+}
+
+// ─── Footer ──────────────────────────────────────────────────────────────────
+.dh-card__footer {
+  padding: $spacing-3 $spacing-6;
+  font-size: $font-size-xs;
+  color: $text-muted;
+  border-top: 1px solid $border-color;
+  background: $primary-lighter;
+
+  strong {
+    color: $text-dark;
+    font-weight: 600;
+  }
+}
+
+// ─── Responsive ──────────────────────────────────────────────────────────────
+@media (max-width: $bp-md) {
+  .dh-card__header {
+    padding: $spacing-4;
+    flex-wrap: wrap;
+  }
+
+  .dh-table__th,
+  .dh-table__td {
+    padding: $spacing-3 $spacing-4;
+  }
+}

@@ -1,29 +1,33 @@
 @import '../../styles/variables';
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 .dashboard-page {
-  height: 100%;
-  background: radial-gradient(circle at top right, rgba(250, 219, 216, 0.8), transparent 45%),
-    radial-gradient(circle at 10% 20%, rgba(253, 242, 240, 0.9), transparent 40%),
-    $primary-lighter;
-  font-family: 'Space Grotesk', 'Segoe UI', sans-serif;
+  min-height: 100vh;
+  height: 100vh;
+  background: #f7f3f2;
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+  display: flex;
   overflow: hidden;
 }
 
 .dashboard-layout {
-  max-width: 1200px;
-  margin: 0 auto;
-  display: grid;
-  grid-template-columns: 260px 1fr;
-  gap: $spacing-8;
-  align-items: start;
-  height: 100%;
+  display: flex;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
 }
 
 .dashboard-main {
+  flex: 1;
   min-width: 0;
   overflow-y: auto;
-  padding-right: $spacing-2;
+  padding: $spacing-8;
+}
+
+// Messages tab: remove padding so chat fills the space edge-to-edge
+.dashboard-main--chat {
+  padding: 0;
+  overflow: hidden;
 }
 
 .dashboard-placeholder {
@@ -32,7 +36,7 @@
   border: 1px solid $border-color;
   padding: $spacing-10;
   box-shadow: $shadow-sm;
-  animation: dashboard-rise 0.5s ease both;
+  animation: dashboard-rise 0.4s ease both;
 }
 
 .dashboard-placeholder__title {
@@ -50,7 +54,7 @@
 @keyframes dashboard-rise {
   from {
     opacity: 0;
-    transform: translateY(16px);
+    transform: translateY(12px);
   }
   to {
     opacity: 1;
@@ -60,22 +64,24 @@
 
 @media (max-width: $bp-lg) {
   .dashboard-page {
+    flex-direction: column;
     height: auto;
-    padding: $spacing-6;
+    overflow: visible;
   }
 
   .dashboard-layout {
-    grid-template-columns: 1fr;
+    flex-direction: column;
+    height: auto;
   }
 
   .dashboard-main {
     overflow: visible;
-    padding-right: 0;
+    padding: $spacing-6;
   }
 }
 
 @media (max-width: $bp-sm) {
-  .dashboard-page {
+  .dashboard-main {
     padding: $spacing-4;
   }
 }

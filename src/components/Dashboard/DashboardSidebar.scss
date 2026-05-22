@@ -1,102 +1,178 @@
 @import '../../styles/variables';
 
+// ─── Sidebar Shell ──────────────────────────────────────────────────────────
 .dashboard-sidebar {
+  width: 18rem;
+  min-width: 220px;
   background: $bg-white;
-  border-radius: $radius-xl;
-  border: 1px solid $border-color;
-  padding: $spacing-6;
-  box-shadow: $shadow-sm;
+  border-right: 1px solid $border-color;
   display: flex;
   flex-direction: column;
-  gap: $spacing-6;
-  animation: dashboard-rise 0.5s ease both;
-  height: 100%;
+  padding: $spacing-6 $spacing-5;
+  gap: 0;
+  height: 100vh;
+  overflow: hidden; // shell never scrolls — only the nav does
   position: sticky;
   top: 0;
+  flex-shrink: 0;
 }
 
+// ─── Profile ────────────────────────────────────────────────────────────────
 .dashboard-sidebar__profile {
   display: flex;
   align-items: center;
-  gap: $spacing-4;
+  gap: $spacing-3;
+  margin-bottom: $spacing-5;
 }
 
 .dashboard-sidebar__avatar {
-  width: 56px;
-  height: 56px;
+  width: 52px;
+  height: 52px;
+  border-radius: $radius-full;
+  overflow: hidden;
+  flex-shrink: 0;
+  border: 2px solid $border-color;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.dashboard-sidebar__avatar-fallback {
+  width: 52px;
+  height: 52px;
   border-radius: $radius-full;
   background: linear-gradient(135deg, #f3b3ab, #c0392b);
   color: $text-light;
-  font-weight: 600;
+  font-weight: 700;
+  font-size: $font-size-base;
   display: grid;
   place-items: center;
+  flex-shrink: 0;
   letter-spacing: 0.5px;
 }
 
 .dashboard-sidebar__welcome {
-  font-size: $font-size-sm;
+  font-size: 0.72rem;
   color: $text-muted;
+  margin-bottom: 2px;
+  letter-spacing: 0.3px;
 }
 
 .dashboard-sidebar__name {
-  font-size: $font-size-base;
-  font-weight: 600;
+  font-size: $font-size-sm;
+  font-weight: 700;
   color: $text-dark;
+  letter-spacing: 0.2px;
 }
 
+// ─── CTA Button ─────────────────────────────────────────────────────────────
 .dashboard-sidebar__cta {
   background: $primary;
   color: $text-light;
-  padding: $spacing-3 $spacing-4;
-  border-radius: $radius-full;
+  padding: 10px $spacing-4;
+  border-radius: $radius-md;
   font-weight: 600;
-  transition: transform $transition-fast, box-shadow $transition-fast;
-  box-shadow: 0 8px 18px rgba(192, 57, 43, 0.2);
+  font-size: $font-size-sm;
+  transition: background $transition-fast, transform $transition-fast, box-shadow $transition-fast;
+  box-shadow: 0 4px 14px rgba(192, 57, 43, 0.3);
+  margin-bottom: $spacing-5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-2;
+  width: 100%;
+  letter-spacing: 0.2px;
+
+  &:hover {
+    background: $primary-dark;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(192, 57, 43, 0.35);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
 }
 
-.dashboard-sidebar__cta:hover {
-  transform: translateY(-1px);
-}
-
+// ─── Nav ────────────────────────────────────────────────────────────────────
 .dashboard-sidebar__nav {
   display: flex;
   flex-direction: column;
-  gap: $spacing-2;
-  flex: 1;
+  gap: 2px;
+  flex: 1;         // grows to fill available space between CTA and footer
+  min-height: 0;   // CRITICAL: allows flex child to shrink so scroll kicks in
   overflow-y: auto;
-  padding-right: $spacing-2;
+  overflow-x: hidden;
+  // subtle scrollbar styling
+  scrollbar-width: thin;
+  scrollbar-color: $border-color transparent;
+
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: $border-color;
+    border-radius: $radius-full;
+  }
 }
 
 .dashboard-sidebar__tab {
   display: flex;
   align-items: center;
   gap: $spacing-3;
-  padding: $spacing-3 $spacing-4;
-  border-radius: $radius-lg;
+  padding: 10px $spacing-3;
+  border-radius: 0 $radius-md $radius-md 0; // top-left 0, bottom-left 0 by default too
   background: transparent;
   color: $text-body;
   font-weight: 500;
-  transition: background $transition-base, color $transition-base;
+  font-size: $font-size-sm;
+  transition: background $transition-fast, color $transition-fast, border-color $transition-fast;
+  width: 100%;
+  text-align: left;
+  border-right: 2px solid transparent; // placeholder so layout doesn't shift on active
+
+  &:hover:not(.dashboard-sidebar__tab--active) {
+    background: $primary-lighter;
+    color: $primary-dark;
+  }
 }
 
 .dashboard-sidebar__tab-icon {
-  font-size: 18px;
+  font-size: 15px;
+  width: 20px;
   display: grid;
   place-items: center;
+  flex-shrink: 0;
+  color: $text-muted;
+  transition: color $transition-fast;
 }
 
 .dashboard-sidebar__tab--active {
   background: $primary-light;
   color: $primary-dark;
-  box-shadow: inset 0 0 0 1px rgba(192, 57, 43, 0.2);
+  font-weight: 600;
+  border-radius: 0 $radius-md $radius-md 0; // left corners = 0, right corners = rounded
+  border-right: 2px solid $primary;         // red right-side accent
+
+  .dashboard-sidebar__tab-icon {
+    color: $primary-dark;
+  }
 }
 
+// ─── Footer ─────────────────────────────────────────────────────────────────
 .dashboard-sidebar__footer {
-  margin-top: auto;
+  border-top: 1px solid $border-color;
+  padding-top: $spacing-4;
+  margin-top: $spacing-4;
   display: flex;
-  justify-content: center;
   flex-direction: column;
-  gap: $spacing-3;
+  gap: $spacing-1;
 }
 
 .dashboard-sidebar__footer-link {
@@ -104,16 +180,57 @@
   text-align: left;
   color: $text-body;
   font-weight: 500;
+  font-size: $font-size-sm;
+  padding: 8px $spacing-3;
+  border-radius: $radius-md;
+  display: flex;
+  align-items: center;
+  gap: $spacing-3;
+  transition: background $transition-fast, color $transition-fast;
+
+  &:hover {
+    background: $primary-lighter;
+    color: $primary-dark;
+  }
+}
+
+.dashboard-sidebar__footer-icon {
+  font-size: 15px;
+  width: 20px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  color: $text-muted;
 }
 
 .dashboard-sidebar__footer-link--muted {
   color: $text-muted;
 }
 
+// ─── Responsive ─────────────────────────────────────────────────────────────
 @media (max-width: $bp-lg) {
   .dashboard-sidebar {
-    position: relative;
-    top: auto;
+    width: 100%;
+    min-width: 0;
     height: auto;
+    position: relative;
+    border-right: none;
+    border-bottom: 1px solid $border-color;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: $spacing-4;
+    padding: $spacing-4 $spacing-5;
+  }
+
+  .dashboard-sidebar__nav {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .dashboard-sidebar__footer {
+    flex-direction: row;
+    border-top: none;
+    padding-top: 0;
+    margin-top: 0;
   }
 }
