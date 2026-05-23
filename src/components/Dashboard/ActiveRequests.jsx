@@ -4,85 +4,11 @@ import {
   faUser,
   faCalendarAlt,
   faDroplet,
-  faCircleCheck,
-  faCircleXmark,
-  faClock,
 } from '@fortawesome/free-solid-svg-icons';
 import './ActiveRequests.scss';
+import { requests, filters, statusConfig } from '../../data/requests.data';
 
-// ── Data ──────────────────────────────────────────────────────────────────────
-const requests = [
-  {
-    id: 'req-1',
-    blood: 'O+',
-    hospital: 'City General Hospital',
-    patient: 'Sarah Jenkins',
-    neededBy: 'Oct 24, 2024',
-    units: 2,
-    status: 'Pending',
-  },
-  {
-    id: 'req-2',
-    blood: 'A-',
-    hospital: 'Mercy Medical Center',
-    patient: 'Michael Chang',
-    neededBy: 'Oct 20, 2024',
-    units: 1,
-    status: 'Approved',
-  },
-  {
-    id: 'req-3',
-    blood: 'AB+',
-    hospital: "St. Jude's Children's",
-    patient: 'Emily Davis',
-    neededBy: 'Oct 15, 2024',
-    units: 3,
-    status: 'Rejected',
-  },
-  {
-    id: 'req-4',
-    blood: 'B+',
-    hospital: 'Metro Regional Blood Center',
-    patient: 'Liam Torres',
-    neededBy: 'Nov 02, 2024',
-    units: 2,
-    status: 'Pending',
-  },
-  {
-    id: 'req-5',
-    blood: 'O-',
-    hospital: 'Sunrise Medical Hospital',
-    patient: 'Aisha Patel',
-    neededBy: 'Oct 30, 2024',
-    units: 1,
-    status: 'Approved',
-  },
-];
 
-// ── Filter Tabs ───────────────────────────────────────────────────────────────
-const filters = ['All', 'Pending', 'Approved', 'Rejected'];
-
-// ── Status Config ─────────────────────────────────────────────────────────────
-const statusConfig = {
-  Pending: {
-    label: 'Pending Review',
-    icon: faClock,
-    modifier: 'pending',
-    action: 'View Details',
-  },
-  Approved: {
-    label: 'Approved',
-    icon: faCircleCheck,
-    modifier: 'approved',
-    action: 'Contact Donor',
-  },
-  Rejected: {
-    label: 'Rejected',
-    icon: faCircleXmark,
-    modifier: 'rejected',
-    action: 'View Reason',
-  },
-};
 
 // ── Blood type color modifier ─────────────────────────────────────────────────
 const bloodModifier = (type) => {
