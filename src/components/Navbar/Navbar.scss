@@ -147,11 +147,8 @@
     border-radius: $radius-full;
     border: 1.5px solid transparent;
     transition: all $transition-base;
-
-    &:hover {
-      color: $primary;
-      border-color: $primary;
-    }
+    color: $primary;
+    border-color: $primary;
   }
 
   &__donate-btn {

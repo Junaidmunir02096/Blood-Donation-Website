@@ -1,6 +1,7 @@
 @import '../../styles/variables';
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
+/* ── Full-screen shell ───────────────────────────────────── */
 .dashboard-page {
   min-height: 100vh;
   height: 100vh;
@@ -8,80 +9,77 @@
   font-family: 'Inter', 'Segoe UI', sans-serif;
   display: flex;
   overflow: hidden;
+
+  @media (max-width: $bp-lg) {
+    flex-direction: column;
+    height: 100vh;   // keep fixed height so topbar is sticky
+    overflow: hidden;
+  }
 }
 
+/* ── Side-by-side layout ─────────────────────────────────── */
 .dashboard-layout {
   display: flex;
   width: 100%;
   height: 100vh;
   overflow: hidden;
+
+  @media (max-width: $bp-lg) {
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+  }
 }
 
+/* ── Scrollable content area ─────────────────────────────── */
 .dashboard-main {
   flex: 1;
   min-width: 0;
   overflow-y: auto;
-  padding: $spacing-8;
+  padding: 2rem;
+
+  @media (max-width: $bp-lg) {
+    padding: 1.5rem;
+    // fill remaining height after the topbar (3.375rem)
+    height: calc(100vh - 3.375rem);
+    overflow-y: auto;
+  }
+
+  @media (max-width: $bp-sm) {
+    padding: 1rem;
+  }
 }
 
-// Messages tab: remove padding so chat fills the space edge-to-edge
+/* ── Messages tab: edge-to-edge ──────────────────────────── */
 .dashboard-main--chat {
   padding: 0;
   overflow: hidden;
 }
 
+/* ── Placeholder card ────────────────────────────────────── */
 .dashboard-placeholder {
   background: $bg-white;
   border-radius: $radius-xl;
-  border: 1px solid $border-color;
-  padding: $spacing-10;
+  border: 0.0625rem solid $border-color;
+  padding: 2.5rem;
   box-shadow: $shadow-sm;
   animation: dashboard-rise 0.4s ease both;
 }
 
 .dashboard-placeholder__title {
   text-transform: capitalize;
-  font-size: $font-size-2xl;
+  font-size: 1.5rem;
   font-weight: 600;
   color: $text-dark;
-  margin-bottom: $spacing-2;
+  margin-bottom: 0.5rem;
 }
 
 .dashboard-placeholder__text {
   color: $text-body;
 }
 
+/* ── Keyframes ───────────────────────────────────────────── */
 @keyframes dashboard-rise {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@media (max-width: $bp-lg) {
-  .dashboard-page {
-    flex-direction: column;
-    height: auto;
-    overflow: visible;
-  }
-
-  .dashboard-layout {
-    flex-direction: column;
-    height: auto;
-  }
-
-  .dashboard-main {
-    overflow: visible;
-    padding: $spacing-6;
-  }
-}
-
-@media (max-width: $bp-sm) {
-  .dashboard-main {
-    padding: $spacing-4;
-  }
+  from { opacity: 0; transform: translateY(0.75rem); }
+  to   { opacity: 1; transform: translateY(0); }
 }

@@ -4,6 +4,8 @@ import DashboardOverview from '../../components/Dashboard/DashboardOverview';
 import DonationHistory from '../../components/Dashboard/DonationHistory';
 import ActiveRequests from '../../components/Dashboard/ActiveRequests';
 import Messages from '../../components/Dashboard/Messages';
+import AdminPanel from '../../components/Dashboard/AdminPanel';
+import MyProfile from '../../components/Dashboard/MyProfile';
 import './DashboardPage.scss';
 
 const DashboardPage = () => {
@@ -19,6 +21,10 @@ const DashboardPage = () => {
         return <ActiveRequests />;
       case 'messages':
         return <Messages />;
+      case 'admin-panel':
+        return <AdminPanel />;
+      case 'settings':
+        return <MyProfile />;
       default:
         return (
           <div className="dashboard-placeholder" role="status">

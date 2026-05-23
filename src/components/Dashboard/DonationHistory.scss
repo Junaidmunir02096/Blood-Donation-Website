@@ -71,10 +71,21 @@
   }
 }
 
-// ─── Table Wrapper (horizontal scroll on small screens) ──────────────────────
+// ─── Table Wrapper (horizontal scroll — scrollbar hidden) ────────────────────
 .dh-table-wrapper {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
+
+  // Hide scrollbar — Chrome, Safari, Opera
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  // Hide scrollbar — Firefox
+  scrollbar-width: none;
+
+  // Hide scrollbar — IE / legacy Edge
+  -ms-overflow-style: none;
 
   &:focus {
     outline: none;
