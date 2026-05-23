@@ -1,0 +1,731 @@
+@import '../../styles/variables';
+
+/* ══════════════════════════════════════════════════
+   Admin Panel — Base Layout
+══════════════════════════════════════════════════ */
+.admin-panel {
+  padding: 2rem 2.25rem;
+  background: $bg-light;
+  min-height: 100%;
+  animation: adminFadeIn 0.35s ease;
+
+  @media (max-width: $bp-md) {
+    padding: 1.25rem 1rem;
+  }
+
+  /* ── Header ─────────────────────────────────── */
+  &__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.75rem;
+  }
+
+  &__header-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  &__title-row {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+  }
+
+  &__shield-icon {
+    color: $primary;
+    font-size: 1.375rem;
+  }
+
+  &__title {
+    font-size: 1.625rem;
+    font-weight: 800;
+    color: $text-dark;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+
+    @media (max-width: $bp-sm) {
+      font-size: 1.25rem;
+    }
+  }
+
+  &__subtitle {
+    font-size: 0.875rem;
+    color: $text-muted;
+    margin-left: calc(1.375rem + 0.625rem); // align below shield icon
+  }
+
+  &__notif-btn {
+    position: relative;
+    width: 2.625rem;
+    height: 2.625rem;
+    border-radius: $radius-md;
+    background: $bg-white;
+    border: 0.0625rem solid $border-color;
+    color: $text-body;
+    font-size: 1.0625rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all $transition-base;
+    box-shadow: $shadow-sm;
+
+    &:hover {
+      background: $primary-lighter;
+      color: $primary;
+      border-color: $primary-light;
+      transform: translateY(-0.0625rem);
+    }
+  }
+
+  &__notif-badge {
+    position: absolute;
+    top: -0.375rem;
+    right: -0.375rem;
+    width: 1.125rem;
+    height: 1.125rem;
+    border-radius: $radius-full;
+    background: $primary;
+    color: #fff;
+    font-size: 0.625rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 0.125rem solid $bg-light;
+    animation: pulseDot 2s infinite;
+  }
+
+  /* ── Tabs ────────────────────────────────────── */
+  &__tabs-wrap {
+    margin-bottom: 1.25rem;
+  }
+}
+
+/* ══════════════════════════════════════════════════
+   Stats Cards
+══════════════════════════════════════════════════ */
+.admin-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.125rem;
+  margin-bottom: 2rem;
+
+  @media (max-width: $bp-md) {
+    grid-template-columns: 1fr;
+    gap: 0.875rem;
+  }
+
+  @media (min-width: $bp-sm) and (max-width: $bp-md) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  &__card {
+    background: $bg-white;
+    border-radius: $radius-lg;
+    border: 0.0625rem solid $border-color;
+    padding: 1.375rem 1.5rem;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    box-shadow: $shadow-sm;
+    transition: all $transition-base;
+    animation: slideUpCard 0.4s ease backwards;
+
+    &:nth-child(1) { animation-delay: 0.05s; }
+    &:nth-child(2) { animation-delay: 0.1s; }
+    &:nth-child(3) { animation-delay: 0.15s; }
+
+    &:hover {
+      box-shadow: $shadow-md;
+      transform: translateY(-0.125rem);
+    }
+  }
+
+  &__card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  &__label {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: $text-muted;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  &__value-row {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  &__value {
+    font-size: 2rem;
+    font-weight: 800;
+    color: $text-dark;
+    line-height: 1;
+    letter-spacing: -0.03em;
+  }
+
+  &__unit {
+    font-size: 0.75rem;
+    color: $text-muted;
+    font-weight: 500;
+  }
+
+  &__trend {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #16a34a;
+    background: #dcfce7;
+    padding: 0.1875rem 0.5rem;
+    border-radius: $radius-full;
+
+    svg {
+      font-size: 0.625rem;
+    }
+  }
+
+  &__icon-wrap {
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: $radius-md;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.125rem;
+    flex-shrink: 0;
+    transition: transform $transition-base;
+
+    .admin-stats__card:hover & {
+      transform: scale(1.1) rotate(5deg);
+    }
+
+    &--red {
+      background: $primary-lighter;
+      color: $primary;
+    }
+
+    &--teal {
+      background: #e0f2f1;
+      color: #00796b;
+    }
+
+    &--indigo {
+      background: #ede9fe;
+      color: #7c3aed;
+    }
+  }
+}
+
+/* ══════════════════════════════════════════════════
+   Tabs
+══════════════════════════════════════════════════ */
+.admin-tabs {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  border-bottom: 0.125rem solid $border-color;
+  margin-bottom: 1.5rem;
+
+  &__tab {
+    position: relative;
+    padding: 0.6875rem 1.375rem;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: $text-muted;
+    background: transparent;
+    border-bottom: 0.1875rem solid transparent;
+    margin-bottom: -0.125rem;
+    transition: all $transition-fast;
+    border-radius: $radius-sm $radius-sm 0 0;
+
+    &:hover {
+      color: $primary;
+      background: $primary-lighter;
+    }
+
+    &--active {
+      color: $primary;
+      font-weight: 700;
+      border-bottom-color: $primary;
+    }
+  }
+}
+
+/* ══════════════════════════════════════════════════
+   Table Section
+══════════════════════════════════════════════════ */
+.admin-table-section {
+  background: $bg-white;
+  border-radius: $radius-lg;
+  border: 0.0625rem solid $border-color;
+  box-shadow: $shadow-sm;
+  overflow: hidden;
+  animation: adminFadeIn 0.3s ease;
+}
+
+/* ── Toolbar ─────────────────────────────────── */
+.admin-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 1.125rem 1.375rem;
+  border-bottom: 0.0625rem solid $border-color;
+
+  @media (max-width: $bp-sm) {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+.admin-search-wrap {
+  position: relative;
+  flex: 1;
+  max-width: 22rem;
+
+  @media (max-width: $bp-sm) {
+    max-width: 100%;
+  }
+
+  &__icon {
+    position: absolute;
+    left: 0.875rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: $text-muted;
+    font-size: 0.8125rem;
+    pointer-events: none;
+  }
+
+  &__input {
+    width: 100%;
+    padding: 0.5625rem 0.875rem 0.5625rem 2.375rem;
+    border: 0.0625rem solid $border-color;
+    border-radius: $radius-md;
+    font-size: 0.875rem;
+    color: $text-body;
+    background: $bg-light;
+    font-family: $font-family;
+    transition: all $transition-fast;
+    outline: none;
+
+    &::placeholder {
+      color: $text-muted;
+    }
+
+    &:focus {
+      border-color: $primary-light;
+      background: $bg-white;
+      box-shadow: 0 0 0 0.1875rem rgba($primary, 0.08);
+    }
+  }
+}
+
+.admin-filter-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4375rem;
+  padding: 0.5625rem 1.0625rem;
+  border: 0.0625rem solid $border-color;
+  border-radius: $radius-md;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: $text-body;
+  background: $bg-white;
+  font-family: $font-family;
+  transition: all $transition-fast;
+
+  &:hover {
+    background: $primary-lighter;
+    color: $primary;
+    border-color: $primary-light;
+  }
+}
+
+/* ── Table Wrapper ───────────────────────────── */
+.admin-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+
+  thead {
+    background: #fafafa;
+    border-bottom: 0.0625rem solid $border-color;
+
+    th {
+      padding: 0.8125rem 1.125rem;
+      text-align: left;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: $text-muted;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      white-space: nowrap;
+    }
+  }
+
+  tbody tr {
+    border-bottom: 0.0625rem solid darken($border-color, 2%);
+    transition: background $transition-fast;
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    &:hover {
+      background: $primary-lighter;
+    }
+  }
+
+  td {
+    padding: 0.9375rem 1.125rem;
+    vertical-align: middle;
+    color: $text-body;
+  }
+
+  &__id {
+    font-weight: 700;
+    color: $text-dark;
+    font-size: 0.8125rem;
+    white-space: nowrap;
+    font-family: 'Courier New', monospace;
+  }
+
+  &__primary {
+    font-weight: 600;
+    color: $text-dark;
+    font-size: 0.875rem;
+  }
+
+  &__secondary {
+    font-size: 0.75rem;
+    color: $text-muted;
+    margin-top: 0.125rem;
+  }
+
+  &__units {
+    font-weight: 600;
+    color: $text-dark;
+    white-space: nowrap;
+  }
+
+  &__date {
+    font-size: 0.8125rem;
+    color: $text-muted;
+    white-space: nowrap;
+  }
+
+  &__empty {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: $text-muted;
+    font-style: italic;
+  }
+
+  // Row state highlights
+  &__row {
+    &--approved td:first-child {
+      border-left: 0.1875rem solid #16a34a;
+    }
+
+    &--rejected td:first-child {
+      border-left: 0.1875rem solid $primary;
+    }
+
+    &--pending td:first-child {
+      border-left: 0.1875rem solid #f59e0b;
+    }
+  }
+}
+
+/* ── Table Footer ────────────────────────────── */
+.admin-table-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.9375rem 1.375rem;
+  border-top: 0.0625rem solid $border-color;
+  background: #fafafa;
+
+  @media (max-width: $bp-sm) {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  &__info {
+    font-size: 0.8125rem;
+    color: $text-muted;
+  }
+}
+
+/* ══════════════════════════════════════════════════
+   Badges & Chips
+══════════════════════════════════════════════════ */
+
+/* Blood Group Badge */
+.admin-blood-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.5rem;
+  height: 2.25rem;
+  padding: 0 0.625rem;
+  border: 0.125rem solid $primary-light;
+  border-radius: $radius-sm;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: $primary;
+  background: $primary-lighter;
+  letter-spacing: 0.02em;
+}
+
+/* Urgency Badge */
+.admin-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3125rem;
+  padding: 0.25rem 0.6875rem;
+  border-radius: $radius-full;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+
+  &__icon {
+    font-size: 0.625rem;
+  }
+
+  &--critical {
+    background: #fee2e2;
+    color: #991b1b;
+  }
+
+  &--high {
+    background: #fef3c7;
+    color: #92400e;
+  }
+
+  &--standard {
+    background: #e0f2fe;
+    color: #075985;
+  }
+}
+
+/* Status Pill */
+.admin-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: $radius-full;
+  font-size: 0.75rem;
+  font-weight: 600;
+
+  &--pending {
+    background: #fef3c7;
+    color: #92400e;
+  }
+
+  &--approved {
+    background: #dcfce7;
+    color: #166534;
+  }
+
+  &--rejected {
+    background: #fee2e2;
+    color: #991b1b;
+  }
+}
+
+/* Role Pill */
+.admin-role {
+  display: inline-block;
+  padding: 0.1875rem 0.625rem;
+  border-radius: $radius-full;
+  font-size: 0.75rem;
+  font-weight: 600;
+
+  &--donor {
+    background: $primary-lighter;
+    color: $primary;
+  }
+
+  &--recipient {
+    background: #ede9fe;
+    color: #7c3aed;
+  }
+
+  &--admin {
+    background: #fef3c7;
+    color: #92400e;
+  }
+}
+
+/* ══════════════════════════════════════════════════
+   Action Buttons
+══════════════════════════════════════════════════ */
+.admin-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  min-width: 5.25rem;
+}
+
+.admin-actions__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.875rem;
+  border-radius: $radius-sm;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  font-family: $font-family;
+  transition: all $transition-fast;
+  white-space: nowrap;
+
+  &--approve {
+    background: $primary;
+    color: #fff;
+    border: 0.0625rem solid $primary;
+
+    &:hover {
+      background: $primary-dark;
+      border-color: $primary-dark;
+      transform: translateY(-0.0625rem);
+      box-shadow: 0 0.25rem 0.75rem rgba($primary, 0.35);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+  }
+
+  &--reject {
+    background: $bg-white;
+    color: $text-body;
+    border: 0.0625rem solid $border-color;
+
+    &:hover {
+      background: #fee2e2;
+      color: #991b1b;
+      border-color: #fca5a5;
+    }
+  }
+
+  &--more {
+    width: 2.125rem;
+    height: 2.125rem;
+    padding: 0;
+    border-radius: $radius-md;
+    background: $bg-light;
+    color: $text-muted;
+    border: 0.0625rem solid $border-color;
+
+    &:hover {
+      background: $primary-lighter;
+      color: $primary;
+    }
+  }
+}
+
+/* ══════════════════════════════════════════════════
+   Pagination
+══════════════════════════════════════════════════ */
+.admin-pagination {
+  display: flex;
+  align-items: center;
+  gap: 0.3125rem;
+
+  &__btn {
+    width: 2rem;
+    height: 2rem;
+    border-radius: $radius-sm;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    border: 0.0625rem solid $border-color;
+    background: $bg-white;
+    color: $text-body;
+    font-family: $font-family;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all $transition-fast;
+
+    &:hover:not(:disabled) {
+      background: $primary-lighter;
+      color: $primary;
+      border-color: $primary-light;
+    }
+
+    &:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    &--active {
+      background: $primary;
+      color: #fff;
+      border-color: $primary;
+      font-weight: 700;
+
+      &:hover {
+        background: $primary-dark;
+        border-color: $primary-dark;
+      }
+    }
+  }
+}
+
+/* ══════════════════════════════════════════════════
+   Animations
+══════════════════════════════════════════════════ */
+@keyframes adminFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUpCard {
+  from {
+    opacity: 0;
+    transform: translateY(1rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulseDot {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba($primary, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 0.25rem rgba($primary, 0);
+  }
+}

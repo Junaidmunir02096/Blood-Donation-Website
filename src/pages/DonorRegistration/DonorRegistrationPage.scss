@@ -100,7 +100,7 @@
   position: relative;
   z-index: 1;
   width: 100%;
-  max-width: 500px;
+  max-width: 43.75rem; // ≈ 700px
   background: $bg-white;
   border-radius: $radius-xl;
   box-shadow: 0 16px 60px rgba(0, 0, 0, 0.1), 0 4px 20px rgba($primary, 0.06);
@@ -354,13 +354,17 @@
 
   /* ── Actions ───────────────────────────── */
   &__actions {
-    display: grid;
-    grid-template-columns: 1fr 2fr;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end; // push both buttons to the right
     gap: $spacing-3;
     padding-top: $spacing-2;
 
     @media (max-width: $bp-sm) {
-      grid-template-columns: 1fr;
+      justify-content: stretch;
+      flex-direction: column;
+
+      .donor-reg-btn { width: 100%; }
     }
   }
 }
@@ -370,6 +374,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 0.375rem;
   padding: $spacing-4 $spacing-5;
   border-radius: $radius-md;
   font-family: $font-family;
@@ -379,11 +384,14 @@
   transition: all $transition-fast;
   border: none;
   text-decoration: none;
+  white-space: nowrap;   // never wrap text
+  flex-shrink: 0;        // never stretch inside flex parent
 
   &--cancel {
     background: $primary-lighter;
     color: $primary;
     border: 1.5px solid $primary-light;
+    min-width: 6.25rem;  // ≈ 100px — consistent width
 
     &:hover {
       background: $primary-light;
@@ -394,6 +402,8 @@
     background: $primary;
     color: #fff;
     box-shadow: 0 4px 14px rgba($primary, 0.3);
+    min-width: 11.25rem; // ≈ 180px — fixed, never stretches
+    max-width: 13rem;    // hard cap so it won't grow with card
 
     &:hover {
       background: $primary-dark;

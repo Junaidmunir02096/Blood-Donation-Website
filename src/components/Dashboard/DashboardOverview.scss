@@ -1,34 +1,40 @@
 @import '../../styles/variables';
 
+// ─── Overview Container ──────────────────────────────────────────────────────
 .dashboard-overview {
   display: flex;
   flex-direction: column;
-  gap: $spacing-8;
+  gap: $spacing-6;
+  animation: dashboard-rise 0.4s ease both;
 }
 
+// ─── Header ─────────────────────────────────────────────────────────────────
 .dashboard-overview__header {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: $spacing-6;
   flex-wrap: wrap;
 }
 
-.dashboard-overview__eyebrow {
-  font-size: $font-size-base;
-  font-weight: 500;
-  color: $text-muted;
+.dashboard-overview__heading-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .dashboard-overview__title {
-  font-size: $font-size-3xl;
+  font-size: 2rem;
+  font-weight: 700;
   color: $text-dark;
-  margin-top: $spacing-2;
+  letter-spacing: -0.5px;
+  line-height: 1.2;
 }
 
 .dashboard-overview__subtitle {
-  color: $text-body;
-  margin-top: $spacing-2;
+  font-size: $font-size-sm;
+  color: $text-muted;
+  font-weight: 400;
 }
 
 .dashboard-overview__search {
@@ -36,46 +42,66 @@
   align-items: center;
   gap: $spacing-2;
   background: $bg-white;
-  padding: $spacing-3 $spacing-4;
-  border-radius: $radius-full;
+  padding: 10px $spacing-4;
+  border-radius: $radius-md;
   border: 1px solid $border-color;
-  min-width: 280px;
+  min-width: 300px;
   box-shadow: $shadow-sm;
+  cursor: text;
+
+  &:focus-within {
+    border-color: rgba(192, 57, 43, 0.4);
+    box-shadow: 0 0 0 3px rgba(192, 57, 43, 0.08);
+  }
 }
 
 .dashboard-overview__search-icon {
-  font-size: 18px;
+  font-size: 14px;
   color: $text-muted;
+  flex-shrink: 0;
 }
 
 .dashboard-overview__search input {
   border: none;
   outline: none;
   font-size: $font-size-sm;
-  width: 220px;
+  width: 100%;
   font-family: inherit;
+  color: $text-dark;
+  background: transparent;
+
+  &::placeholder {
+    color: $text-muted;
+  }
 }
 
+// ─── Action Cards ────────────────────────────────────────────────────────────
 .dashboard-overview__actions {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: $spacing-6;
+  gap: $spacing-5;
 }
 
 .dashboard-overview__card {
   background: $bg-white;
   border-radius: $radius-xl;
-  padding: $spacing-6;
+  padding: $spacing-5;
   border: 1px solid $border-color;
   box-shadow: $shadow-sm;
   display: flex;
   flex-direction: column;
   gap: $spacing-3;
-  animation: dashboard-rise 0.5s ease both;
+  transition: box-shadow $transition-base, transform $transition-base;
+
+  &:hover {
+    box-shadow: $shadow-md;
+    transform: translateY(-1px);
+  }
 }
 
 .dashboard-overview__card--secondary {
-  background: #fdeeee;
+  background: #fff0f0;
+  border-color: rgba(192, 57, 43, 0.15);
 }
 
 .dashboard-overview__card-header {
@@ -85,65 +111,92 @@
 }
 
 .dashboard-overview__card-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: $radius-full;
+  width: 44px;
+  height: 44px;
+  border-radius: $radius-md;
   display: grid;
   place-items: center;
   background: $primary-light;
   color: $primary-dark;
+  font-size: 18px;
 }
 
-.dashboard-overview__card-icon-svg {
-  font-size: 20px;
+.dashboard-overview__card-icon--heart {
+  background: rgba(192, 57, 43, 0.12);
+  color: $primary;
 }
 
 .dashboard-overview__card-badge {
   font-size: $font-size-xs;
   font-weight: 600;
-  background: rgba(192, 57, 43, 0.1);
+  background: rgba(192, 57, 43, 0.08);
   color: $primary-dark;
-  padding: 4px 10px;
+  padding: 4px 12px;
   border-radius: $radius-full;
+  border: 1px solid rgba(192, 57, 43, 0.15);
 }
 
 .dashboard-overview__card-title {
   font-size: $font-size-xl;
+  font-weight: 700;
   color: $text-dark;
+  letter-spacing: -0.2px;
 }
 
 .dashboard-overview__card-desc {
   color: $text-body;
+  font-size: $font-size-sm;
+  line-height: 1.55;
+  flex: 1;
 }
 
+// Primary CTA – full-width red button
 .dashboard-overview__card-cta {
-  align-self: flex-start;
+  width: 100%;
+  padding: 12px $spacing-6;
+  border-radius: $radius-md;
+  font-weight: 600;
+  font-size: $font-size-sm;
+  transition: background $transition-fast, transform $transition-fast, box-shadow $transition-fast;
+  margin-top: $spacing-2;
+}
+
+.dashboard-overview__card-cta--primary {
   background: $primary;
   color: $text-light;
-  padding: $spacing-2 $spacing-6;
-  border-radius: $radius-full;
-  font-weight: 600;
-  box-shadow: 0 10px 20px rgba(192, 57, 43, 0.2);
+  box-shadow: 0 6px 18px rgba(192, 57, 43, 0.25);
+
+  &:hover {
+    background: $primary-dark;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 24px rgba(192, 57, 43, 0.3);
+  }
 }
 
-.dashboard-overview__card--secondary .dashboard-overview__card-cta {
+// Outline CTA for secondary card
+.dashboard-overview__card-cta--outline {
   background: $bg-white;
   color: $primary;
-  border: 1px solid rgba(192, 57, 43, 0.25);
-  box-shadow: none;
+  border: 1px solid rgba(192, 57, 43, 0.3);
+
+  &:hover {
+    background: $primary-light;
+    transform: translateY(-1px);
+  }
 }
 
+// ─── Bottom Grid ─────────────────────────────────────────────────────────────
 .dashboard-overview__bottom {
   display: grid;
-  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
-  gap: $spacing-6;
+  grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
+  gap: $spacing-5;
 }
 
 .dashboard-overview__requests,
 .dashboard-overview__donors {
   background: $bg-white;
   border-radius: $radius-xl;
-  padding: $spacing-6;
+  padding: $spacing-5;
   border: 1px solid $border-color;
   box-shadow: $shadow-sm;
 }
@@ -153,106 +206,149 @@
   align-items: center;
   justify-content: space-between;
   margin-bottom: $spacing-4;
-}
 
-.dashboard-overview__section-header h3 {
-  font-size: $font-size-lg;
-  color: $text-dark;
+  h3 {
+    font-size: $font-size-base;
+    font-weight: 700;
+    color: $text-dark;
+    letter-spacing: -0.1px;
+  }
 }
 
 .dashboard-overview__link {
   background: none;
   color: $primary;
   font-weight: 600;
+  font-size: $font-size-sm;
+  transition: opacity $transition-fast;
+
+  &:hover {
+    opacity: 0.75;
+  }
 }
 
+// ─── Request List ─────────────────────────────────────────────────────────────
 .dashboard-overview__request-list {
   display: flex;
   flex-direction: column;
-  gap: $spacing-4;
+  gap: $spacing-3;
 }
 
 .dashboard-request {
   display: grid;
-  grid-template-columns: 80px 1fr auto;
+  grid-template-columns: 68px 1fr auto;
   gap: $spacing-4;
   align-items: center;
   padding: $spacing-4;
   border-radius: $radius-lg;
-  background: $primary-lighter;
-  border: 1px solid rgba(192, 57, 43, 0.15);
+  background: $bg-white;
+  border: 1px solid $border-color;
+  transition: border-color $transition-fast, box-shadow $transition-fast;
+
+  &:hover {
+    border-color: rgba(192, 57, 43, 0.25);
+    box-shadow: 0 2px 10px rgba(192, 57, 43, 0.08);
+  }
 }
 
 .dashboard-request__badge {
   text-align: center;
-  background: $bg-white;
-  border-radius: $radius-lg;
-  padding: $spacing-3;
-  border: 1px solid $border-color;
+  background: $primary-lighter;
+  border-radius: $radius-md;
+  padding: $spacing-3 $spacing-2;
+  border: 1px solid rgba(192, 57, 43, 0.12);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
 }
 
 .dashboard-request__group {
   font-size: $font-size-lg;
-  font-weight: 700;
+  font-weight: 800;
   color: $primary-dark;
+  line-height: 1;
 }
 
 .dashboard-request__label {
-  font-size: $font-size-xs;
+  font-size: 0.65rem;
   color: $text-muted;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.dashboard-request__info {
+  min-width: 0;
 }
 
 .dashboard-request__meta {
   display: flex;
   align-items: center;
   gap: $spacing-2;
-  color: $text-muted;
-  font-size: $font-size-xs;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  margin-bottom: 4px;
 }
 
 .dashboard-request__urgency {
   padding: 2px 8px;
   border-radius: $radius-full;
-  font-weight: 600;
+  font-weight: 700;
   font-size: $font-size-xs;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
   background: rgba(192, 57, 43, 0.1);
   color: $primary-dark;
 }
 
 .dashboard-request__urgency--routine {
-  background: rgba(46, 204, 113, 0.1);
-  color: #1e7f46;
+  background: rgba(39, 174, 96, 0.1);
+  color: #1a7a3e;
+}
+
+.dashboard-request__time {
+  font-size: $font-size-xs;
+  color: $text-muted;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .dashboard-request__hospital {
   font-weight: 600;
   color: $text-dark;
-  margin-top: $spacing-1;
+  font-size: $font-size-sm;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .dashboard-request__details {
-  color: $text-body;
-  font-size: $font-size-sm;
+  color: $text-muted;
+  font-size: $font-size-xs;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 2px;
 }
 
 .dashboard-request__cta {
   background: $bg-white;
-  border: 1px solid rgba(192, 57, 43, 0.25);
+  border: 1px solid rgba(192, 57, 43, 0.3);
   color: $primary;
-  padding: $spacing-2 $spacing-4;
-  border-radius: $radius-full;
+  padding: 8px $spacing-4;
+  border-radius: $radius-md;
   font-weight: 600;
-  display: inline-flex;
-  align-items: center;
-  gap: $spacing-2;
+  font-size: $font-size-sm;
+  white-space: nowrap;
+  transition: background $transition-fast, border-color $transition-fast;
+
+  &:hover {
+    background: $primary-light;
+    border-color: rgba(192, 57, 43, 0.4);
+  }
 }
 
-.dashboard-request__cta-icon {
-  font-size: 14px;
-}
-
+// ─── Donor List ──────────────────────────────────────────────────────────────
 .dashboard-overview__donor-list {
   display: flex;
   flex-direction: column;
@@ -263,62 +359,82 @@
   display: flex;
   align-items: center;
   gap: $spacing-3;
-  padding: $spacing-2 $spacing-3;
-  border-radius: $radius-lg;
-  border: 1px solid $border-color;
-  background: $primary-lighter;
+  padding: $spacing-2 0;
+  border-bottom: 1px solid $border-color;
+
+  &:last-child {
+    border-bottom: none;
+  }
 }
 
 .dashboard-donor__avatar {
   width: 40px;
   height: 40px;
   border-radius: $radius-full;
-  background: $primary;
+  background: linear-gradient(135deg, #c0392b, #922b21);
   color: $text-light;
   display: grid;
   place-items: center;
-  font-weight: 600;
-  font-size: $font-size-sm;
+  font-weight: 700;
+  font-size: $font-size-xs;
+  flex-shrink: 0;
+  letter-spacing: 0.5px;
+}
+
+.dashboard-donor__info {
+  flex: 1;
+  min-width: 0;
 }
 
 .dashboard-donor__name {
   font-weight: 600;
   color: $text-dark;
+  font-size: $font-size-sm;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .dashboard-donor__distance {
   color: $text-muted;
   font-size: $font-size-xs;
+  margin-top: 2px;
 }
 
 .dashboard-donor__group {
-  margin-left: auto;
-  background: $bg-white;
-  padding: 4px 10px;
+  width: 34px;
+  height: 34px;
   border-radius: $radius-full;
-  font-weight: 600;
-  color: $primary;
+  border: 1px solid $border-color;
+  background: $bg-white;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  font-size: $font-size-xs;
+  color: $primary-dark;
+  flex-shrink: 0;
 }
 
 .dashboard-overview__map-btn {
   margin-top: $spacing-4;
   width: 100%;
-  padding: $spacing-3 $spacing-4;
-  border-radius: $radius-full;
+  padding: 10px $spacing-4;
+  border-radius: $radius-md;
   background: $bg-white;
-  border: 1px solid rgba(192, 57, 43, 0.2);
+  border: 1px solid $border-color;
   font-weight: 600;
-  color: $primary;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: $spacing-2;
+  font-size: $font-size-sm;
+  color: $text-dark;
+  transition: background $transition-fast, border-color $transition-fast;
+
+  &:hover {
+    background: $primary-lighter;
+    border-color: rgba(192, 57, 43, 0.2);
+    color: $primary-dark;
+  }
 }
 
-.dashboard-overview__map-icon {
-  font-size: 16px;
-}
-
+// ─── Responsive ──────────────────────────────────────────────────────────────
 @media (max-width: $bp-lg) {
   .dashboard-overview__actions {
     grid-template-columns: 1fr;
@@ -329,30 +445,31 @@
   }
 }
 
-@media (max-width: $bp-sm) {
+@media (max-width: $bp-md) {
   .dashboard-overview__header {
-    align-items: flex-start;
-  }
-
-  .dashboard-overview__title {
-    font-size: $font-size-2xl;
-  }
-
-  .dashboard-request {
-    grid-template-columns: 1fr;
-    align-items: flex-start;
-  }
-
-  .dashboard-request__cta {
-    width: 100%;
-    justify-self: stretch;
+    flex-direction: column;
+    align-items: stretch;
   }
 
   .dashboard-overview__search {
+    min-width: 0;
     width: 100%;
   }
 
-  .dashboard-overview__search input {
+  .dashboard-overview__title {
+    font-size: 1.6rem;
+  }
+}
+
+@media (max-width: $bp-sm) {
+  .dashboard-request {
+    grid-template-columns: 64px 1fr;
+    gap: $spacing-3;
+  }
+
+  .dashboard-request__cta {
+    grid-column: 1 / -1;
     width: 100%;
+    text-align: center;
   }
 }
