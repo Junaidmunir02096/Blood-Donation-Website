@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import './AuthPage.scss';
 import authHero from '../../assets/auth-hero.png';
 
