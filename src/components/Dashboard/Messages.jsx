@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { Fragment, useState, useRef, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faPenToSquare,
@@ -338,8 +338,8 @@ const Messages = () => {
 
         {/* Messages Body */}
         <div className="msg-chat__body" role="log" aria-label="Conversation messages" aria-live="polite">
-          {activeConv.messages.map((msg, idx) => (
-            <React.Fragment key={msg.id}>
+          {activeConv.messages.map((msg) => (
+            <Fragment key={msg.id}>
               {/* Date divider */}
               {msg.date && (
                 <div className="msg-divider msg-divider--date" role="separator">
@@ -396,7 +396,7 @@ const Messages = () => {
                   </div>
                 </div>
               </div>
-            </React.Fragment>
+            </Fragment>
           ))}
 
           {/* Typing indicator */}
