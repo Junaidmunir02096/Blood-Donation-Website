@@ -1,4 +1,3 @@
-import React from 'react';
 import heroImg from '../../assets/about_hero.png';
 import storyImg from '../../assets/about_story.png';
 import sarahImg from '../../assets/team_sarah.png';

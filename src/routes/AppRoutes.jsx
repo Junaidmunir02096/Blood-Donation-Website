@@ -1,4 +1,3 @@
-import React from 'react';
 import { Route, Routes } from 'react-router-dom';
 import Hero from '../components/Hero/Hero';
 import Stats from '../components/Stats/Stats';

@@ -1,4 +1,3 @@
-import React from 'react';
 import './Stats.scss';
 
 const statsData = [
