@@ -1,5 +1,11 @@
-// Mock donor data — replace with real API integration later.
-const MOCK_DONORS = [
+/**
+ * src/data/donors.data.js
+ * ─────────────────────────────────────────────────────────────────────────────
+ * Mock data for the Search Blood page — list of available donors.
+ * Consumed by: SearchBloodPage.jsx (via donors.service.js)
+ */
+
+export const donorsData = [
   { id: 1,  name: 'Marcus Chen',      bloodGroup: 'O+',  city: 'Seattle, WA',     miles: 2.4,  lastDonated: '4 months ago',  status: 'verified', avatar: 'MC' },
   { id: 2,  name: 'Sarah Jenkins',    bloodGroup: 'O+',  city: 'Bellevue, WA',    miles: 5.1,  lastDonated: '8 months ago',  status: 'verified', avatar: 'SJ' },
   { id: 3,  name: 'David Rodriguez',  bloodGroup: 'O+',  city: 'Tacoma, WA',      miles: 12.0, lastDonated: '1 year ago',    status: 'pending',  avatar: 'DR' },
@@ -13,9 +19,3 @@ const MOCK_DONORS = [
   { id: 11, name: 'Tyler Brooks',     bloodGroup: 'O+',  city: 'Federal Way, WA', miles: 19.3, lastDonated: '2 years ago',   status: 'pending',  avatar: 'TB' },
   { id: 12, name: 'Mei-Ling Zhou',    bloodGroup: 'A+',  city: 'Bothell, WA',     miles: 13.7, lastDonated: '1 month ago',   status: 'verified', avatar: 'MZ' },
 ];
-
-export const fetchDonors = async () => {
-  return new Promise((resolve) => {
-    setTimeout(() => resolve(MOCK_DONORS), 1500);
-  });
-};
