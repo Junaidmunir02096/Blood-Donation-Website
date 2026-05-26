@@ -215,8 +215,16 @@
       border-color: $primary;
       box-shadow: 0 0 0 3px rgba($primary, 0.12);
     }
+    
+    &.error {
+      border-color: rgba($accent, 0.6);
+      background: rgba($accent, 0.02);
+      
+      .request-field__icon { color: $accent; }
+    }
 
     input {
+
       border: none;
       outline: none;
       background: transparent;

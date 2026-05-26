@@ -1,11 +1,16 @@
+
 import { useState } from 'react';
+import { useState } from 'react';
+import { useAuth } from '../../context/AuthContext';
 import './AuthPage.scss';
+
 import authHero from '../../assets/auth-hero.png';
 
 const BLOOD_GROUPS = ['O+', 'O-', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-'];
 
 // ─── Register Form ────────────────────────────────────────────────────────────
 const RegisterForm = ({ onSwitch }) => {
+  const { register } = useAuth();
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -15,6 +20,8 @@ const RegisterForm = ({ onSwitch }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [serverError, setServerError] = useState('');
 
   const validate = () => {
     const e = {};
@@ -38,11 +45,21 @@ const RegisterForm = ({ onSwitch }) => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setServerError('');
     const errs = validate();
     if (Object.keys(errs).length) { setErrors(errs); return; }
-    setSubmitted(true);
+    
+    setIsSubmitting(true);
+    const res = await register(formData);
+    setIsSubmitting(false);
+
+    if (res.ok) {
+      setSubmitted(true);
+    } else {
+      setServerError(res.error);
+    }
   };
 
   if (submitted) {
@@ -77,7 +94,10 @@ const RegisterForm = ({ onSwitch }) => {
       <div className="auth__divider"><span>OR REGISTER WITH EMAIL</span></div>
 
       <form className="auth__form" onSubmit={handleSubmit} noValidate>
+        {serverError && <div className="auth__server-error">{serverError}</div>}
+        
         {/* Full Name */}
+
         <div className={`auth__field ${errors.fullName ? 'auth__field--error' : ''}`}>
           <label htmlFor="reg-fullname" className="auth__label">Full Name</label>
           <div className="auth__input-wrap">
@@ -178,10 +198,12 @@ const RegisterForm = ({ onSwitch }) => {
           type="submit"
           className="auth__btn auth__btn--primary auth__btn--full"
           id="register-submit-btn"
+          disabled={isSubmitting}
         >
-          Create Account →
+          {isSubmitting ? 'Creating Account...' : 'Create Account →'}
         </button>
       </form>
+
 
       <p className="auth__switch-text">
         Already a member?{' '}
@@ -195,10 +217,14 @@ const RegisterForm = ({ onSwitch }) => {
 
 // ─── Login Form ───────────────────────────────────────────────────────────────
 const LoginForm = ({ onSwitch, onSuccess }) => {
+  const { login } = useAuth();
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [serverError, setServerError] = useState('');
+
 
   const validate = () => {
     const e = {};
@@ -213,11 +239,21 @@ const LoginForm = ({ onSwitch, onSuccess }) => {
     setErrors((prev) => ({ ...prev, [e.target.name]: '' }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setServerError('');
     const errs = validate();
     if (Object.keys(errs).length) { setErrors(errs); return; }
-    setSubmitted(true);
+    
+    setIsSubmitting(true);
+    const res = await login(formData);
+    setIsSubmitting(false);
+
+    if (res.ok) {
+      setSubmitted(true);
+    } else {
+      setServerError(res.error);
+    }
   };
 
   if (submitted) {
@@ -255,7 +291,9 @@ const LoginForm = ({ onSwitch, onSuccess }) => {
       <div className="auth__divider"><span>OR LOG IN WITH EMAIL</span></div>
 
       <form className="auth__form" onSubmit={handleSubmit} noValidate>
+        {serverError && <div className="auth__server-error">{serverError}</div>}
         <div className={`auth__field ${errors.email ? 'auth__field--error' : ''}`}>
+
           <label htmlFor="login-email" className="auth__label">Email Address</label>
           <div className="auth__input-wrap">
             <svg className="auth__input-icon" viewBox="0 0 24 24" aria-hidden="true">
@@ -313,10 +351,12 @@ const LoginForm = ({ onSwitch, onSuccess }) => {
           type="submit"
           className="auth__btn auth__btn--primary auth__btn--full"
           id="login-submit-btn"
+          disabled={isSubmitting}
         >
-          Log In →
+          {isSubmitting ? 'Logging In...' : 'Log In →'}
         </button>
       </form>
+
 
       <p className="auth__switch-text">
         Don't have an account?{' '}

@@ -6,10 +6,23 @@ import ActiveRequests from '../../components/Dashboard/ActiveRequests';
 import Messages from '../../components/Dashboard/Messages';
 import AdminPanel from '../../components/Dashboard/AdminPanel';
 import MyProfile from '../../components/Dashboard/MyProfile';
+import HelpCenter from '../../components/Dashboard/HelpCenter';
+import LogoutModal from '../../components/Dashboard/LogoutModal';
 import './DashboardPage.scss';
 
 const DashboardPage = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [showLogout, setShowLogout] = useState(false);
+
+  /* Intercept the logout tab so we show the modal instead of switching tabs */
+  const handleTabChange = (tab) => {
+    if (tab === 'logout') {
+      setShowLogout(true);
+    } else {
+      setActiveTab(tab);
+    }
+  };
+
 
   const renderContent = () => {
     switch (activeTab) {
@@ -24,7 +37,10 @@ const DashboardPage = () => {
       case 'admin-panel':
         return <AdminPanel />;
       case 'settings':
-        return <MyProfile />;
+        return <MyProfile onLogout={() => setShowLogout(true)} />;
+      case 'help-center':
+        return <HelpCenter />;
+
       default:
         return (
           <div className="dashboard-placeholder" role="status">
@@ -42,7 +58,7 @@ const DashboardPage = () => {
   return (
     <div className="dashboard-page" id="dashboard-page">
       <div className="dashboard-layout">
-        <DashboardSidebar activeTab={activeTab} onTabChange={setActiveTab} />
+        <DashboardSidebar activeTab={activeTab} onTabChange={handleTabChange} />
         <main
           className={`dashboard-main${activeTab === 'messages' ? ' dashboard-main--chat' : ''}`}
           aria-live="polite"
@@ -50,8 +66,14 @@ const DashboardPage = () => {
           {renderContent()}
         </main>
       </div>
+
+      {/* Logout confirmation overlay — rendered on top of the entire dashboard */}
+      {showLogout && (
+        <LogoutModal onStay={() => setShowLogout(false)} />
+      )}
     </div>
   );
 };
+
 
 export default DashboardPage;

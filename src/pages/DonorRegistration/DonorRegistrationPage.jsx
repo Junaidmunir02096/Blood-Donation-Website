@@ -53,6 +53,8 @@ const DonorRegistrationPage = ({ onBack }) => {
   });
   const [errors, setErrors] = useState({});
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
 
   // Demo: show pending banner if name is pre-filled (simulates returning user)
   const showBanner = true;
@@ -78,12 +80,19 @@ const DonorRegistrationPage = ({ onBack }) => {
     setErrors((prev) => ({ ...prev, bloodGroup: '' }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const errs = validate();
     if (Object.keys(errs).length) { setErrors(errs); return; }
+    
+    setIsSubmitting(true);
+    // Simulate API call to backend
+    await new Promise(resolve => setTimeout(resolve, 1200));
+    setIsSubmitting(false);
+    
     setSubmitted(true);
   };
+
 
   // ── Success screen ──────────────────────────────────────────────────────────
   if (submitted) {
@@ -273,9 +282,11 @@ const DonorRegistrationPage = ({ onBack }) => {
               type="submit"
               className="donor-reg-btn donor-reg-btn--primary"
               id="donor-reg-submit-btn"
+              disabled={isSubmitting}
             >
-              Update Registration
+              {isSubmitting ? 'Submitting...' : 'Update Registration'}
             </button>
+
           </div>
         </form>
       </div>
