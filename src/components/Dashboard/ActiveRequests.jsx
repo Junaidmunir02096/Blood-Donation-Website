@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faUser,
@@ -6,7 +6,9 @@ import {
   faDroplet,
 } from '@fortawesome/free-solid-svg-icons';
 import './ActiveRequests.scss';
-import { requests, filters, statusConfig } from '../../data/requests.data';
+import AppSpinner from '../AppSpinner/AppSpinner';
+import { filters, statusConfig } from '../../data/requests.data';
+import { fetchRequests } from '../../api/services';
 
 
 
@@ -22,11 +24,31 @@ const bloodModifier = (type) => {
 // ── Component ─────────────────────────────────────────────────────────────────
 const ActiveRequests = () => {
   const [activeFilter, setActiveFilter] = useState('All');
+  const [requests, setRequests] = useState([]);
+  const [loading, setLoading]   = useState(true);
+
+  useEffect(() => {
+    const load = async () => {
+      setLoading(true);
+      const data = await fetchRequests();
+      setRequests(data);
+      setLoading(false);
+    };
+    load();
+  }, []);
 
   const filtered =
     activeFilter === 'All'
       ? requests
       : requests.filter((r) => r.status === activeFilter);
+
+  if (loading) {
+    return (
+      <section className="active-requests" aria-label="Request Status">
+        <AppSpinner label="Loading requests..." />
+      </section>
+    );
+  }
 
   return (
     <section className="active-requests" aria-label="Request Status">

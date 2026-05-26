@@ -17,7 +17,8 @@ import {
   faDroplet,
 } from '@fortawesome/free-solid-svg-icons';
 import './Messages.scss';
-import { initConversations, autoReplies } from '../../data/messages.data';
+import AppSpinner from '../AppSpinner/AppSpinner';
+import { fetchConversations, getAutoReplies } from '../../api/services';
 
 
 
@@ -42,14 +43,26 @@ const Avatar = ({ conv, size = 44 }) => (
 
 // ── Main Component ────────────────────────────────────────────────────────────
 const Messages = () => {
-  const [conversations, setConversations] = useState(initConversations);
-  const [activeId, setActiveId]           = useState('conv-1');
+  const [conversations, setConversations] = useState([]);
+  const [activeId, setActiveId]           = useState(null);
   const [inputText, setInputText]         = useState('');
   const [isTyping, setIsTyping]           = useState(false);
   const [searchQuery, setSearchQuery]     = useState('');
+  const [loading, setLoading]             = useState(true);
   const messagesEndRef  = useRef(null);
   const inputRef        = useRef(null);
   const typingTimerRef  = useRef(null);
+
+  useEffect(() => {
+    const load = async () => {
+      setLoading(true);
+      const data = await fetchConversations();
+      setConversations(data);
+      setActiveId(data[0]?.id ?? null);
+      setLoading(false);
+    };
+    load();
+  }, []);
 
   const activeConv = conversations.find((c) => c.id === activeId);
 
@@ -97,7 +110,7 @@ const Messages = () => {
     setIsTyping(true);
     typingTimerRef.current = setTimeout(() => {
       setIsTyping(false);
-      const replies = autoReplies[activeId] || ["Thanks for reaching out!"];
+      const replies = getAutoReplies(activeId);
       const reply   = replies[Math.floor(Math.random() * replies.length)];
       const replyMsg = {
         id: `m${Date.now() + 1}`,
@@ -123,6 +136,14 @@ const Messages = () => {
       handleSend();
     }
   };
+
+  if (loading || !activeConv) {
+    return (
+      <div className="messages-screen">
+        <AppSpinner label="Loading conversations..." />
+      </div>
+    );
+  }
 
   return (
     <div className="messages-screen">

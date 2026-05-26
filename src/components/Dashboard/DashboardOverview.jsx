@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faDroplet,
@@ -7,10 +8,34 @@ import {
   faClock,
 } from '@fortawesome/free-solid-svg-icons';
 import './DashboardOverview.scss';
-import { activeRequests, nearbyDonors } from '../../data/dashboard.data';
+import AppSpinner from '../AppSpinner/AppSpinner';
+import { fetchDashboardData } from '../../api/services';
 
 
 const DashboardOverview = () => {
+  const [activeRequests, setActiveRequests] = useState([]);
+  const [nearbyDonors, setNearbyDonors] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const load = async () => {
+      setLoading(true);
+      const data = await fetchDashboardData();
+      setActiveRequests(data.activeRequests);
+      setNearbyDonors(data.nearbyDonors);
+      setLoading(false);
+    };
+    load();
+  }, []);
+
+  if (loading) {
+    return (
+      <section className="dashboard-overview" aria-label="Dashboard overview">
+        <AppSpinner label="Loading dashboard..." />
+      </section>
+    );
+  }
+
   return (
     <section className="dashboard-overview" aria-label="Dashboard overview">
 

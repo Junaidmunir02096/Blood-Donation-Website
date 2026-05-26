@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faArrowUpFromBracket,
@@ -8,7 +8,9 @@ import {
   faSort,
 } from '@fortawesome/free-solid-svg-icons';
 import './DonationHistory.scss';
-import { donationData, columns } from '../../data/donations.data';
+import AppSpinner from '../AppSpinner/AppSpinner';
+import { columns } from '../../data/donations.data';
+import { fetchDonations } from '../../api/services';
 
 
 // ── CSV Export ────────────────────────────────────────────────────────────────
@@ -33,6 +35,18 @@ const exportToCSV = (rows) => {
 const DonationHistory = () => {
   const [sortKey, setSortKey]   = useState('date');
   const [sortDir, setSortDir]   = useState('desc'); // 'asc' | 'desc'
+  const [donations, setDonations] = useState([]);
+  const [loading, setLoading]     = useState(true);
+
+  useEffect(() => {
+    const load = async () => {
+      setLoading(true);
+      const data = await fetchDonations();
+      setDonations(data);
+      setLoading(false);
+    };
+    load();
+  }, []);
 
   const handleSort = (key) => {
     if (!columns.find((c) => c.key === key)?.sortable) return;
@@ -44,7 +58,7 @@ const DonationHistory = () => {
     }
   };
 
-  const sorted = [...donationData].sort((a, b) => {
+  const sorted = [...donations].sort((a, b) => {
     let valA = sortKey === 'date' ? a.rawDate : a[sortKey];
     let valB = sortKey === 'date' ? b.rawDate : b[sortKey];
     if (valA < valB) return sortDir === 'asc' ? -1 : 1;
@@ -60,6 +74,14 @@ const DonationHistory = () => {
       ? <FontAwesomeIcon icon={faChevronUp}   className="dh-table__sort-icon dh-table__sort-icon--active" />
       : <FontAwesomeIcon icon={faChevronDown} className="dh-table__sort-icon dh-table__sort-icon--active" />;
   };
+
+  if (loading) {
+    return (
+      <section className="donation-history" aria-label="Donation History">
+        <AppSpinner label="Loading donation history..." />
+      </section>
+    );
+  }
 
   return (
     <section className="donation-history" aria-label="Donation History">

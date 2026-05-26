@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import './SearchBloodPage.scss';
 import AppSpinner from '../../components/AppSpinner/AppSpinner';
-import { fetchDonors } from '../../services/donorService';
+import { fetchDonors } from '../../api/services';
 
 const BLOOD_GROUPS = ['O+', 'O-', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-'];
 const PAGE_SIZE = 6;
