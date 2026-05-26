@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faBell,
@@ -21,7 +21,12 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import './AdminPanel.scss';
 
-import { REQUESTS_DATA, DONORS_DATA, USERS_DATA } from '../../data/admin.data';
+import AppSpinner from '../AppSpinner/AppSpinner';
+import {
+  fetchAdminRequests,
+  fetchAdminDonors,
+  fetchAdminUsers,
+} from '../../api/services';
 
 
 /* ─── Urgency Badge ─────────────────────────────────────── */
@@ -107,10 +112,23 @@ const Pagination = ({ current, total, onChange }) => {
 
 /* ─── Requests Table ────────────────────────────────────── */
 const RequestsTable = () => {
-  const [data, setData] = useState(REQUESTS_DATA);
+  const [data, setData] = useState([]);
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(true);
   const PER_PAGE = 3;
+
+  useEffect(() => {
+    const load = async () => {
+      setLoading(true);
+      const rows = await fetchAdminRequests();
+      setData(rows);
+      setLoading(false);
+    };
+    load();
+  }, []);
+
+  if (loading) return <AppSpinner label="Loading requests..." />;
 
   const filtered = data.filter(
     (r) =>
@@ -229,10 +247,23 @@ const RequestsTable = () => {
 
 /* ─── Donors Table ──────────────────────────────────────── */
 const DonorsTable = () => {
-  const [data, setData] = useState(DONORS_DATA);
+  const [data, setData] = useState([]);
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(true);
   const PER_PAGE = 4;
+
+  useEffect(() => {
+    const load = async () => {
+      setLoading(true);
+      const rows = await fetchAdminDonors();
+      setData(rows);
+      setLoading(false);
+    };
+    load();
+  }, []);
+
+  if (loading) return <AppSpinner label="Loading donors..." />;
 
   const filtered = data.filter(
     (d) =>
@@ -357,10 +388,23 @@ const DonorsTable = () => {
 
 /* ─── Users Table ───────────────────────────────────────── */
 const UsersTable = () => {
-  const [data, setData] = useState(USERS_DATA);
+  const [data, setData] = useState([]);
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(true);
   const PER_PAGE = 4;
+
+  useEffect(() => {
+    const load = async () => {
+      setLoading(true);
+      const rows = await fetchAdminUsers();
+      setData(rows);
+      setLoading(false);
+    };
+    load();
+  }, []);
+
+  if (loading) return <AppSpinner label="Loading users..." />;
 
   const filtered = data.filter(
     (u) =>

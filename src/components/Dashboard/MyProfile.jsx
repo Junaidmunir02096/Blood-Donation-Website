@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faPenToSquare,
@@ -15,7 +15,6 @@ import {
   faCalendarCheck,
   faCircleCheck,
   faChevronRight,
-  faStar,
   faAward,
   faBell,
   faMoon,
@@ -23,7 +22,8 @@ import {
   faCamera,
 } from '@fortawesome/free-solid-svg-icons';
 import './MyProfile.scss';
-import { lifestyleItems, timelineEvents, achievements, notifPrefs } from '../../data/profile.data';
+import AppSpinner from '../AppSpinner/AppSpinner';
+import { fetchProfileData } from '../../api/services';
 
 
 /* ─── Editable Field ─────────────────────────────────── */
@@ -75,7 +75,7 @@ const EditableField = ({ label, value, type = 'text', id }) => {
 };
 
 /* ─── Lifestyle Tracker Card ─────────────────────────── */
-const LifestyleTracker = () => (
+const LifestyleTracker = ({ lifestyleItems }) => (
   <div className="profile-lifestyle">
     <div className="profile-lifestyle__header">
       <div className="profile-lifestyle__title-group">
@@ -115,7 +115,7 @@ const LifestyleTracker = () => (
 );
 
 /* ─── Donation Timeline ──────────────────────────────── */
-const DonationTimeline = () => (
+const DonationTimeline = ({ timelineEvents }) => (
   <div className="profile-timeline">
     <div className="profile-timeline__header">
       <h3 className="profile-timeline__title">
@@ -151,7 +151,7 @@ const DonationTimeline = () => (
 );
 
 /* ─── Achievement Badges ─────────────────────────────── */
-const Achievements = () => (
+const Achievements = ({ achievements }) => (
   <div className="profile-achievements">
     <h3 className="profile-achievements__title">
       <FontAwesomeIcon icon={faAward} className="profile-achievements__title-icon" />
@@ -178,7 +178,7 @@ const Achievements = () => (
 );
 
 /* ─── Notification Prefs ─────────────────────────────── */
-const NotificationSettings = () => {
+const NotificationSettings = ({ notifPrefs }) => {
   const [prefs, setPrefs] = useState(
     notifPrefs.reduce((acc, p) => ({ ...acc, [p.id]: p.default }), {})
   );
@@ -225,8 +225,28 @@ const MyProfile = () => {
   const [editingProfile, setEditingProfile] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [imgError, setImgError] = useState(false);
+  const [profileData, setProfileData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   const nextDonationDays = 12;
+
+  useEffect(() => {
+    const load = async () => {
+      setLoading(true);
+      const data = await fetchProfileData();
+      setProfileData(data);
+      setLoading(false);
+    };
+    load();
+  }, []);
+
+  if (loading || !profileData) {
+    return (
+      <section className="my-profile" aria-labelledby="my-profile-title">
+        <AppSpinner label="Loading profile..." />
+      </section>
+    );
+  }
 
   return (
     <section className="my-profile" aria-labelledby="my-profile-title">
@@ -410,14 +430,14 @@ const MyProfile = () => {
 
       {/* ══ Row 3: Lifestyle Tracker + Achievements ═════════ */}
       <div className="my-profile__tracker-row">
-        <LifestyleTracker />
-        <Achievements />
+        <LifestyleTracker lifestyleItems={profileData.lifestyleItems} />
+        <Achievements achievements={profileData.achievements} />
       </div>
 
       {/* ══ Row 4: Donation Timeline + Notification Prefs ═══ */}
       <div className="my-profile__bottom-row">
-        <DonationTimeline />
-        <NotificationSettings />
+        <DonationTimeline timelineEvents={profileData.timelineEvents} />
+        <NotificationSettings notifPrefs={profileData.notifPrefs} />
       </div>
 
       {/* ══ Account Security ════════════════════════════════ */}
