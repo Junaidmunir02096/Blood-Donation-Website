@@ -1,8 +1,8 @@
 
 import { useState } from 'react';
-import { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import './AuthPage.scss';
+
 
 import authHero from '../../assets/auth-hero.png';
 
