@@ -221,7 +221,7 @@ const NotificationSettings = ({ notifPrefs }) => {
 };
 
 /* ─── Main MyProfile Component ───────────────────────── */
-const MyProfile = () => {
+const MyProfile = ({ onLogout }) => {
   const [editingProfile, setEditingProfile] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [imgError, setImgError] = useState(false);
@@ -465,6 +465,7 @@ const MyProfile = () => {
             className="profile-security-card__btn profile-security-card__btn--danger"
             type="button"
             id="profile-logout"
+            onClick={onLogout}
           >
             <FontAwesomeIcon icon={faRightFromBracket} />
             Logout

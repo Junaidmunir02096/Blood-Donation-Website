@@ -245,10 +245,26 @@
     flex-direction: column;
     gap: $spacing-2;
 
-    &--error .auth__input-wrap {
-      border-color: $primary;
-      box-shadow: 0 0 0 3px rgba($primary, 0.12);
+    &--error {
+      .auth__label { color: $accent; }
+      .auth__input {
+        border-color: rgba($accent, 0.4);
+        background: rgba($accent, 0.02);
+      }
+      .auth__input-icon { color: $accent; }
     }
+  }
+
+  &__server-error {
+    background-color: rgba($accent, 0.1);
+    color: $accent;
+    padding: 0.75rem;
+    border-radius: $radius-sm;
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-bottom: 1rem;
+    text-align: center;
+    border: 1px solid rgba($accent, 0.2);
   }
 
   &__label {

@@ -1,11 +1,4 @@
-/**
- * src/data/requests.data.js
- * ─────────────────────────────────────────────────────────────────────────────
- * Mock data for Active Requests — blood requests list, filter tabs, and
- * status display configuration.
- * Consumed by: ActiveRequests.jsx
- * Next step  : wrap in src/services/requests.service.js with fake async API.
- */
+//  Mock data for Active Requests — blood requests list, filter tabs, and
 
 import {
   faCircleCheck,

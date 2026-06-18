@@ -8,6 +8,8 @@ import RequestPage from '../pages/Request/RequestPage';
 import DonorRegistrationPage from '../pages/DonorRegistration/DonorRegistrationPage';
 import AboutPage from '../pages/About/AboutPage';
 import DashboardPage from '../pages/Dashboard/DashboardPage';
+import PrivateRoute from '../components/PrivateRoute/PrivateRoute';
+
 
 const LandingPage = () => (
   <>
@@ -29,7 +31,15 @@ const AppRoutes = ({ onBack, onLoginSuccess, onDonateClick }) => {
       <Route path="/search" element={<SearchBloodPage />} />
       <Route path="/request" element={<RequestPage />} />
       <Route path="/about" element={<AboutPage onDonateClick={onDonateClick} />} />
-      <Route path="/dashboard" element={<DashboardPage />} />
+      <Route
+        path="/dashboard"
+        element={
+          <PrivateRoute>
+            <DashboardPage />
+          </PrivateRoute>
+        }
+      />
+
       <Route path="*" element={<LandingPage />} />
     </Routes>
   );
