@@ -99,6 +99,8 @@
     border: 2px solid $primary-dark;
     transition: all $transition-base;
     box-shadow: 0 4px 16px rgba($primary, 0.35);
+    text-decoration: none;  // needed when rendered as <a> via Link
+    cursor: pointer;
 
     svg {
       transition: transform $transition-base;
