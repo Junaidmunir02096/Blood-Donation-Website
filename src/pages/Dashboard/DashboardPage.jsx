@@ -8,11 +8,23 @@ import AdminPanel from '../../components/Dashboard/AdminPanel';
 import MyProfile from '../../components/Dashboard/MyProfile';
 import HelpCenter from '../../components/Dashboard/HelpCenter';
 import LogoutModal from '../../components/Dashboard/LogoutModal';
+import usePageTitle from '../../hooks/usePageTitle';
 import './DashboardPage.scss';
+
+const TAB_TITLES = {
+  'dashboard':        'Dashboard',
+  'donation-history': 'Donation History',
+  'active-requests':  'Active Requests',
+  'messages':         'Messages',
+  'admin-panel':      'Admin Panel',
+  'settings':         'My Profile',
+  'help-center':      'Help Center',
+};
 
 const DashboardPage = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [showLogout, setShowLogout] = useState(false);
+  usePageTitle(TAB_TITLES[activeTab] ?? 'Dashboard');
 
   /* Intercept the logout tab so we show the modal instead of switching tabs */
   const handleTabChange = (tab) => {

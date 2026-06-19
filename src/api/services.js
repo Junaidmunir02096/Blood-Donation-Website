@@ -44,3 +44,9 @@ export const fetchDonations = () => simulateApi(donationData);
 
 // ── Active Requests ───────────────────────────────────────────────────────────
 export const fetchRequests = () => simulateApi(requests);
+
+// ── Public Donor Profile ──────────────────────────────────────────────────────
+export const fetchDonorById = (id) => {
+  const donor = donorsData.find((d) => d.id === Number(id));
+  return simulateApi(donor ?? null, 600);
+};

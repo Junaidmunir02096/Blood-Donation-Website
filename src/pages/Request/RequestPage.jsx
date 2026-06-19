@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import './RequestPage.scss';
+import usePageTitle from '../../hooks/usePageTitle';
 
 const BLOOD_GROUPS = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
 
@@ -67,6 +68,7 @@ const LocationIcon = () => (
 );
 
 const RequestPage = () => {
+  usePageTitle('Request Blood');
   const [selectedGroup, setSelectedGroup] = useState('A+');
   const [urgency, setUrgency] = useState('critical');
   const [formData, setFormData] = useState({

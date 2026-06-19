@@ -101,7 +101,7 @@ export const AuthProvider = ({ children }) => {
       fullName: 'Alex Johnson',
       email,
       bloodGroup: 'O+',
-      role: 'donor',
+      role: 'admin',
     };
 
     localStorage.setItem(TOKEN_KEY, `mock-jwt-token-${mockUser.id}`);

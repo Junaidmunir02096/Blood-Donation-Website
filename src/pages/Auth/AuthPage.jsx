@@ -1,6 +1,8 @@
 
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import usePageTitle from '../../hooks/usePageTitle';
 import './AuthPage.scss';
 
 
@@ -9,7 +11,7 @@ import authHero from '../../assets/auth-hero.png';
 const BLOOD_GROUPS = ['O+', 'O-', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-'];
 
 // ─── Register Form ────────────────────────────────────────────────────────────
-const RegisterForm = ({ onSwitch }) => {
+const RegisterForm = ({ onSwitch, onSuccess }) => {
   const { register } = useAuth();
   const [formData, setFormData] = useState({
     fullName: '',
@@ -68,8 +70,8 @@ const RegisterForm = ({ onSwitch }) => {
         <div className="auth__success-icon">🎉</div>
         <h2>Welcome aboard!</h2>
         <p>Your account has been created. You are now part of the LifeStream network.</p>
-        <button className="auth__btn auth__btn--primary" onClick={onSwitch}>
-          Log in now →
+        <button className="auth__btn auth__btn--primary" onClick={onSuccess}>
+          Go to Dashboard →
         </button>
       </div>
     );
@@ -316,9 +318,9 @@ const LoginForm = ({ onSwitch, onSuccess }) => {
         <div className={`auth__field ${errors.password ? 'auth__field--error' : ''}`}>
           <label htmlFor="login-password" className="auth__label">
             Password
-            <button type="button" className="auth__forgot-link" id="forgot-password-btn">
+            <Link to="/forgot-password" className="auth__forgot-link" id="forgot-password-btn">
               Forgot password?
-            </button>
+            </Link>
           </label>
           <div className="auth__input-wrap">
             <svg className="auth__input-icon" viewBox="0 0 24 24" aria-hidden="true">
@@ -370,7 +372,8 @@ const LoginForm = ({ onSwitch, onSuccess }) => {
 
 // ─── Main Auth Page ───────────────────────────────────────────────────────────
 const AuthPage = ({ onBack, onLoginSuccess }) => {
-  const [mode, setMode] = useState('register'); // 'register' | 'login'
+  const [mode, setMode] = useState('register');
+  usePageTitle(mode === 'login' ? 'Login' : 'Create Account');
 
   return (
     <div className="auth" id="auth-page">
@@ -417,7 +420,7 @@ const AuthPage = ({ onBack, onLoginSuccess }) => {
       {/* Right Panel */}
       <div className="auth__right">
         {mode === 'register' ? (
-          <RegisterForm onSwitch={() => setMode('login')} />
+          <RegisterForm onSwitch={() => setMode('login')} onSuccess={onLoginSuccess} />
         ) : (
           <LoginForm onSwitch={() => setMode('register')} onSuccess={onLoginSuccess} />
         )}

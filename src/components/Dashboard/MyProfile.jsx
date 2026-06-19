@@ -24,6 +24,7 @@ import {
 import './MyProfile.scss';
 import AppSpinner from '../AppSpinner/AppSpinner';
 import { fetchProfileData } from '../../api/services';
+import { useAuth } from '../../context/AuthContext';
 
 
 /* ─── Editable Field ─────────────────────────────────── */
@@ -220,15 +221,28 @@ const NotificationSettings = ({ notifPrefs }) => {
   );
 };
 
-/* ─── Main MyProfile Component ───────────────────────── */
+/* ─── Main MyProfile Component ──────────────────── */
 const MyProfile = ({ onLogout }) => {
+  const { currentUser } = useAuth();
+
+  // Derive display values from real auth data
+  const fullName    = currentUser?.fullName  ?? 'Unknown User';
+  const email       = currentUser?.email     ?? 'No email on file';
+  const bloodGroup  = currentUser?.bloodGroup ?? 'N/A';
+  const initials    = fullName
+    .split(' ')
+    .map((w) => w[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase();
+
   const [editingProfile, setEditingProfile] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [imgError, setImgError] = useState(false);
   const [profileData, setProfileData] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const nextDonationDays = 12;
+  const nextDonationDays = 12; // TODO: calculate from lastDonationDate once backend is live
 
   useEffect(() => {
     const load = async () => {
@@ -269,12 +283,12 @@ const MyProfile = ({ onLogout }) => {
             {!imgError ? (
               <img
                 src="/profile_avatar.png"
-                alt="Elena Rostova profile photo"
+                alt={`${fullName} profile photo`}
                 className="profile-hero-card__avatar"
                 onError={() => setImgError(true)}
               />
             ) : (
-              <div className="profile-hero-card__avatar-fallback" aria-hidden="true">ER</div>
+              <div className="profile-hero-card__avatar-fallback" aria-hidden="true">{initials}</div>
             )}
             <button
               className="profile-hero-card__avatar-overlay"
@@ -289,7 +303,7 @@ const MyProfile = ({ onLogout }) => {
           {/* Info */}
           <div className="profile-hero-card__info">
             <div className="profile-hero-card__name-row">
-              <h2 className="profile-hero-card__name">Elena Rostova</h2>
+              <h2 className="profile-hero-card__name">{fullName}</h2>
               <button
                 className="profile-hero-card__edit-btn"
                 type="button"
@@ -322,7 +336,7 @@ const MyProfile = ({ onLogout }) => {
             <FontAwesomeIcon icon={faDroplet} className="profile-blood-card__label-icon" />
             BLOOD GROUP
           </p>
-          <div className="profile-blood-card__group" aria-label="Blood group O positive">O+</div>
+          <div className="profile-blood-card__group" aria-label={`Blood group ${bloodGroup}`}>{bloodGroup || '—'}</div>
           <p className="profile-blood-card__eligibility">
             Eligible to donate in{' '}
             <strong className="profile-blood-card__days">{nextDonationDays} days</strong>
@@ -346,10 +360,10 @@ const MyProfile = ({ onLogout }) => {
 
           {editingProfile ? (
             <div className="profile-contact-card__fields">
-              <EditableField id="field-location" label="Primary Location" value="Portland Metro Area, Oregon" />
-              <EditableField id="field-center"   label="Preferred Center" value="Westside General" />
-              <EditableField id="field-email"    label="Email Address"    value="elena.rostova@example.com" type="email" />
-              <EditableField id="field-phone"    label="Phone Number"     value="+1 (503) 555-0182" type="tel" />
+              <EditableField id="field-location" label="Primary Location" value="Not set" />
+              <EditableField id="field-center"   label="Preferred Center" value="Not set" />
+              <EditableField id="field-email"    label="Email Address"    value={email} type="email" />
+              <EditableField id="field-phone"    label="Phone Number"     value="Not set" type="tel" />
             </div>
           ) : (
             <div className="profile-contact-card__items">
@@ -370,7 +384,7 @@ const MyProfile = ({ onLogout }) => {
                 </span>
                 <div>
                   <p className="profile-contact-item__primary">Email Address</p>
-                  <p className="profile-contact-item__value">elena.rostova@example.com</p>
+                  <p className="profile-contact-item__value">{email}</p>
                 </div>
               </div>
 

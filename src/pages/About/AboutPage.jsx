@@ -4,6 +4,7 @@ import sarahImg from '../../assets/team_sarah.png';
 import marcusImg from '../../assets/team_marcus.png';
 import elenaImg from '../../assets/team_elena.png';
 import './AboutPage.scss';
+import usePageTitle from '../../hooks/usePageTitle';
 
 /* ── Icon Components ─────────────────────────────────────────── */
 const HeartIcon = () => (
@@ -75,6 +76,7 @@ const team = [
 
 /* ── Component ────────────────────────────────────────────────── */
 const AboutPage = ({ onDonateClick }) => {
+  usePageTitle('About Us');
   return (
     <div className="about" id="about-page">
 

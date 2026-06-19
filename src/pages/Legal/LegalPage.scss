@@ -1,0 +1,294 @@
+@import '../../styles/variables';
+
+/* ═══════════════════════════════════════════════════════
+   Legal Pages — Terms & Privacy (shared styles)
+═══════════════════════════════════════════════════════ */
+.legal-page {
+  background: $bg-white;
+  min-height: 100vh;
+
+  /* ── Hero Banner ────────────────────────────── */
+  &__hero {
+    background: linear-gradient(135deg, $primary-dark 0%, darken($primary, 8%) 100%);
+    padding: $spacing-16 0 $spacing-12;
+    position: relative;
+    overflow: hidden;
+
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      right: 0;
+      height: 48px;
+      background: $bg-white;
+      clip-path: ellipse(55% 100% at 50% 100%);
+    }
+  }
+
+  &__hero-inner {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 0 $spacing-6;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+  }
+
+  &__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-2;
+    background: rgba(255, 255, 255, 0.15);
+    color: rgba(255, 255, 255, 0.9);
+    font-size: $font-size-xs;
+    font-weight: 600;
+    padding: $spacing-2 $spacing-4;
+    border-radius: $radius-full;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    margin-bottom: $spacing-5;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  &__title {
+    font-size: $font-size-4xl;
+    font-weight: 900;
+    color: #ffffff;
+    letter-spacing: -0.03em;
+    line-height: 1.15;
+    margin-bottom: $spacing-4;
+
+    @media (max-width: $bp-md) {
+      font-size: $font-size-3xl;
+    }
+  }
+
+  &__meta {
+    font-size: $font-size-sm;
+    color: rgba(255, 255, 255, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: $spacing-4;
+    flex-wrap: wrap;
+
+    span {
+      display: flex;
+      align-items: center;
+      gap: $spacing-2;
+    }
+  }
+
+  /* ── Body Layout ────────────────────────────── */
+  &__body {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    gap: $spacing-10;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: $spacing-10 $spacing-6;
+    align-items: start;
+
+    @media (max-width: $bp-lg) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* ── TOC Sidebar ────────────────────────────── */
+  &__toc {
+    position: sticky;
+    top: $spacing-8;
+    background: $bg-light;
+    border-radius: $radius-lg;
+    padding: $spacing-5;
+    border: 1px solid $border-color;
+
+    @media (max-width: $bp-lg) {
+      display: none;
+    }
+
+    &-title {
+      font-size: $font-size-xs;
+      font-weight: 700;
+      color: $text-muted;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: $spacing-4;
+    }
+
+    &-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: $spacing-1;
+    }
+
+    &-link {
+      display: block;
+      font-size: $font-size-sm;
+      color: $text-body;
+      text-decoration: none;
+      padding: $spacing-2 $spacing-3;
+      border-radius: $radius-sm;
+      transition: all $transition-fast;
+      border-left: 2px solid transparent;
+
+      &:hover {
+        color: $primary;
+        background: $primary-lighter;
+        border-left-color: $primary;
+        padding-left: $spacing-4;
+      }
+    }
+  }
+
+  /* ── Article Content ────────────────────────── */
+  &__article {
+    min-width: 0;
+  }
+
+  &__section {
+    margin-bottom: $spacing-12;
+    animation: legalFadeIn 0.4s ease backwards;
+
+    @for $i from 1 through 10 {
+      &:nth-child(#{$i}) { animation-delay: #{$i * 0.05}s; }
+    }
+  }
+
+  &__section-title {
+    font-size: $font-size-xl;
+    font-weight: 800;
+    color: $text-dark;
+    letter-spacing: -0.02em;
+    margin-bottom: $spacing-4;
+    padding-bottom: $spacing-3;
+    border-bottom: 2px solid $primary-lighter;
+    display: flex;
+    align-items: center;
+    gap: $spacing-3;
+
+    &::before {
+      content: attr(data-num);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      min-width: 28px;
+      border-radius: 50%;
+      background: $primary;
+      color: #fff;
+      font-size: $font-size-xs;
+      font-weight: 700;
+    }
+  }
+
+  &__text {
+    font-size: $font-size-base;
+    color: $text-body;
+    line-height: 1.8;
+    margin-bottom: $spacing-4;
+
+    &:last-child { margin-bottom: 0; }
+
+    a {
+      color: $primary;
+      font-weight: 600;
+      text-decoration: none;
+      border-bottom: 1px solid rgba($primary, 0.3);
+      transition: border-color $transition-fast;
+
+      &:hover { border-color: $primary; }
+    }
+
+    strong {
+      color: $text-dark;
+      font-weight: 700;
+    }
+  }
+
+  &__list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-3;
+    margin: $spacing-4 0;
+    padding: 0;
+
+    li {
+      display: flex;
+      align-items: flex-start;
+      gap: $spacing-3;
+      font-size: $font-size-base;
+      color: $text-body;
+      line-height: 1.65;
+
+      &::before {
+        content: '';
+        width: 8px;
+        height: 8px;
+        min-width: 8px;
+        border-radius: 50%;
+        background: $primary;
+        margin-top: 8px;
+      }
+    }
+  }
+
+  /* Alert / callout box */
+  &__callout {
+    background: $primary-lighter;
+    border-left: 4px solid $primary;
+    border-radius: 0 $radius-md $radius-md 0;
+    padding: $spacing-4 $spacing-5;
+    margin: $spacing-5 0;
+    font-size: $font-size-sm;
+    color: $text-dark;
+    line-height: 1.65;
+
+    strong {
+      color: $primary;
+      display: block;
+      margin-bottom: $spacing-1;
+    }
+  }
+
+  /* ── Footer actions ─────────────────────────── */
+  &__footer {
+    border-top: 1px solid $border-color;
+    padding: $spacing-8 $spacing-6;
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: $spacing-4;
+  }
+
+  &__footer-text {
+    font-size: $font-size-sm;
+    color: $text-muted;
+  }
+
+  &__footer-links {
+    display: flex;
+    gap: $spacing-5;
+
+    a {
+      font-size: $font-size-sm;
+      color: $primary;
+      font-weight: 600;
+      text-decoration: none;
+
+      &:hover { text-decoration: underline; }
+    }
+  }
+}
+
+@keyframes legalFadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}

@@ -1,0 +1,365 @@
+@import '../../styles/variables';
+
+/* ═══════════════════════════════════════════════════════
+   Public Donor Profile Page
+═══════════════════════════════════════════════════════ */
+.donor-profile {
+  background: $bg-light;
+  min-height: 100vh;
+  padding-bottom: $spacing-16;
+
+  /* ── Hero band ──────────────────────────────── */
+  &__hero {
+    background: linear-gradient(135deg, $primary-dark 0%, darken($primary, 5%) 100%);
+    padding: $spacing-12 $spacing-6 $spacing-20;
+    position: relative;
+    overflow: hidden;
+
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      right: 0;
+      height: 80px;
+      background: $bg-light;
+      clip-path: ellipse(55% 100% at 50% 100%);
+    }
+  }
+
+  &__back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-2;
+    color: rgba(255,255,255,0.75);
+    font-size: $font-size-sm;
+    font-weight: 500;
+    text-decoration: none;
+    margin-bottom: $spacing-8;
+    position: relative;
+    z-index: 1;
+    transition: color $transition-fast;
+
+    svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    &:hover { color: #fff; }
+  }
+
+  /* ── Card (overlaps hero) ───────────────────── */
+  &__card {
+    position: relative;
+    z-index: 2;
+    background: $bg-white;
+    border-radius: $radius-xl;
+    border: 1px solid $border-color;
+    box-shadow: $shadow-md;
+    max-width: 800px;
+    margin: -64px auto 0;
+    padding: $spacing-8 $spacing-8;
+    animation: dpFadeIn 0.4s ease;
+
+    @media (max-width: $bp-md) {
+      margin: -48px $spacing-4 0;
+      padding: $spacing-6 $spacing-5;
+    }
+  }
+
+  /* ── Profile header inside card ─────────────── */
+  &__header {
+    display: flex;
+    align-items: flex-start;
+    gap: $spacing-6;
+    margin-bottom: $spacing-8;
+
+    @media (max-width: $bp-sm) {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+  }
+
+  &__avatar {
+    width: 96px;
+    height: 96px;
+    min-width: 96px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    border: 4px solid $bg-white;
+    position: relative;
+  }
+
+  &__avatar-status {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #22c55e;
+    border: 2px solid $bg-white;
+  }
+
+  &__name-group {
+    flex: 1;
+  }
+
+  &__name {
+    font-size: $font-size-2xl;
+    font-weight: 800;
+    color: $text-dark;
+    letter-spacing: -0.03em;
+    margin-bottom: $spacing-2;
+  }
+
+  &__verified {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-2;
+    background: #dcfce7;
+    color: #166534;
+    font-size: $font-size-xs;
+    font-weight: 600;
+    padding: $spacing-1 $spacing-3;
+    border-radius: $radius-full;
+    margin-bottom: $spacing-3;
+
+    svg { width: 12px; height: 12px; fill: currentColor; }
+  }
+
+  &__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $spacing-2;
+
+    @media (max-width: $bp-sm) {
+      justify-content: center;
+    }
+  }
+
+  &__tag {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-1;
+    font-size: $font-size-xs;
+    color: $text-muted;
+    background: $bg-light;
+    border: 1px solid $border-color;
+    padding: $spacing-1 $spacing-3;
+    border-radius: $radius-full;
+
+    svg { width: 12px; height: 12px; fill: currentColor; }
+  }
+
+  &__blood-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    width: 80px;
+    min-width: 80px;
+    height: 80px;
+    border-radius: $radius-lg;
+    background: linear-gradient(135deg, $primary 0%, $primary-dark 100%);
+    color: #fff;
+    box-shadow: 0 4px 16px rgba($primary, 0.35);
+
+    @media (max-width: $bp-sm) {
+      order: -1;
+    }
+
+    &-label {
+      font-size: 0.6rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      opacity: 0.8;
+    }
+
+    &-group {
+      font-size: 1.75rem;
+      font-weight: 900;
+      line-height: 1;
+    }
+  }
+
+  /* ── Stats row ──────────────────────────────── */
+  &__stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: $spacing-4;
+    padding: $spacing-6 0;
+    border-top: 1px solid $border-color;
+    border-bottom: 1px solid $border-color;
+    margin-bottom: $spacing-8;
+
+    @media (max-width: $bp-sm) {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  &__stat {
+    text-align: center;
+
+    &-value {
+      display: block;
+      font-size: $font-size-2xl;
+      font-weight: 800;
+      color: $text-dark;
+      letter-spacing: -0.03em;
+    }
+
+    &-label {
+      font-size: $font-size-xs;
+      color: $text-muted;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+  }
+
+  /* ── Info grid ──────────────────────────────── */
+  &__info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: $spacing-4;
+    margin-bottom: $spacing-8;
+
+    @media (max-width: $bp-sm) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  &__info-item {
+    background: $bg-light;
+    border-radius: $radius-md;
+    padding: $spacing-4 $spacing-5;
+    border: 1px solid $border-color;
+    display: flex;
+    align-items: center;
+    gap: $spacing-4;
+
+    &-icon {
+      width: 36px;
+      height: 36px;
+      min-width: 36px;
+      border-radius: $radius-md;
+      background: $primary-lighter;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      svg { width: 16px; height: 16px; fill: $primary; }
+    }
+
+    &-text {
+      p:first-child {
+        font-size: $font-size-xs;
+        color: $text-muted;
+        font-weight: 500;
+        margin-bottom: 2px;
+      }
+      p:last-child {
+        font-size: $font-size-sm;
+        font-weight: 600;
+        color: $text-dark;
+      }
+    }
+  }
+
+  /* ── CTA buttons ────────────────────────────── */
+  &__actions {
+    display: flex;
+    gap: $spacing-4;
+    flex-wrap: wrap;
+  }
+
+  &__btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-2;
+    background: $primary-dark;
+    color: #fff;
+    font-size: $font-size-sm;
+    font-weight: 600;
+    padding: $spacing-3 $spacing-6;
+    border-radius: $radius-full;
+    border: 2px solid $primary-dark;
+    text-decoration: none;
+    transition: all $transition-base;
+    box-shadow: 0 4px 16px rgba($primary, 0.35);
+
+    &:hover {
+      background: $primary;
+      border-color: $primary;
+      transform: translateY(-2px);
+    }
+
+    svg { width: 16px; height: 16px; fill: currentColor; }
+  }
+
+  &__btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-2;
+    background: $bg-white;
+    color: $text-dark;
+    font-size: $font-size-sm;
+    font-weight: 600;
+    padding: $spacing-3 $spacing-6;
+    border-radius: $radius-full;
+    border: 2px solid $border-color;
+    text-decoration: none;
+    transition: all $transition-base;
+
+    &:hover {
+      border-color: $primary;
+      color: $primary;
+      transform: translateY(-2px);
+    }
+
+    svg { width: 16px; height: 16px; fill: currentColor; }
+  }
+
+  /* ── Not found state ────────────────────────── */
+  &__not-found {
+    text-align: center;
+    padding: $spacing-16 $spacing-6;
+    animation: dpFadeIn 0.4s ease;
+
+    &-icon { font-size: 3rem; display: block; margin-bottom: $spacing-4; }
+
+    h2 {
+      font-size: $font-size-xl;
+      font-weight: 800;
+      color: $text-dark;
+      margin-bottom: $spacing-3;
+    }
+
+    p {
+      font-size: $font-size-sm;
+      color: $text-muted;
+      margin-bottom: $spacing-6;
+    }
+  }
+}
+
+@keyframes dpFadeIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
