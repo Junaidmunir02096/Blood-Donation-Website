@@ -8,6 +8,16 @@ import RequestPage from '../pages/Request/RequestPage';
 import DonorRegistrationPage from '../pages/DonorRegistration/DonorRegistrationPage';
 import AboutPage from '../pages/About/AboutPage';
 import DashboardPage from '../pages/Dashboard/DashboardPage';
+import PrivateRoute from '../components/PrivateRoute/PrivateRoute';
+
+// ── Priority 2: New Pages ──────────────────────────────────────────────────────
+import ForgotPasswordPage from '../pages/ForgotPassword/ForgotPasswordPage';
+import ResetPasswordPage  from '../pages/ResetPassword/ResetPasswordPage';
+import NotFoundPage       from '../pages/NotFound/NotFoundPage';
+import TermsPage          from '../pages/Legal/TermsPage';
+import PrivacyPage        from '../pages/Legal/PrivacyPage';
+import DonorProfilePage   from '../pages/DonorProfile/DonorProfilePage';
+
 
 const LandingPage = () => (
   <>
@@ -20,17 +30,41 @@ const LandingPage = () => (
 const AppRoutes = ({ onBack, onLoginSuccess, onDonateClick }) => {
   return (
     <Routes>
+      {/* ── Public ────────────────────────────────── */}
       <Route path="/" element={<LandingPage />} />
       <Route
         path="/auth"
         element={<AuthPage onBack={onBack} onLoginSuccess={onLoginSuccess} />}
       />
-      <Route path="/donate" element={<DonorRegistrationPage onBack={onBack} />} />
-      <Route path="/search" element={<SearchBloodPage />} />
+      <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+      <Route path="/reset-password"  element={<ResetPasswordPage />}  />
+      <Route path="/search"  element={<SearchBloodPage />} />
       <Route path="/request" element={<RequestPage />} />
-      <Route path="/about" element={<AboutPage onDonateClick={onDonateClick} />} />
-      <Route path="/dashboard" element={<DashboardPage />} />
-      <Route path="*" element={<LandingPage />} />
+      <Route path="/about"   element={<AboutPage onDonateClick={onDonateClick} />} />
+      <Route path="/donor/:id" element={<DonorProfilePage />} />
+      <Route path="/terms"   element={<TermsPage />} />
+      <Route path="/privacy" element={<PrivacyPage />} />
+
+      {/* ── Protected ─────────────────────────────── */}
+      <Route
+        path="/donate"
+        element={
+          <PrivateRoute>
+            <DonorRegistrationPage onBack={onBack} />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/dashboard"
+        element={
+          <PrivateRoute>
+            <DashboardPage />
+          </PrivateRoute>
+        }
+      />
+
+      {/* ── 404 Catch-all ─────────────────────────── */}
+      <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );
 };

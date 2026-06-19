@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faArrowUpFromBracket,
-  faCheckCircle,
+  faCircleCheck,
   faChevronUp,
   faChevronDown,
   faSort,
@@ -135,7 +135,7 @@ const DonationHistory = () => {
                   <td className="dh-table__td">{row.volume}</td>
                   <td className="dh-table__td">
                     <span className={`dh-badge dh-badge--${row.status.toLowerCase()}`}>
-                      <FontAwesomeIcon icon={faCheckCircle} aria-hidden="true" />
+                      <FontAwesomeIcon icon={faCircleCheck} aria-hidden="true" />
                       {row.status}
                     </span>
                   </td>

@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import './Hero.scss';
 
 const Hero = () => {
@@ -24,15 +25,15 @@ const Hero = () => {
             </p>
 
             <div className="hero__actions">
-              <button className="hero__btn-primary" id="btn-become-donor" aria-label="Become a Donor">
+              <Link to="/donate" className="hero__btn-primary" id="btn-become-donor" aria-label="Become a Donor">
                 Become a Donor
                 <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" aria-hidden="true">
                   <path d="M5 12h14M12 5l7 7-7 7" />
                 </svg>
-              </button>
-              <button className="hero__btn-secondary" id="btn-find-blood" aria-label="Find Blood">
+              </Link>
+              <Link to="/search" className="hero__btn-secondary" id="btn-find-blood" aria-label="Find Blood">
                 Find Blood
-              </button>
+              </Link>
             </div>
           </div>
 

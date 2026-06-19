@@ -1,7 +1,9 @@
 import { useState, useMemo, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import './SearchBloodPage.scss';
 import AppSpinner from '../../components/AppSpinner/AppSpinner';
 import { fetchDonors } from '../../api/services';
+import usePageTitle from '../../hooks/usePageTitle';
 
 const BLOOD_GROUPS = ['O+', 'O-', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-'];
 const PAGE_SIZE = 6;
@@ -73,22 +75,34 @@ const DonorCard = ({ donor }) => {
       </div>
 
       {/* CTA */}
-      <button
-        className="donor-card__call-btn"
-        id={`call-donor-${donor.id}`}
-        aria-label={`Call ${donor.name}`}
-      >
-        <svg viewBox="0 0 24 24" className="donor-card__call-icon" aria-hidden="true">
-          <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
-        </svg>
-        Call Donor
-      </button>
+      <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+        <button
+          className="donor-card__call-btn"
+          id={`call-donor-${donor.id}`}
+          aria-label={`Call ${donor.name}`}
+        >
+          <svg viewBox="0 0 24 24" className="donor-card__call-icon" aria-hidden="true">
+            <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
+          </svg>
+          Call Donor
+        </button>
+        <Link
+          to={`/donor/${donor.id}`}
+          className="donor-card__call-btn"
+          id={`view-profile-${donor.id}`}
+          aria-label={`View profile of ${donor.name}`}
+          style={{ textDecoration: 'none', background: 'transparent', border: '1.5px solid #e8e0df', color: '#4a4a5a' }}
+        >
+          View Profile
+        </Link>
+      </div>
     </article>
   );
 };
 
 // ─── Main Search Blood Page ───────────────────────────────────────────────────
 const SearchBloodPage = () => {
+  usePageTitle('Find a Donor');
   const [donors, setDonors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [location, setLocation] = useState('');

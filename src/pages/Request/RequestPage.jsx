@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import './RequestPage.scss';
+import usePageTitle from '../../hooks/usePageTitle';
 
 const BLOOD_GROUPS = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
 
@@ -67,8 +68,71 @@ const LocationIcon = () => (
 );
 
 const RequestPage = () => {
+  usePageTitle('Request Blood');
   const [selectedGroup, setSelectedGroup] = useState('A+');
   const [urgency, setUrgency] = useState('critical');
+  const [formData, setFormData] = useState({
+    hospitalName: '',
+    location: '',
+    patientName: '',
+    contactNumber: ''
+  });
+  const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+
+  const handleChange = (e) => {
+    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    setErrors(prev => ({ ...prev, [e.target.name]: '' }));
+  };
+
+  const validate = () => {
+    const e = {};
+    if (!formData.hospitalName.trim()) e.hospitalName = 'Required';
+    if (!formData.location.trim()) e.location = 'Required';
+    if (!formData.patientName.trim()) e.patientName = 'Required';
+    if (!formData.contactNumber.trim()) e.contactNumber = 'Required';
+    return e;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const errs = validate();
+    if (Object.keys(errs).length) { setErrors(errs); return; }
+    
+    setIsSubmitting(true);
+    // Simulate API call to backend
+    await new Promise(resolve => setTimeout(resolve, 1200));
+    setIsSubmitting(false);
+    
+    setSubmitted(true);
+  };
+
+  if (submitted) {
+    return (
+      <div className="request-page" id="request-page-success">
+        <section className="request-page__hero">
+          <div className="container" style={{ textAlign: 'center', padding: '4rem 0' }}>
+            <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>✅</div>
+            <h1 className="request-page__title">Request Submitted</h1>
+            <p className="request-page__subtitle">
+              Your blood request has been successfully submitted and is now active.
+            </p>
+            <button 
+              className="request-group-btn request-group-btn--active"
+              style={{ marginTop: '2rem', padding: '0.75rem 2rem', borderRadius: '99px' }}
+              onClick={() => {
+                setSubmitted(false);
+                setFormData({ hospitalName: '', location: '', patientName: '', contactNumber: '' });
+              }}
+            >
+              Submit Another Request
+            </button>
+          </div>
+        </section>
+      </div>
+    );
+  }
 
   return (
     <div className="request-page" id="request-page">
@@ -83,8 +147,9 @@ const RequestPage = () => {
 
       <section className="request-page__form" aria-label="Blood request form">
         <div className="container">
-          <div className="request-card">
+          <form className="request-card" onSubmit={handleSubmit} noValidate>
             <div className="request-section">
+
               <div className="request-section__header">
                 <span className="request-section__icon"><DropIcon /></span>
                 <h2 className="request-section__title">Required Blood Group</h2>
@@ -148,49 +213,51 @@ const RequestPage = () => {
 
               <div className="request-field">
                 <label className="request-field__label" htmlFor="hospital-name">Hospital/Clinic Name</label>
-                <div className="request-field__input">
+                <div className={`request-field__input ${errors.hospitalName ? 'error' : ''}`}>
                   <span className="request-field__icon"><HospitalIcon /></span>
-                  <input id="hospital-name" type="text" placeholder="e.g. City General Hospital" />
+                  <input id="hospital-name" name="hospitalName" value={formData.hospitalName} onChange={handleChange} type="text" placeholder="e.g. City General Hospital" />
                 </div>
               </div>
 
               <div className="request-field">
                 <label className="request-field__label" htmlFor="hospital-location">City / Area</label>
-                <div className="request-field__input">
+                <div className={`request-field__input ${errors.location ? 'error' : ''}`}>
                   <span className="request-field__icon"><LocationIcon /></span>
-                  <input id="hospital-location" type="text" placeholder="Search location..." />
+                  <input id="hospital-location" name="location" value={formData.location} onChange={handleChange} type="text" placeholder="Search location..." />
                 </div>
               </div>
 
               <div className="request-grid">
                 <div className="request-field">
                   <label className="request-field__label" htmlFor="patient-name">Patient Name</label>
-                  <div className="request-field__input">
+                  <div className={`request-field__input ${errors.patientName ? 'error' : ''}`}>
                     <span className="request-field__icon">@</span>
-                    <input id="patient-name" type="text" placeholder="Full Name" />
+                    <input id="patient-name" name="patientName" value={formData.patientName} onChange={handleChange} type="text" placeholder="Full Name" />
                   </div>
                 </div>
                 <div className="request-field">
                   <label className="request-field__label" htmlFor="contact-number">Contact Number</label>
-                  <div className="request-field__input">
+                  <div className={`request-field__input ${errors.contactNumber ? 'error' : ''}`}>
                     <span className="request-field__icon"><PhoneIcon /></span>
-                    <input id="contact-number" type="tel" placeholder="+1 (555) 000-0000" />
+                    <input id="contact-number" name="contactNumber" value={formData.contactNumber} onChange={handleChange} type="tel" placeholder="+1 (555) 000-0000" />
                   </div>
                 </div>
               </div>
+
             </div>
 
             <div className="request-footer">
               <p className="request-footer__note">
                 By submitting, you agree to our Terms of Service and Privacy Policy.
               </p>
-              <button className="request-footer__submit" type="button">
+              <button className="request-footer__submit" type="submit" disabled={isSubmitting}>
                 <span className="request-footer__submit-icon">&#9654;</span>
-                Submit Request
+                {isSubmitting ? 'Submitting...' : 'Submit Request'}
               </button>
             </div>
-          </div>
+          </form>
         </div>
+
       </section>
     </div>
   );

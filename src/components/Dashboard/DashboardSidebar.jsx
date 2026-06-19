@@ -14,82 +14,94 @@ import {
   faXmark,
 } from '@fortawesome/free-solid-svg-icons';
 import './DashboardSidebar.scss';
+import { useAuth } from '../../context/AuthContext';
 
-const tabs = [
-  { id: 'dashboard',        label: 'Dashboard',        icon: faTableColumns },
-  { id: 'donation-history', label: 'Donation History', icon: faClock        },
-  { id: 'active-requests',  label: 'Active Requests',  icon: faDroplet      },
-  { id: 'messages',         label: 'Messages',         icon: faEnvelope     },
-  { id: 'admin-panel',      label: 'Admin Panel',      icon: faShieldHalved },
-  { id: 'settings',         label: 'Settings',         icon: faGear         },
+const allTabs = [
+  { id: 'dashboard',        label: 'Dashboard',        icon: faTableColumns, adminOnly: false },
+  { id: 'donation-history', label: 'Donation History', icon: faClock,        adminOnly: false },
+  { id: 'active-requests',  label: 'Active Requests',  icon: faDroplet,      adminOnly: false },
+  { id: 'messages',         label: 'Messages',         icon: faEnvelope,     adminOnly: false },
+  { id: 'admin-panel',      label: 'Admin Panel',      icon: faShieldHalved, adminOnly: true  },
+  { id: 'settings',         label: 'Settings',         icon: faGear,         adminOnly: false },
 ];
 
-const SidebarContent = ({ activeTab, onSelect, isMobile = false, ctaRef }) => (
-  <>
-    <div className="dashboard-sidebar__profile">
-      <div className="dashboard-sidebar__avatar-fallback" aria-hidden="true">AJ</div>
-      <div>
-        <p className="dashboard-sidebar__welcome">Welcome back,</p>
-        <p className="dashboard-sidebar__name">Donor ID: #8821</p>
+const SidebarContent = ({ activeTab, onSelect, isMobile = false, ctaRef, currentUser }) => {
+  const initials = currentUser?.fullName
+    ? currentUser.fullName.split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase()
+    : '?';
+  const displayName = currentUser?.fullName ?? 'Guest';
+  const role        = currentUser?.role ?? 'donor';
+  const isAdmin     = role === 'admin';
+  const tabs        = allTabs.filter((t) => !t.adminOnly || isAdmin);
+
+  return (
+    <>
+      <div className="dashboard-sidebar__profile">
+        <div className="dashboard-sidebar__avatar-fallback" aria-hidden="true">{initials}</div>
+        <div>
+          <p className="dashboard-sidebar__welcome">Welcome back,</p>
+          <p className="dashboard-sidebar__name">{displayName}</p>
+        </div>
       </div>
-    </div>
 
-    <button
-      className="dashboard-sidebar__cta"
-      id={isMobile ? 'mobile-new-request' : 'dashboard-new-request'}
-      type="button"
-      onClick={() => onSelect('active-requests')}
-      ref={isMobile ? ctaRef : null}
-    >
-      <FontAwesomeIcon icon={faPlus} />
-      New Request
-    </button>
+      <button
+        className="dashboard-sidebar__cta"
+        id={isMobile ? 'mobile-new-request' : 'dashboard-new-request'}
+        type="button"
+        onClick={() => onSelect('active-requests')}
+        ref={isMobile ? ctaRef : null}
+      >
+        <FontAwesomeIcon icon={faPlus} />
+        New Request
+      </button>
 
-    <nav className="dashboard-sidebar__nav" aria-label="Main navigation">
-      {tabs.map((tab) => (
+      <nav className="dashboard-sidebar__nav" aria-label="Main navigation">
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            type="button"
+            className={`dashboard-sidebar__tab${activeTab === tab.id ? ' dashboard-sidebar__tab--active' : ''}`}
+            onClick={() => onSelect(tab.id)}
+            aria-current={activeTab === tab.id ? 'page' : undefined}
+          >
+            <span className="dashboard-sidebar__tab-icon" aria-hidden="true">
+              <FontAwesomeIcon icon={tab.icon} />
+            </span>
+            <span>{tab.label}</span>
+          </button>
+        ))}
+      </nav>
+
+      <div className="dashboard-sidebar__footer">
         <button
-          key={tab.id}
           type="button"
-          className={`dashboard-sidebar__tab${activeTab === tab.id ? ' dashboard-sidebar__tab--active' : ''}`}
-          onClick={() => onSelect(tab.id)}
-          aria-current={activeTab === tab.id ? 'page' : undefined}
+          className="dashboard-sidebar__footer-link"
+          onClick={() => onSelect('help-center')}
+          id={isMobile ? 'mobile-sidebar-help' : 'sidebar-help'}
         >
-          <span className="dashboard-sidebar__tab-icon" aria-hidden="true">
-            <FontAwesomeIcon icon={tab.icon} />
+          <span className="dashboard-sidebar__footer-icon" aria-hidden="true">
+            <FontAwesomeIcon icon={faCircleQuestion} />
           </span>
-          <span>{tab.label}</span>
+          Help Center
         </button>
-      ))}
-    </nav>
-
-    <div className="dashboard-sidebar__footer">
-      <button
-        type="button"
-        className="dashboard-sidebar__footer-link"
-        onClick={() => onSelect('help-center')}
-        id={isMobile ? 'mobile-sidebar-help' : 'sidebar-help'}
-      >
-        <span className="dashboard-sidebar__footer-icon" aria-hidden="true">
-          <FontAwesomeIcon icon={faCircleQuestion} />
-        </span>
-        Help Center
-      </button>
-      <button
-        type="button"
-        className="dashboard-sidebar__footer-link dashboard-sidebar__footer-link--muted"
-        onClick={() => onSelect('logout')}
-        id={isMobile ? 'mobile-sidebar-logout' : 'sidebar-logout'}
-      >
-        <span className="dashboard-sidebar__footer-icon" aria-hidden="true">
-          <FontAwesomeIcon icon={faRightFromBracket} />
-        </span>
-        Logout
-      </button>
-    </div>
-  </>
-);
+        <button
+          type="button"
+          className="dashboard-sidebar__footer-link dashboard-sidebar__footer-link--muted"
+          onClick={() => onSelect('logout')}
+          id={isMobile ? 'mobile-sidebar-logout' : 'sidebar-logout'}
+        >
+          <span className="dashboard-sidebar__footer-icon" aria-hidden="true">
+            <FontAwesomeIcon icon={faRightFromBracket} />
+          </span>
+          Logout
+        </button>
+      </div>
+    </>
+  );
+};
 
 const DashboardSidebar = ({ activeTab, onTabChange }) => {
+  const { currentUser } = useAuth();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const drawerRef = useRef(null);
   const firstFocusableRef = useRef(null);
@@ -120,7 +132,7 @@ const DashboardSidebar = ({ activeTab, onTabChange }) => {
   return (
     <>
       <aside className="dashboard-sidebar dashboard-sidebar--desktop" aria-label="Dashboard navigation">
-        <SidebarContent activeTab={activeTab} onSelect={handleSelect} />
+        <SidebarContent activeTab={activeTab} onSelect={handleSelect} currentUser={currentUser} />
       </aside>
 
       <header className="db-topbar" role="banner">
@@ -134,7 +146,7 @@ const DashboardSidebar = ({ activeTab, onTabChange }) => {
         </div>
 
         <span className="db-topbar__page-label" aria-live="polite">
-          {tabs.find((t) => t.id === activeTab)?.label ?? 'Dashboard'}
+          {allTabs.find((t) => t.id === activeTab)?.label ?? 'Dashboard'}
         </span>
 
         <button
@@ -191,6 +203,7 @@ const DashboardSidebar = ({ activeTab, onTabChange }) => {
             onSelect={handleSelect}
             isMobile
             ctaRef={firstFocusableRef}
+            currentUser={currentUser}
           />
         </div>
       </aside>
