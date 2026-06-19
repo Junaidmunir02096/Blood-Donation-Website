@@ -18,10 +18,11 @@ import {
   faCircleXmark,
   faHourglassHalf,
   faShieldHalved,
+  faLock,
 } from '@fortawesome/free-solid-svg-icons';
 import './AdminPanel.scss';
-
 import AppSpinner from '../AppSpinner/AppSpinner';
+import { useAuth } from '../../context/AuthContext';
 import {
   fetchAdminRequests,
   fetchAdminDonors,
@@ -532,8 +533,27 @@ const UsersTable = () => {
 const TABS = ['Donors', 'Requests', 'Users'];
 
 const AdminPanel = () => {
+  const { currentUser } = useAuth();
   const [activeTab, setActiveTab] = useState('Requests');
   const [notifCount] = useState(3);
+
+  // ── Role guard ─────────────────────────────────────────────────
+  if (currentUser?.role !== 'admin') {
+    return (
+      <section className="admin-panel" aria-labelledby="admin-access-denied">
+        <div className="admin-access-denied" id="admin-access-denied-screen">
+          <span className="admin-access-denied__icon" aria-hidden="true">
+            <FontAwesomeIcon icon={faLock} />
+          </span>
+          <h2 className="admin-access-denied__title" id="admin-access-denied">Access Restricted</h2>
+          <p className="admin-access-denied__desc">
+            The Admin Panel is only accessible to users with the <strong>admin</strong> role.
+            If you believe this is an error, please contact your system administrator.
+          </p>
+        </div>
+      </section>
+    );
+  }
 
   const stats = [
     {

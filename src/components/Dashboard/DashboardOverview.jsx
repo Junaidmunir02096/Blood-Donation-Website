@@ -10,9 +10,13 @@ import {
 import './DashboardOverview.scss';
 import AppSpinner from '../AppSpinner/AppSpinner';
 import { fetchDashboardData } from '../../api/services';
+import { useAuth } from '../../context/AuthContext';
 
 
 const DashboardOverview = () => {
+  const { currentUser } = useAuth();
+  const firstName = currentUser?.fullName?.split(' ')[0] ?? 'there';
+
   const [activeRequests, setActiveRequests] = useState([]);
   const [nearbyDonors, setNearbyDonors] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -42,7 +46,7 @@ const DashboardOverview = () => {
       {/* ── Header ── */}
       <header className="dashboard-overview__header">
         <div className="dashboard-overview__heading-group">
-          <h1 className="dashboard-overview__title">Hello, Alexander</h1>
+          <h1 className="dashboard-overview__title">Hello, {firstName} 👋</h1>
           <p className="dashboard-overview__subtitle">
             Your local blood network is active today. Every drop counts.
           </p>

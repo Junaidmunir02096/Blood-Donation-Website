@@ -1,0 +1,170 @@
+@import '../../styles/variables';
+
+.not-found {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: $bg-light;
+  padding: $spacing-8 $spacing-4;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(circle at 20% 20%, rgba($primary, 0.05) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, rgba($primary, 0.04) 0%, transparent 50%);
+    pointer-events: none;
+  }
+
+  &__content {
+    position: relative;
+    z-index: 1;
+    max-width: 560px;
+    animation: nfFadeIn 0.5s ease;
+  }
+
+  /* Big decorative 404 */
+  &__number {
+    font-size: clamp(6rem, 20vw, 10rem);
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: -0.06em;
+    background: linear-gradient(135deg, $primary-light 0%, rgba($primary, 0.6) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    user-select: none;
+    margin-bottom: $spacing-4;
+    position: relative;
+
+    /* Blood drop inside the zero */
+    &::after {
+      content: '🩸';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: clamp(2rem, 6vw, 3.5rem);
+      -webkit-text-fill-color: initial;
+      animation: drip 3s ease-in-out infinite;
+    }
+  }
+
+  &__icon {
+    font-size: 3rem;
+    margin-bottom: $spacing-4;
+    display: block;
+    animation: floatIcon 3s ease-in-out infinite;
+  }
+
+  &__title {
+    font-size: $font-size-2xl;
+    font-weight: 800;
+    color: $text-dark;
+    letter-spacing: -0.03em;
+    margin-bottom: $spacing-3;
+  }
+
+  &__desc {
+    font-size: $font-size-base;
+    color: $text-muted;
+    line-height: 1.65;
+    margin-bottom: $spacing-8;
+  }
+
+  &__actions {
+    display: flex;
+    gap: $spacing-4;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  &__btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-2;
+    background: $primary-dark;
+    color: $text-light;
+    font-size: $font-size-sm;
+    font-weight: 600;
+    padding: $spacing-3 $spacing-6;
+    border-radius: $radius-full;
+    border: 2px solid $primary-dark;
+    text-decoration: none;
+    transition: all $transition-base;
+    box-shadow: 0 4px 16px rgba($primary, 0.35);
+
+    &:hover {
+      background: $primary;
+      border-color: $primary;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba($primary, 0.45);
+    }
+  }
+
+  &__btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-2;
+    background: transparent;
+    color: $text-dark;
+    font-size: $font-size-sm;
+    font-weight: 600;
+    padding: $spacing-3 $spacing-6;
+    border-radius: $radius-full;
+    border: 2px solid $border-color;
+    text-decoration: none;
+    transition: all $transition-base;
+
+    &:hover {
+      border-color: $primary;
+      color: $primary;
+      transform: translateY(-2px);
+    }
+  }
+
+  /* Helpful links */
+  &__links {
+    margin-top: $spacing-10;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: $spacing-2;
+  }
+
+  &__link {
+    font-size: $font-size-xs;
+    color: $text-muted;
+    text-decoration: none;
+    padding: $spacing-1 $spacing-3;
+    border-radius: $radius-full;
+    border: 1px solid $border-color;
+    transition: all $transition-fast;
+
+    &:hover {
+      border-color: $primary;
+      color: $primary;
+      background: $primary-lighter;
+    }
+  }
+}
+
+@keyframes nfFadeIn {
+  from { opacity: 0; transform: translateY(30px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+@keyframes floatIcon {
+  0%, 100% { transform: translateY(0);   }
+  50%       { transform: translateY(-8px); }
+}
+
+@keyframes drip {
+  0%, 100% { transform: translate(-50%, -50%) scale(1);    opacity: 0.8; }
+  50%       { transform: translate(-50%, -40%) scale(1.1); opacity: 1;   }
+}

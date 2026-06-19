@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import './DonorRegistrationPage.scss';
 import MapPickerModal from '../../components/MapPicker/MapPickerModal';
 import CustomCalendar, { formatDisplayDate } from '../../components/CustomCalendar/CustomCalendar';
+import { useAuth } from '../../context/AuthContext';
 
 const BLOOD_GROUPS = ['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-'];
 
@@ -46,12 +47,14 @@ const StatusBanner = ({ status }) => {
 
 // ─── Donor Registration Page ───────────────────────────────────────────────────
 const DonorRegistrationPage = ({ onBack }) => {
+  const { currentUser } = useAuth();
+
   const [formData, setFormData] = useState({
-    fullName: '',
+    fullName: currentUser?.fullName ?? '',
     phone: '',
     city: '',
     country: '',
-    bloodGroup: 'O+',
+    bloodGroup: currentUser?.bloodGroup ?? 'O+',
     lastDonationDate: '',
   });
   const [errors, setErrors]             = useState({});
@@ -60,6 +63,11 @@ const DonorRegistrationPage = ({ onBack }) => {
   const [isMapOpen, setIsMapOpen]       = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
   const dateFieldRef                    = useRef(null); // wraps trigger + inline calendar
+
+  // Show the pending status banner only when user already has a submitted registration.
+  // For now this is tied to role: in future replace with a real API check.
+  // role === 'donor' means they've completed registration before (mock logic).
+  const showBanner = currentUser?.hasPendingRegistration === true;
 
   // Close calendar when clicking outside the entire date field
   useEffect(() => {
@@ -74,7 +82,7 @@ const DonorRegistrationPage = ({ onBack }) => {
   }, [showCalendar]);
 
   // Demo: show pending banner if name is pre-filled (simulates returning user)
-  const showBanner = true;
+  // const showBanner = true;
 
   const validate = () => {
     const e = {};
@@ -369,7 +377,7 @@ const DonorRegistrationPage = ({ onBack }) => {
                 id="donor-reg-submit-btn"
                 disabled={isSubmitting}
               >
-                {isSubmitting ? 'Submitting...' : 'Update Registration'}
+                {isSubmitting ? 'Submitting...' : 'Submit Registration'}
               </button>
 
             </div>
