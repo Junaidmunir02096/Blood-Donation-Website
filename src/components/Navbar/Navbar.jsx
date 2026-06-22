@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faXmark,
@@ -28,12 +29,22 @@ const Navbar = ({
   onRequestClick,
   onAboutClick,
 }) => {
+  const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState('');
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled]  = useState(false);
   const drawerRef  = useRef(null);
   const triggerRef = useRef(null);
 
   const handlers = { onHomeClick, onSearchClick, onRequestClick, onAboutClick };
+
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+      setMenuOpen(false);
+    }
+  };
 
   /* ── elevate navbar on scroll ── */
   useEffect(() => {
@@ -103,15 +114,17 @@ const Navbar = ({
             </ul>
 
             {/* ── Desktop Search ── */}
-            <div className="navbar__search" role="search">
+            <form onSubmit={handleSearchSubmit} className="navbar__search" role="search">
               <FontAwesomeIcon icon={faMagnifyingGlass} aria-hidden="true" />
               <input
                 type="text"
                 placeholder="Search..."
                 id="nav-search-input"
                 aria-label="Search"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
               />
-            </div>
+            </form>
 
             {/* ── Desktop Actions ── */}
             <div className="navbar__actions">
@@ -192,7 +205,7 @@ const Navbar = ({
         </div>
 
         {/* Drawer search */}
-        <div className="nav-drawer__search-wrap" role="search">
+        <form onSubmit={handleSearchSubmit} className="nav-drawer__search-wrap" role="search">
           <FontAwesomeIcon icon={faMagnifyingGlass} className="nav-drawer__search-icon" aria-hidden="true" />
           <input
             type="text"
@@ -200,8 +213,10 @@ const Navbar = ({
             placeholder="Search blood type, location…"
             aria-label="Search"
             id="nav-drawer-search"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
           />
-        </div>
+        </form>
 
         {/* Drawer nav links */}
         <nav className="nav-drawer__nav" aria-label="Mobile navigation links">

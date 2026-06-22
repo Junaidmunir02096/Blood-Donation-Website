@@ -1,10 +1,7 @@
 //  Mock data for Active Requests — blood requests list, filter tabs, and
-
-import {
-  faCircleCheck,
-  faCircleXmark,
-  faClock,
-} from '@fortawesome/free-solid-svg-icons';
+//  status configuration. FontAwesome icons are intentionally NOT imported here;
+//  data files should be icon-library-agnostic. The component (ActiveRequests.jsx)
+//  resolves iconKey strings to actual FA icon objects.
 
 export const requests = [
   {
@@ -58,25 +55,26 @@ export const requests = [
 export const filters = ['All', 'Pending', 'Approved', 'Rejected'];
 
 /**
- * Maps request status → display label, icon, BEM modifier, and action button text.
- * Icons imported here to keep the data file self-contained.
+ * Maps request status → display label, iconKey (string), BEM modifier, and action text.
+ * `iconKey` is resolved to a FontAwesome icon object inside ActiveRequests.jsx,
+ * keeping this data file free of any icon-library imports.
  */
 export const statusConfig = {
   Pending: {
     label: 'Pending Review',
-    icon: faClock,
+    iconKey: 'clock',
     modifier: 'pending',
     action: 'View Details',
   },
   Approved: {
     label: 'Approved',
-    icon: faCircleCheck,
+    iconKey: 'circleCheck',
     modifier: 'approved',
     action: 'Contact Donor',
   },
   Rejected: {
     label: 'Rejected',
-    icon: faCircleXmark,
+    iconKey: 'circleXmark',
     modifier: 'rejected',
     action: 'View Reason',
   },

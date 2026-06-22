@@ -3,7 +3,7 @@ import './Stats.scss';
 const statsData = [
   {
     id: 'stat-donors',
-    number: '24,500+',
+    number: '25,000+',
     label: 'Donors Registered',
     featured: false,
     icon: (
@@ -19,7 +19,7 @@ const statsData = [
   },
   {
     id: 'stat-lives',
-    number: '73,412',
+    number: '75,000+',
     label: 'Lives Saved',
     featured: true,
     icon: (

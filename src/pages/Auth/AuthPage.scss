@@ -327,6 +327,37 @@
     opacity: 0.6;
     transition: opacity $transition-fast;
     &:hover { opacity: 1; }
+
+    svg {
+      width: 20px;
+      height: 20px;
+      display: block;
+    }
+  }
+
+  &__strength {
+    margin-top: $spacing-2;
+
+    &-bar {
+      height: 4px;
+      background: $border-color;
+      border-radius: $radius-full;
+      overflow: hidden;
+      margin-bottom: $spacing-1;
+    }
+
+    &-fill {
+      height: 100%;
+      border-radius: $radius-full;
+      transition: width 0.3s ease, background 0.3s ease;
+    }
+
+    &-label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
   }
 
   &__error {

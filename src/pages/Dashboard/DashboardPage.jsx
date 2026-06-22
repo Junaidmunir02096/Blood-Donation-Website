@@ -39,7 +39,7 @@ const DashboardPage = () => {
   const renderContent = () => {
     switch (activeTab) {
       case 'dashboard':
-        return <DashboardOverview />;
+        return <DashboardOverview onTabChange={handleTabChange} />;
       case 'donation-history':
         return <DonationHistory />;
       case 'active-requests':

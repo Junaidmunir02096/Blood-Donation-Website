@@ -1,0 +1,128 @@
+@use '../../styles/variables' as v;
+
+/* ── Error Boundary Fallback UI ─────────────────────────────────────────────── */
+
+.error-boundary {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background: v.$bg-light;
+
+  &__card {
+    text-align: center;
+    max-width: 480px;
+    width: 100%;
+    background: v.$bg-white;
+    border: 1px solid v.$border-color;
+    border-radius: v.$radius-xl;
+    padding: 3rem 2.5rem;
+    box-shadow: v.$shadow-lg;
+    animation: eb-slide-up 0.4s ease;
+  }
+
+  &__icon {
+    width: 72px;
+    height: 72px;
+    margin: 0 auto 1.5rem;
+    color: v.$primary;
+
+    svg {
+      width: 100%;
+      height: 100%;
+    }
+  }
+
+  &__title {
+    font-size: v.$font-size-2xl;
+    font-weight: 700;
+    color: v.$text-dark;
+    margin: 0 0 0.75rem;
+  }
+
+  &__message {
+    font-size: v.$font-size-base;
+    color: v.$text-body;
+    line-height: 1.6;
+    margin: 0 0 2rem;
+  }
+
+  &__details {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: v.$radius-md;
+    padding: 1rem;
+    margin-bottom: 2rem;
+    text-align: left;
+
+    summary {
+      color: v.$text-muted;
+      font-size: v.$font-size-sm;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    pre {
+      margin-top: 0.75rem;
+      font-size: 0.75rem;
+      color: v.$accent;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  &__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 1.75rem;
+    border-radius: v.$radius-full;
+    font-size: v.$font-size-sm;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all v.$transition-base;
+    text-decoration: none;
+    border: none;
+    font-family: v.$font-family;
+
+    &--primary {
+      background: v.$primary;
+      color: v.$text-light;
+
+      &:hover {
+        background: v.$primary-dark;
+        transform: translateY(-1px);
+        box-shadow: v.$shadow-lg;
+      }
+    }
+
+    &--secondary {
+      background: transparent;
+      color: v.$text-body;
+      border: 1px solid v.$border-color;
+
+      &:hover {
+        background: v.$bg-light;
+        color: v.$text-dark;
+      }
+    }
+  }
+}
+
+@keyframes eb-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

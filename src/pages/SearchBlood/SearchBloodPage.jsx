@@ -1,5 +1,5 @@
-import { useState, useMemo, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useMemo, useEffect, useRef } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import './SearchBloodPage.scss';
 import AppSpinner from '../../components/AppSpinner/AppSpinner';
 import { fetchDonors } from '../../api/services';
@@ -14,6 +14,16 @@ const AVATAR_COLORS = [
   '#e67e22', '#16a085', '#d35400', '#2c3e50',
 ];
 const getAvatarColor = (id) => AVATAR_COLORS[(id - 1) % AVATAR_COLORS.length];
+
+const parseLastDonatedToMonths = (str) => {
+  if (!str) return 999;
+  const match = str.toLowerCase().match(/^(\d+)\s+(month|year)s?\s+ago$/);
+  if (!match) return 999;
+  const value = parseInt(match[1], 10);
+  const unit = match[2];
+  if (unit === 'year') return value * 12;
+  return value;
+};
 
 // ─── Donor Card ───────────────────────────────────────────────────────────────
 const DonorCard = ({ donor }) => {
@@ -76,16 +86,33 @@ const DonorCard = ({ donor }) => {
 
       {/* CTA */}
       <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-        <button
-          className="donor-card__call-btn"
-          id={`call-donor-${donor.id}`}
-          aria-label={`Call ${donor.name}`}
-        >
-          <svg viewBox="0 0 24 24" className="donor-card__call-icon" aria-hidden="true">
-            <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
-          </svg>
-          Call Donor
-        </button>
+        {donor.status === 'verified' && donor.phone ? (
+          <a
+            href={`tel:${donor.phone}`}
+            className="donor-card__call-btn"
+            id={`call-donor-${donor.id}`}
+            aria-label={`Call ${donor.name}`}
+            style={{ textDecoration: 'none' }}
+          >
+            <svg viewBox="0 0 24 24" className="donor-card__call-icon" aria-hidden="true">
+              <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
+            </svg>
+            Call Donor
+          </a>
+        ) : (
+          <button
+            className="donor-card__call-btn"
+            id={`call-donor-${donor.id}`}
+            disabled
+            style={{ opacity: 0.6, cursor: 'not-allowed' }}
+            title="Contact unavailable until donor is verified"
+          >
+            <svg viewBox="0 0 24 24" className="donor-card__call-icon" aria-hidden="true">
+              <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
+            </svg>
+            Unavailable
+          </button>
+        )}
         <Link
           to={`/donor/${donor.id}`}
           className="donor-card__call-btn"
@@ -103,13 +130,35 @@ const DonorCard = ({ donor }) => {
 // ─── Main Search Blood Page ───────────────────────────────────────────────────
 const SearchBloodPage = () => {
   usePageTitle('Find a Donor');
+  const [searchParams] = useSearchParams();
+  const queryParam = searchParams.get('q') || '';
+
   const [donors, setDonors] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [location, setLocation] = useState('');
+  const [location, setLocation] = useState(queryParam);
   const [selectedGroup, setSelectedGroup] = useState('');
   const [sortBy, setSortBy] = useState('distance'); // 'distance' | 'recent'
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [showSortMenu, setShowSortMenu] = useState(false);
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    setLocation(queryParam);
+  }, [queryParam]);
+
+  useEffect(() => {
+    const handleOutsideClick = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setShowSortMenu(false);
+      }
+    };
+    if (showSortMenu) {
+      document.addEventListener('click', handleOutsideClick);
+    }
+    return () => {
+      document.removeEventListener('click', handleOutsideClick);
+    };
+  }, [showSortMenu]);
 
   useEffect(() => {
     const loadDonors = async () => {
@@ -140,8 +189,8 @@ const SearchBloodPage = () => {
     if (sortBy === 'distance') {
       list = [...list].sort((a, b) => a.miles - b.miles);
     } else {
-      // sort by most recently donated (simple string heuristic based on order)
-      list = [...list].sort((a, b) => a.id - b.id);
+      // Sort by most recently donated
+      list = [...list].sort((a, b) => parseLastDonatedToMonths(a.lastDonated) - parseLastDonatedToMonths(b.lastDonated));
     }
 
     return list;
@@ -246,7 +295,7 @@ const SearchBloodPage = () => {
             </h2>
 
             {/* Sort dropdown */}
-            <div className="results-header__sort" id="sort-dropdown">
+            <div className="results-header__sort" id="sort-dropdown" ref={dropdownRef}>
               <button
                 className="results-header__sort-btn"
                 id="sort-toggle-btn"
