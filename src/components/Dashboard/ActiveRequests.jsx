@@ -4,11 +4,23 @@ import {
   faUser,
   faCalendarAlt,
   faDroplet,
+  faClock,
+  faCircleCheck,
+  faCircleXmark,
 } from '@fortawesome/free-solid-svg-icons';
 import './ActiveRequests.scss';
 import AppSpinner from '../AppSpinner/AppSpinner';
 import { filters, statusConfig } from '../../data/requests.data';
 import { fetchRequests } from '../../api/services';
+import { useToast } from '../../context/ToastContext';
+
+// ── iconKey → FontAwesome icon resolver ───────────────────────────────────────
+// Keeps data files free of icon-library imports. Add new keys here as needed.
+const STATUS_ICONS = {
+  clock:       faClock,
+  circleCheck: faCircleCheck,
+  circleXmark: faCircleXmark,
+};
 
 
 
@@ -26,6 +38,17 @@ const ActiveRequests = () => {
   const [activeFilter, setActiveFilter] = useState('All');
   const [requests, setRequests] = useState([]);
   const [loading, setLoading]   = useState(true);
+  const { toast } = useToast();
+
+  const handleActionClick = (req, action) => {
+    if (action === 'View Details') {
+      toast.info(`Request Details — Patient: ${req.patient} | Hospital: ${req.hospital} | Units: ${req.units} units of ${req.blood} needed by ${req.neededBy}. Status: Pending review.`);
+    } else if (action === 'Contact Donor') {
+      toast.success(`Donor match found! Contact coordinator at +1 (555) 014-9921 to confirm dispatch for ${req.patient}.`);
+    } else if (action === 'View Reason') {
+      toast.warning(`Request Rejected: The medical record number provided could not be verified with ${req.hospital}.`);
+    }
+  };
 
   useEffect(() => {
     const load = async () => {
@@ -129,7 +152,7 @@ const ActiveRequests = () => {
                 {/* Status + action */}
                 <div className="ar-card__status-wrap">
                   <span className={`ar-badge ar-badge--${cfg.modifier}`}>
-                    <FontAwesomeIcon icon={cfg.icon} aria-hidden="true" />
+                    <FontAwesomeIcon icon={STATUS_ICONS[cfg.iconKey]} aria-hidden="true" />
                     {cfg.label}
                   </span>
                   <button
@@ -137,6 +160,7 @@ const ActiveRequests = () => {
                     className={`ar-card__action ar-card__action--${cfg.modifier}`}
                     id={`action-${req.id}`}
                     aria-label={`${cfg.action} for ${req.hospital}`}
+                    onClick={() => handleActionClick(req, cfg.action)}
                   >
                     {cfg.action}
                   </button>

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faDroplet,
@@ -11,11 +12,14 @@ import './DashboardOverview.scss';
 import AppSpinner from '../AppSpinner/AppSpinner';
 import { fetchDashboardData } from '../../api/services';
 import { useAuth } from '../../context/AuthContext';
+import { useToast } from '../../context/ToastContext';
 
 
-const DashboardOverview = () => {
+const DashboardOverview = ({ onTabChange }) => {
   const { currentUser } = useAuth();
   const firstName = currentUser?.fullName?.split(' ')[0] ?? 'there';
+  const navigate = useNavigate();
+  const { toast } = useToast();
 
   const [activeRequests, setActiveRequests] = useState([]);
   const [nearbyDonors, setNearbyDonors] = useState([]);
@@ -81,7 +85,11 @@ const DashboardOverview = () => {
           <p className="dashboard-overview__card-desc">
             Initiate an emergency or scheduled blood request for a patient in need.
           </p>
-          <button className="dashboard-overview__card-cta dashboard-overview__card-cta--primary" type="button">
+          <button 
+            className="dashboard-overview__card-cta dashboard-overview__card-cta--primary" 
+            type="button"
+            onClick={() => navigate('/request')}
+          >
             Start Request
           </button>
         </article>
@@ -97,7 +105,11 @@ const DashboardOverview = () => {
           <p className="dashboard-overview__card-desc">
             Schedule your next donation at a nearby center and save up to 3 lives.
           </p>
-          <button className="dashboard-overview__card-cta dashboard-overview__card-cta--outline" type="button">
+          <button 
+            className="dashboard-overview__card-cta dashboard-overview__card-cta--outline" 
+            type="button"
+            onClick={() => navigate('/donate')}
+          >
             Schedule Appointment
           </button>
         </article>
@@ -111,7 +123,12 @@ const DashboardOverview = () => {
         <section className="dashboard-overview__requests" aria-label="Active blood requests">
           <div className="dashboard-overview__section-header">
             <h3>Active Blood Requests</h3>
-            <button type="button" className="dashboard-overview__link" id="btn-view-all-requests">
+            <button 
+              type="button" 
+              className="dashboard-overview__link" 
+              id="btn-view-all-requests"
+              onClick={() => onTabChange?.('active-requests')}
+            >
               View All
             </button>
           </div>
@@ -138,7 +155,12 @@ const DashboardOverview = () => {
                     {req.distance} &bull; {req.note}
                   </p>
                 </div>
-                <button className="dashboard-request__cta" type="button" aria-label={`Respond to ${req.hospital}`}>
+                <button 
+                  className="dashboard-request__cta" 
+                  type="button" 
+                  aria-label={`Respond to ${req.hospital}`}
+                  onClick={() => toast.success(`Response sent for the ${req.blood} request at ${req.hospital}. Coordinates shared!`)}
+                >
                   Respond
                 </button>
               </article>
