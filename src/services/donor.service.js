@@ -1,18 +1,30 @@
 /**
  * src/services/donor.service.js
  * ─────────────────────────────────────────────────────────────────────────────
- * Donor-related API calls.
- * Swap `simulateApi(...)` for `apiClient.get(...)` when the backend is ready.
+ * Reads donors from localStorage (ls_donors) — populated by AppDataContext.
+ * Swap for real API calls when backend is ready.
  */
 
-import { simulateApi } from '../api/apiSimulator';
-import { donorsData } from '../data/donors.data';
+const delay = (ms) => new Promise((res) => setTimeout(res, ms));
+
+const readDonors = () => {
+  try {
+    const raw = localStorage.getItem('ls_donors');
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+};
 
 /** Fetch all registered donors (Search Blood page) */
-export const fetchDonors = () => simulateApi(donorsData);
+export const fetchDonors = async () => {
+  await delay(400);
+  return readDonors();
+};
 
-/** Fetch a single donor by numeric ID (Public Donor Profile page) */
-export const fetchDonorById = (id) => {
-  const donor = donorsData.find((d) => d.id === Number(id));
-  return simulateApi(donor ?? null, 600);
+/** Fetch a single donor by ID */
+export const fetchDonorById = async (id) => {
+  await delay(600);
+  const donors = readDonors();
+  return donors.find((d) => String(d.id) === String(id)) ?? null;
 };

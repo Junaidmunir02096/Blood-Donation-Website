@@ -3,6 +3,7 @@ import './DonorRegistrationPage.scss';
 import MapPickerModal from '../../components/MapPicker/MapPickerModal';
 import CustomCalendar, { formatDisplayDate } from '../../components/CustomCalendar/CustomCalendar';
 import { useAuth } from '../../context/AuthContext';
+import { useAppData } from '../../context/AppDataContext';
 
 const BLOOD_GROUPS = ['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-'];
 
@@ -48,6 +49,7 @@ const StatusBanner = ({ status }) => {
 // ─── Donor Registration Page ───────────────────────────────────────────────────
 const DonorRegistrationPage = ({ onBack }) => {
   const { currentUser } = useAuth();
+  const { addDonor, addDonation } = useAppData();
 
   const [formData, setFormData] = useState({
     fullName: currentUser?.fullName ?? '',
@@ -117,10 +119,43 @@ const DonorRegistrationPage = ({ onBack }) => {
     if (Object.keys(errs).length) { setErrors(errs); return; }
 
     setIsSubmitting(true);
-    // Simulate API call to backend
     await new Promise(resolve => setTimeout(resolve, 1200));
-    setIsSubmitting(false);
 
+    /* Save donor to localStorage via AppDataContext */
+    const initials = formData.fullName
+      .split(' ')
+      .map(w => w[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+
+    addDonor({
+      name:        formData.fullName,
+      bloodGroup:  formData.bloodGroup,
+      city:        formData.city + (formData.country ? `, ${formData.country}` : ''),
+      phone:       formData.phone,
+      miles:       null,
+      lastDonated: formData.lastDonationDate ? formatDisplayDate(formData.lastDonationDate) : 'Recently',
+      avatar:      initials,
+      userId:      currentUser?.id ?? null,
+      canContact:  true,
+    });
+
+    /* Also add a donation record if they have a last donation date */
+    if (formData.lastDonationDate) {
+      const dateObj = new Date(formData.lastDonationDate);
+      addDonation({
+        location: formData.city + (formData.country ? `, ${formData.country}` : ''),
+        type:     'Whole Blood',
+        volume:   '450ml',
+        volumeMl: 450,
+        date:     dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+        rawDate:  dateObj.toISOString().split('T')[0],
+        userId:   currentUser?.id ?? null,
+      });
+    }
+
+    setIsSubmitting(false);
     setSubmitted(true);
   };
 
