@@ -19,10 +19,12 @@ import {
   faHourglassHalf,
   faShieldHalved,
   faLock,
+  faTrash,
 } from '@fortawesome/free-solid-svg-icons';
 import './AdminPanel.scss';
 import AppSpinner from '../AppSpinner/AppSpinner';
 import { useAuth } from '../../context/AuthContext';
+import { useAppData } from '../../context/AppDataContext';
 import {
   fetchAdminRequests,
   fetchAdminDonors,
@@ -117,33 +119,41 @@ const RequestsTable = () => {
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
+  const { currentUser } = useAuth();
+  const { deleteRequest, updateRequest } = useAppData();
   const PER_PAGE = 3;
 
-  useEffect(() => {
-    const load = async () => {
-      setLoading(true);
-      const rows = await fetchAdminRequests();
-      setData(rows);
-      setLoading(false);
-    };
-    load();
-  }, []);
+  const reload = async () => {
+    setLoading(true);
+    const rows = await fetchAdminRequests();
+    setData(rows);
+    setLoading(false);
+  };
+
+  useEffect(() => { reload(); }, []);
 
   if (loading) return <AppSpinner label="Loading requests..." />;
 
   const filtered = data.filter(
     (r) =>
       r.id.toLowerCase().includes(search.toLowerCase()) ||
-      r.hospital.toLowerCase().includes(search.toLowerCase()) ||
-      r.patient.toLowerCase().includes(search.toLowerCase())
+      (r.hospital || '').toLowerCase().includes(search.toLowerCase()) ||
+      (r.patient  || '').toLowerCase().includes(search.toLowerCase())
   );
   const total = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
   const paged = filtered.slice((page - 1) * PER_PAGE, page * PER_PAGE);
 
   const handleAction = (id, action) => {
+    updateRequest(id, { status: action });
     setData((prev) =>
       prev.map((r) => (r.id === id ? { ...r, status: action } : r))
     );
+  };
+
+  const handleDelete = (id) => {
+    if (!window.confirm('Delete this request permanently?')) return;
+    deleteRequest(id, currentUser);
+    setData((prev) => prev.filter((r) => r.id !== id));
   };
 
   return (
@@ -200,32 +210,45 @@ const RequestsTable = () => {
                   <td><UrgencyBadge urgency={req.urgency} /></td>
                   <td className="admin-table__date">{req.date}</td>
                   <td>
-                    {req.status === 'pending' ? (
-                      <div className="admin-actions">
-                        <button
-                          className="admin-actions__btn admin-actions__btn--approve"
-                          onClick={() => handleAction(req.id, 'approved')}
-                          aria-label={`Approve request ${req.id}`}
-                          id={`approve-req-${req.id}`}
-                          type="button"
-                        >
-                          <FontAwesomeIcon icon={faCheck} />
-                          Approve
-                        </button>
-                        <button
-                          className="admin-actions__btn admin-actions__btn--reject"
-                          onClick={() => handleAction(req.id, 'rejected')}
-                          aria-label={`Reject request ${req.id}`}
-                          id={`reject-req-${req.id}`}
-                          type="button"
-                        >
-                          <FontAwesomeIcon icon={faXmark} />
-                          Reject
-                        </button>
-                      </div>
-                    ) : (
-                      <StatusPill status={req.status} />
-                    )}
+                    <div className="admin-actions">
+                      {req.status === 'pending' && (
+                        <>
+                          <button
+                            className="admin-actions__btn admin-actions__btn--approve"
+                            onClick={() => handleAction(req.id, 'approved')}
+                            aria-label={`Approve request ${req.id}`}
+                            id={`approve-req-${req.id}`}
+                            type="button"
+                          >
+                            <FontAwesomeIcon icon={faCheck} />
+                            Approve
+                          </button>
+                          <button
+                            className="admin-actions__btn admin-actions__btn--reject"
+                            onClick={() => handleAction(req.id, 'rejected')}
+                            aria-label={`Reject request ${req.id}`}
+                            id={`reject-req-${req.id}`}
+                            type="button"
+                          >
+                            <FontAwesomeIcon icon={faXmark} />
+                            Reject
+                          </button>
+                        </>
+                      )}
+                      {req.status !== 'pending' && (
+                        <StatusPill status={req.status} />
+                      )}
+                      <button
+                        className="admin-actions__btn admin-actions__btn--delete"
+                        onClick={() => handleDelete(req.id)}
+                        aria-label={`Delete request ${req.id}`}
+                        id={`delete-req-${req.id}`}
+                        type="button"
+                        title="Delete"
+                      >
+                        <FontAwesomeIcon icon={faTrash} />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))
@@ -252,25 +275,26 @@ const DonorsTable = () => {
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
+  const { currentUser } = useAuth();
+  const { deleteDonor } = useAppData();
   const PER_PAGE = 4;
 
-  useEffect(() => {
-    const load = async () => {
-      setLoading(true);
-      const rows = await fetchAdminDonors();
-      setData(rows);
-      setLoading(false);
-    };
-    load();
-  }, []);
+  const reload = async () => {
+    setLoading(true);
+    const rows = await fetchAdminDonors();
+    setData(rows);
+    setLoading(false);
+  };
+
+  useEffect(() => { reload(); }, []);
 
   if (loading) return <AppSpinner label="Loading donors..." />;
 
   const filtered = data.filter(
     (d) =>
-      d.name.toLowerCase().includes(search.toLowerCase()) ||
-      d.id.toLowerCase().includes(search.toLowerCase()) ||
-      d.city.toLowerCase().includes(search.toLowerCase())
+      (d.name || '').toLowerCase().includes(search.toLowerCase()) ||
+      (d.id   || '').toLowerCase().includes(search.toLowerCase()) ||
+      (d.city || '').toLowerCase().includes(search.toLowerCase())
   );
   const total = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
   const paged = filtered.slice((page - 1) * PER_PAGE, page * PER_PAGE);
@@ -281,6 +305,12 @@ const DonorsTable = () => {
         d.id === id ? { ...d, status: action === 'approve' ? 'active' : 'inactive' } : d
       )
     );
+  };
+
+  const handleDelete = (id) => {
+    if (!window.confirm('Delete this donor permanently?')) return;
+    deleteDonor(id, currentUser);
+    setData((prev) => prev.filter((d) => d.id !== id));
   };
 
   return (
@@ -335,39 +365,45 @@ const DonorsTable = () => {
                   <td className="admin-table__date">{donor.lastDonation}</td>
                   <td><StatusPill status={donor.status} /></td>
                   <td>
-                    {donor.status === 'pending' ? (
-                      <div className="admin-actions">
-                        <button
-                          className="admin-actions__btn admin-actions__btn--approve"
-                          onClick={() => handleAction(donor.id, 'approve')}
-                          aria-label={`Approve donor ${donor.id}`}
-                          id={`approve-donor-${donor.id}`}
-                          type="button"
-                        >
-                          <FontAwesomeIcon icon={faCheck} />
-                          Approve
-                        </button>
-                        <button
-                          className="admin-actions__btn admin-actions__btn--reject"
-                          onClick={() => handleAction(donor.id, 'reject')}
-                          aria-label={`Reject donor ${donor.id}`}
-                          id={`reject-donor-${donor.id}`}
-                          type="button"
-                        >
-                          <FontAwesomeIcon icon={faXmark} />
-                          Reject
-                        </button>
-                      </div>
-                    ) : (
+                    <div className="admin-actions">
+                      {donor.status === 'pending' && (
+                        <>
+                          <button
+                            className="admin-actions__btn admin-actions__btn--approve"
+                            onClick={() => handleAction(donor.id, 'approve')}
+                            aria-label={`Approve donor ${donor.id}`}
+                            id={`approve-donor-${donor.id}`}
+                            type="button"
+                          >
+                            <FontAwesomeIcon icon={faCheck} />
+                            Approve
+                          </button>
+                          <button
+                            className="admin-actions__btn admin-actions__btn--reject"
+                            onClick={() => handleAction(donor.id, 'reject')}
+                            aria-label={`Reject donor ${donor.id}`}
+                            id={`reject-donor-${donor.id}`}
+                            type="button"
+                          >
+                            <FontAwesomeIcon icon={faXmark} />
+                            Reject
+                          </button>
+                        </>
+                      )}
+                      {donor.status !== 'pending' && (
+                        <StatusPill status={donor.status} />
+                      )}
                       <button
-                        className="admin-actions__btn admin-actions__btn--more"
-                        aria-label={`More options for donor ${donor.id}`}
-                        id={`more-donor-${donor.id}`}
+                        className="admin-actions__btn admin-actions__btn--delete"
+                        onClick={() => handleDelete(donor.id)}
+                        aria-label={`Delete donor ${donor.id}`}
+                        id={`delete-donor-${donor.id}`}
                         type="button"
+                        title="Delete"
                       >
-                        <FontAwesomeIcon icon={faEllipsisVertical} />
+                        <FontAwesomeIcon icon={faTrash} />
                       </button>
-                    )}
+                    </div>
                   </td>
                 </tr>
               ))
@@ -393,25 +429,27 @@ const UsersTable = () => {
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
+  const { currentUser } = useAuth();
+  const { deleteUser } = useAppData();
   const PER_PAGE = 4;
 
-  useEffect(() => {
-    const load = async () => {
-      setLoading(true);
-      const rows = await fetchAdminUsers();
-      setData(rows);
-      setLoading(false);
-    };
-    load();
-  }, []);
+  const reload = async () => {
+    setLoading(true);
+    const rows = await fetchAdminUsers();
+    // Show all users except passwords
+    setData(rows.map(({ password: _pw, ...u }) => u));
+    setLoading(false);
+  };
+
+  useEffect(() => { reload(); }, []);
 
   if (loading) return <AppSpinner label="Loading users..." />;
 
   const filtered = data.filter(
     (u) =>
-      u.name.toLowerCase().includes(search.toLowerCase()) ||
-      u.email.toLowerCase().includes(search.toLowerCase()) ||
-      u.id.toLowerCase().includes(search.toLowerCase())
+      (u.fullName || u.name || '').toLowerCase().includes(search.toLowerCase()) ||
+      (u.email || '').toLowerCase().includes(search.toLowerCase()) ||
+      (u.id || '').toLowerCase().includes(search.toLowerCase())
   );
   const total = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
   const paged = filtered.slice((page - 1) * PER_PAGE, page * PER_PAGE);
@@ -422,6 +460,12 @@ const UsersTable = () => {
         u.id === id ? { ...u, status: action === 'approve' ? 'active' : 'inactive' } : u
       )
     );
+  };
+
+  const handleDelete = (id) => {
+    if (!window.confirm('Delete this user permanently?')) return;
+    deleteUser(id, currentUser);
+    setData((prev) => prev.filter((u) => u.id !== id));
   };
 
   return (
@@ -467,51 +511,58 @@ const UsersTable = () => {
               paged.map((user) => (
                 <tr key={user.id} className="admin-table__row">
                   <td className="admin-table__id">{user.id}</td>
-                  <td className="admin-table__primary">{user.name}</td>
+                  <td className="admin-table__primary">{user.fullName || user.name || '—'}</td>
                   <td className="admin-table__secondary">{user.email}</td>
                   <td>
-                    <span className={`admin-role admin-role--${user.role.toLowerCase()}`}>
-                      {user.role}
+                    <span className={`admin-role admin-role--${(user.role || 'donor').toLowerCase()}`}>
+                      {user.role || 'Donor'}
                     </span>
                   </td>
-                  <td className="admin-table__date">{user.joined}</td>
+                  <td className="admin-table__date">{user.joined || (user.createdAt ? new Date(user.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—')}</td>
                   <td><StatusPill status={user.status} /></td>
                   <td>
-                    {user.status === 'pending' ? (
-                      <div className="admin-actions">
-                        <button
-                          className="admin-actions__btn admin-actions__btn--approve"
-                          onClick={() => handleAction(user.id, 'approve')}
-                          aria-label={`Approve user ${user.id}`}
-                          id={`approve-user-${user.id}`}
-                          type="button"
-                        >
-                          <FontAwesomeIcon icon={faCheck} />
-                          Approve
-                        </button>
-                        <button
-                          className="admin-actions__btn admin-actions__btn--reject"
-                          onClick={() => handleAction(user.id, 'reject')}
-                          aria-label={`Reject user ${user.id}`}
-                          id={`reject-user-${user.id}`}
-                          type="button"
-                        >
-                          <FontAwesomeIcon icon={faXmark} />
-                          Reject
-                        </button>
-                      </div>
-                    ) : (
+                    <div className="admin-actions">
+                      {(!user.status || user.status === 'pending') && (
+                        <>
+                          <button
+                            className="admin-actions__btn admin-actions__btn--approve"
+                            onClick={() => handleAction(user.id, 'approve')}
+                            aria-label={`Approve user ${user.id}`}
+                            id={`approve-user-${user.id}`}
+                            type="button"
+                          >
+                            <FontAwesomeIcon icon={faCheck} />
+                            Approve
+                          </button>
+                          <button
+                            className="admin-actions__btn admin-actions__btn--reject"
+                            onClick={() => handleAction(user.id, 'reject')}
+                            aria-label={`Reject user ${user.id}`}
+                            id={`reject-user-${user.id}`}
+                            type="button"
+                          >
+                            <FontAwesomeIcon icon={faXmark} />
+                            Reject
+                          </button>
+                        </>
+                      )}
+                      {user.status && user.status !== 'pending' && (
+                        <StatusPill status={user.status} />
+                      )}
                       <button
-                        className="admin-actions__btn admin-actions__btn--more"
-                        aria-label={`More options for user ${user.id}`}
-                        id={`more-user-${user.id}`}
+                        className="admin-actions__btn admin-actions__btn--delete"
+                        onClick={() => handleDelete(user.id)}
+                        aria-label={`Delete user ${user.id}`}
+                        id={`delete-user-${user.id}`}
                         type="button"
+                        title="Delete"
+                        disabled={user.role === 'admin'}
                       >
-                        <FontAwesomeIcon icon={faEllipsisVertical} />
+                        <FontAwesomeIcon icon={faTrash} />
                       </button>
-                    )}
-                  </td>
-                </tr>
+                    </div>
+                   </td>
+                 </tr>
               ))
             )}
           </tbody>

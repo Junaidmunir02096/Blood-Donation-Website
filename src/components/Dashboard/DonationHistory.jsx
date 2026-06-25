@@ -11,6 +11,7 @@ import './DonationHistory.scss';
 import AppSpinner from '../AppSpinner/AppSpinner';
 import { columns } from '../../data/donations.data';
 import { fetchDonations } from '../../api/services';
+import { useAuth } from '../../context/AuthContext';
 
 
 // ── CSV Export ────────────────────────────────────────────────────────────────
@@ -33,20 +34,21 @@ const exportToCSV = (rows) => {
 
 // ── Component ─────────────────────────────────────────────────────────────────
 const DonationHistory = () => {
-  const [sortKey, setSortKey]   = useState('date');
-  const [sortDir, setSortDir]   = useState('desc'); // 'asc' | 'desc'
+  const [sortKey, setSortKey]     = useState('date');
+  const [sortDir, setSortDir]     = useState('desc');
   const [donations, setDonations] = useState([]);
   const [loading, setLoading]     = useState(true);
+  const { currentUser } = useAuth();
 
   useEffect(() => {
     const load = async () => {
       setLoading(true);
-      const data = await fetchDonations();
+      const data = await fetchDonations(currentUser?.id);
       setDonations(data);
       setLoading(false);
     };
     load();
-  }, []);
+  }, [currentUser?.id]);
 
   const handleSort = (key) => {
     if (!columns.find((c) => c.key === key)?.sortable) return;
