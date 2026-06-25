@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import './RequestPage.scss';
 import usePageTitle from '../../hooks/usePageTitle';
+import { useAppData } from '../../context/AppDataContext';
+import { useAuth } from '../../context/AuthContext';
 
 const BLOOD_GROUPS = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
 
@@ -69,6 +71,8 @@ const LocationIcon = () => (
 
 const RequestPage = () => {
   usePageTitle('Request Blood');
+  const { addRequest } = useAppData();
+  const { currentUser } = useAuth();
   const [selectedGroup, setSelectedGroup] = useState('A+');
   const [urgency, setUrgency] = useState('critical');
   const [formData, setFormData] = useState({
@@ -80,6 +84,7 @@ const RequestPage = () => {
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [submittedId, setSubmittedId] = useState('');
 
   const handleChange = (e) => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -101,10 +106,30 @@ const RequestPage = () => {
     if (Object.keys(errs).length) { setErrors(errs); return; }
     
     setIsSubmitting(true);
-    // Simulate API call to backend
-    await new Promise(resolve => setTimeout(resolve, 1200));
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    /* Store the request in the global state / localStorage */
+    const urgencyLabel = urgency.charAt(0).toUpperCase() + urgency.slice(1);
+    const neededByDate = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000)
+      .toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+    const newRequest = addRequest({
+      blood:       selectedGroup,
+      hospital:    formData.hospitalName,
+      patient:     formData.patientName,
+      location:    formData.location,
+      contactNumber: formData.contactNumber,
+      units:       1,
+      urgency:     urgencyLabel,
+      note:        urgencyLabel,
+      neededBy:    neededByDate,
+      time:        'Just now',
+      distance:    '—',
+      userId:      currentUser?.id ?? null,
+    });
+
     setIsSubmitting(false);
-    
+    setSubmittedId(newRequest.id);
     setSubmitted(true);
   };
 
@@ -114,15 +139,24 @@ const RequestPage = () => {
         <section className="request-page__hero">
           <div className="container" style={{ textAlign: 'center', padding: '4rem 0' }}>
             <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>✅</div>
-            <h1 className="request-page__title">Request Submitted</h1>
+            <h1 className="request-page__title">Request Submitted!</h1>
             <p className="request-page__subtitle">
               Your blood request has been successfully submitted and is now active.
+            </p>
+            {submittedId && (
+              <p style={{ marginTop: '0.75rem', opacity: 0.7, fontSize: '0.9rem' }}>
+                Request ID: <strong>{submittedId}</strong>
+              </p>
+            )}
+            <p style={{ marginTop: '0.5rem', opacity: 0.6, fontSize: '0.85rem' }}>
+              You can track its status in your Dashboard under &ldquo;Active Requests&rdquo;.
             </p>
             <button 
               className="request-group-btn request-group-btn--active"
               style={{ marginTop: '2rem', padding: '0.75rem 2rem', borderRadius: '99px' }}
               onClick={() => {
                 setSubmitted(false);
+                setSubmittedId('');
                 setFormData({ hospitalName: '', location: '', patientName: '', contactNumber: '' });
               }}
             >

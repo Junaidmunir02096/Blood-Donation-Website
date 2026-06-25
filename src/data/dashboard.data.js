@@ -12,7 +12,7 @@ export const activeRequests = [
     blood: 'O+',
     urgency: 'Critical',
     hospital: 'City General Hospital',
-    distance: '12km away',
+    distance: '12.0 miles away',
     time: '2 hrs ago',
     note: 'Surgery Patient',
   },
@@ -21,14 +21,14 @@ export const activeRequests = [
     blood: 'A-',
     urgency: 'Routine',
     hospital: "Metro Children's Clinic",
-    distance: '4km away',
+    distance: '4.0 miles away',
     time: '5 hrs ago',
     note: 'Routine Supply',
   },
 ];
 
 export const nearbyDonors = [
-  { id: 'donor-1', name: 'Sarah Jenkins',  distance: '2.1 km away', blood: 'O-', initials: 'SJ' },
-  { id: 'donor-2', name: 'Marcus Thorne',  distance: '3.5 km away', blood: 'B+', initials: 'MT' },
-  { id: 'donor-3', name: 'Elena Rodriguez',distance: '5.0 km away', blood: 'A+', initials: 'ER' },
+  { id: 'donor-1', name: 'Sarah Jenkins',  distance: '2.1 miles away', blood: 'O-', initials: 'SJ' },
+  { id: 'donor-2', name: 'Marcus Thorne',  distance: '3.5 miles away', blood: 'B+', initials: 'MT' },
+  { id: 'donor-3', name: 'Elena Rodriguez',distance: '5.0 miles away', blood: 'A+', initials: 'ER' },
 ];

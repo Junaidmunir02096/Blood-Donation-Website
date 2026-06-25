@@ -4,11 +4,24 @@ import {
   faUser,
   faCalendarAlt,
   faDroplet,
+  faClock,
+  faCircleCheck,
+  faCircleXmark,
 } from '@fortawesome/free-solid-svg-icons';
 import './ActiveRequests.scss';
 import AppSpinner from '../AppSpinner/AppSpinner';
 import { filters, statusConfig } from '../../data/requests.data';
 import { fetchRequests } from '../../api/services';
+import { useToast } from '../../context/ToastContext';
+import { useAuth } from '../../context/AuthContext';
+
+// ── iconKey → FontAwesome icon resolver ───────────────────────────────────────
+// Keeps data files free of icon-library imports. Add new keys here as needed.
+const STATUS_ICONS = {
+  clock:       faClock,
+  circleCheck: faCircleCheck,
+  circleXmark: faCircleXmark,
+};
 
 
 
@@ -24,18 +37,31 @@ const bloodModifier = (type) => {
 // ── Component ─────────────────────────────────────────────────────────────────
 const ActiveRequests = () => {
   const [activeFilter, setActiveFilter] = useState('All');
-  const [requests, setRequests] = useState([]);
-  const [loading, setLoading]   = useState(true);
+  const [requests, setRequests]   = useState([]);
+  const [loading, setLoading]     = useState(true);
+  const { toast } = useToast();
+  const { currentUser } = useAuth();
+
+  const handleActionClick = (req, action) => {
+    if (action === 'View Details') {
+      toast.info(`Request Details — Patient: ${req.patient} | Hospital: ${req.hospital} | Units: ${req.units} units of ${req.blood} needed by ${req.neededBy}. Status: Pending review.`);
+    } else if (action === 'Contact Donor') {
+      toast.success(`Donor match found! Contact coordinator at +1 (555) 014-9921 to confirm dispatch for ${req.patient}.`);
+    } else if (action === 'View Reason') {
+      toast.warning(`Request Rejected: The medical record number provided could not be verified with ${req.hospital}.`);
+    }
+  };
 
   useEffect(() => {
     const load = async () => {
       setLoading(true);
-      const data = await fetchRequests();
+      /* Fetch only this user's requests (plus seed requests for demo) */
+      const data = await fetchRequests(currentUser?.id);
       setRequests(data);
       setLoading(false);
     };
     load();
-  }, []);
+  }, [currentUser?.id]);
 
   const filtered =
     activeFilter === 'All'
@@ -91,6 +117,12 @@ const ActiveRequests = () => {
         {filtered.length === 0 ? (
           <div className="ar-empty">
             <p>No <strong>{activeFilter.toLowerCase()}</strong> requests found.</p>
+            {activeFilter === 'All' && (
+              <p style={{ marginTop: '0.5rem', opacity: 0.65, fontSize: '0.9rem' }}>
+                You haven&rsquo;t submitted any blood requests yet.{' '}
+                <a href="/request" style={{ color: 'var(--color-primary, #e53e3e)', textDecoration: 'underline' }}>Submit a request</a>
+              </p>
+            )}
           </div>
         ) : (
           filtered.map((req, idx) => {
@@ -129,7 +161,7 @@ const ActiveRequests = () => {
                 {/* Status + action */}
                 <div className="ar-card__status-wrap">
                   <span className={`ar-badge ar-badge--${cfg.modifier}`}>
-                    <FontAwesomeIcon icon={cfg.icon} aria-hidden="true" />
+                    <FontAwesomeIcon icon={STATUS_ICONS[cfg.iconKey]} aria-hidden="true" />
                     {cfg.label}
                   </span>
                   <button
@@ -137,6 +169,7 @@ const ActiveRequests = () => {
                     className={`ar-card__action ar-card__action--${cfg.modifier}`}
                     id={`action-${req.id}`}
                     aria-label={`${cfg.action} for ${req.hospital}`}
+                    onClick={() => handleActionClick(req, cfg.action)}
                   >
                     {cfg.action}
                   </button>
