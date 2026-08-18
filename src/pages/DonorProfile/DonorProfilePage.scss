@@ -357,6 +357,20 @@
       margin-bottom: $spacing-6;
     }
   }
+
+  &__pending {
+    display: inline-block;
+    font-size: $font-size-xs;
+    color: #b45309;
+    font-weight: 600;
+    margin-bottom: $spacing-2;
+  }
+
+  &__loading {
+    display: flex;
+    justify-content: center;
+    padding-top: $spacing-16;
+  }
 }
 
 @keyframes dpFadeIn {

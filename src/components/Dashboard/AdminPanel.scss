@@ -353,6 +353,14 @@
     color: $primary;
     border-color: $primary-light;
   }
+
+  select {
+    border: none;
+    background: transparent;
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+  }
 }
 
 /* ── Table Wrapper ───────────────────────────── */
@@ -360,6 +368,7 @@
   width: 100%;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
 }
 
 .admin-table {

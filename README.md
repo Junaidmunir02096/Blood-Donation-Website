@@ -1,123 +1,80 @@
-# 🩸 LifeStream — Smart Blood Donation & Request Network
+# LifeStream — Blood Donation Network (FYP Demo)
 
-[![React](https://img.shields.io/badge/React-18-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://reactjs.org/)
-[![Vite](https://img.shields.io/badge/Vite-5.0-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
+[![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev/)
+[![Vite](https://img.shields.io/badge/Vite-8-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vite.dev/)
 [![SCSS](https://img.shields.io/badge/SCSS-BEM-CC6699?style=for-the-badge&logo=sass&logoColor=white)](https://sass-lang.com/)
 
-An **interactive, production-ready React web application** designed to solve the logistical challenges of matching voluntary blood donors with local patients in urgent medical need. 
-
-Built to replace chaotic social media coordination groups with a single, structured search, donation logging, and request management system.
+A **Pakistan-focused** React frontend for matching voluntary blood donors with patients. This is a Final Year Project **frontend demo**: sessions and records live in `localStorage`. There is **no Node/Express/Mongo backend yet**, and **Axios is not used**.
 
 ---
 
-## 🔗 Project Links & Sandboxes
-* **Live Demo:** `[Insert link to your hosting, e.g. Vercel/Netlify]`
-* **GitHub Repository:** `[Insert link to your GitHub repo]`
+## Demo accounts
+
+| Role | Email | Password |
+| :--- | :--- | :--- |
+| Administrator | `admin@lifestream.com` | `Admin@1234` |
+| Standard user / donor | `john@example.com` | `Test@1234` |
+
+Clear `ls_seeded_v4` (or all `ls_*` keys) in DevTools if you still see old US seed data.
 
 ---
 
-## 🎯 Recruiter Quick Sandbox (Test Credentials)
-To explore the dual-role design (Admin vs. Donor/Recipient) without registering, use these pre-loaded sandbox accounts:
+## What works in this frontend
 
-| Role | Email | Password | Allowed Actions |
-| :--- | :--- | :--- | :--- |
-| **Administrator** | `admin@lifestream.com` | `Admin@1234` | Delete users, approve/reject requests, delete donor entries. |
-| **Standard User / Donor** | `john@example.com` | `Test@1234` | Create requests, log donations, register as active donor. |
+* Login / register with return URL (`/auth?mode=login&redirect=`)
+* Search donors by **name, city, and blood group**, including compatible groups
+* Public blood **request** form (guest + email, or logged-in tracking)
+* Donor registration with eligibility checklist (status stays **pending** until admin verifies)
+* Dashboard: overview, active requests, donation history, profile, help, admin
+* Public pages: Contact, FAQ, Eligibility checker, Compatibility chart, About, Privacy, Terms
 
----
-
-## ⚡ Main Core Features
-
-* **🛡️ Role-Based Route Guarding:** Distinct dashboards and operations for standard donors/recipients vs. site administrators.
-* **🔍 Dynamic Directory Search:** Live filtering of verified donors by **Blood Group** and **City/Location** with dynamic distance metrics.
-* **📋 Urgent Request Portal:** Allows users to submit emergency blood requests specifying hospital, patient name, required units, and urgency levels (`Critical`, `Urgent`, `Routine`).
-* **📊 Analytics Dashboard:** 
-  * Live animated counter displaying total registered users, active requests, verified donors, and total liters of blood donated.
-  * Interactive logs tracking donation details (Whole Blood, Plasma, Platelets) and dates.
-* **⚙️ Admin Management System:** Comprehensive administrative control panel to delete users or request entries for data curation and security.
+Hospital names (Mayo, Shaukat Khanum, PIMS, Aga Khan, and others) are **illustrative demo data**.
 
 ---
 
-## 🛠️ Architecture & Engineering Decisions
+## Architecture
 
-### 1. Separation of Concerns (Service Layer & API Readiness)
-To prevent components from handling data operations directly, all HTTP communications are encapsulated inside a `/services` layer. 
-* The project includes a pre-configured `apiClient.js` complete with automatic JWT token attachment in outbound request headers (`Authorization: Bearer <token>`) and centralized error response interceptors.
-* Switching to a database backend requires no component refactoring; only swapping simulated endpoints inside the service files.
-
-### 2. Client-Side State Hydration & Persistence
-* Built global state modules using **React Context Providers** (`AuthContext` and `AppDataContext`).
-* Persists user sessions and application records dynamically in browser `localStorage`.
-* Pre-loads the sandbox on first load with structured, realistic seed records (donors, active requests, and historical logs) so recruiters don't experience an empty application.
-
-### 3. Clean CSS Architecture (SCSS + BEM)
-* Structured using modular stylesheets, using the **BEM (Block, Element, Modifier)** methodology to keep style selectors flat, readable, and highly maintainable.
-* Uses modern variables for responsive grids and smooth CSS transformations.
-
----
-
-## 📂 Project Organization
+* **Vite + React 19 + React Router 6**, SCSS/BEM, Context + services
+* Mock data is seeded from `AppDataContext` into `localStorage`
+* `src/api/apiClient.js` is unused until a backend and HTTP client exist — do not import it yet
+* Domain services in `src/services/` are ready to swap for real APIs later
 
 ```text
 src/
-├── api/             # HTTP Client config (Axios base, response interceptors)
-├── assets/          # Static logos, icons, and illustration vectors
-├── components/      # Reusable visual blocks (Stats, Cards, Modals, Forms)
-├── context/         # Central State providers (AuthContext, AppDataContext)
-├── data/            # Mock records and initial database seeds
-├── hooks/           # Custom utility hooks (Scroll triggers, form control)
-├── pages/           # Page containers (Dashboard, Auth, Home, Search, Requests)
-├── routes/          # Declarative React Router layout configuration
-├── services/        # Business logic & API calls wrapper
-└── styles/          # Core variables, media queries, and global stylesheet overrides
+├── api/             # Unused HTTP stub (do not import until backend)
+├── assets/
+├── components/
+├── constants/       # Blood groups, Pakistan cities/phones
+├── context/         # AuthContext, AppDataContext
+├── data/            # Static copy (FAQ, profile extras)
+├── hooks/
+├── pages/
+├── routes/
+├── services/        # localStorage-backed mocks
+├── styles/
+└── utils/
 ```
 
 ---
 
-## 🚀 Getting Started (Run Locally)
+## Run locally
 
-Follow these steps to run the development build locally:
+Requires [Node.js](https://nodejs.org/) v18+.
 
-### 1. Prerequisites
-Ensure you have [Node.js](https://nodejs.org/) installed (v18+ recommended).
-
-### 2. Clone and Install
 ```bash
-# Clone the repository
 git clone https://github.com/your-username/blood-donation-website.git
-
-# Navigate into the project folder
 cd blood-donation-website
-
-# Install dependency packages
 npm install
-```
-
-### 3. Start Development Server
-```bash
-# Run local Vite server
 npm run dev
 ```
-Open `http://localhost:5173` in your browser.
 
-### 4. Build for Production
-```bash
-# Generate optimized production build
-npm run build
-```
+Open `http://localhost:5173`. Production build: `npm run build`.
 
 ---
 
-## 💡 Key Takeaways for Technical Interviewers
-* **Clean Code:** Strictly enforces ESLint configurations, zero console leaks in production, and intuitive file structuring.
-* **UX Animations:** Smooth UI interaction using scroll-triggered intersection observers and transition indicators.
-* **JWT Readiness:** Authenticated routes reject requests if credentials expire, redirecting users to the login screen with a `session=expired` query parameter.
+## Honesty notes (FYP)
 
----
-
-## ✉️ Contact & Socials
-* **Developer Name:** [Your Name]
-* **LinkedIn:** [Your Profile Link](https://linkedin.com/in/your-username)
-* **Email:** [Your Email Address]
-* **Portfolio:** [Your Website Link](https://your-portfolio.com)
-
+* Passwords in the demo are stored in the browser, not hashed on a server
+* Forgot-password does not send email; use the on-screen demo reset
+* No Google sign-in, live chat, or inventory/appointment product
+* Eligibility and compatibility screens are educational, not medical advice

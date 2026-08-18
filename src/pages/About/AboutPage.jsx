@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import heroImg from '../../assets/about_hero.png';
 import storyImg from '../../assets/about_story.png';
 import sarahImg from '../../assets/team_sarah.png';
@@ -5,6 +6,7 @@ import marcusImg from '../../assets/team_marcus.png';
 import elenaImg from '../../assets/team_elena.png';
 import './AboutPage.scss';
 import usePageTitle from '../../hooks/usePageTitle';
+import { useAppData } from '../../context/AppDataContext';
 
 /* ── Icon Components ─────────────────────────────────────────── */
 const HeartIcon = () => (
@@ -55,12 +57,6 @@ const SafetyIcon = () => (
 );
 
 /* ── Data ─────────────────────────────────────────────────────── */
-const stats = [
-  { icon: <HeartIcon />, value: '25,000+', label: 'Registered Donors' },
-  { icon: <DropIcon />,  value: '75,000+', label: 'Lives Saved' },
-  { icon: <HospitalIcon />, value: '50+',  label: 'Partner Hospitals' },
-];
-
 const values = [
   { icon: <TrustIcon />,    title: 'Trust',     desc: 'Uncompromising data privacy and medical integrity.' },
   { icon: <UrgencyIcon />,  title: 'Urgency',   desc: 'Rapid response systems for critical situations.' },
@@ -69,14 +65,21 @@ const values = [
 ];
 
 const team = [
-  { img: sarahImg,  name: 'Dr. Sarah Jenkins', role: 'Medical Director' },
-  { img: marcusImg, name: 'Marcus Chen',        role: 'Founder & CEO' },
-  { img: elenaImg,  name: 'Elena Rodriguez',    role: 'Head of Operations' },
+  { img: sarahImg,  name: 'Dr. Ayesha Malik', role: 'Medical Advisor (demo)' },
+  { img: marcusImg, name: 'Omar Sheikh',      role: 'Project Lead (demo)' },
+  { img: elenaImg,  name: 'Hina Raza',        role: 'Operations (demo)' },
 ];
 
 /* ── Component ────────────────────────────────────────────────── */
-const AboutPage = ({ onDonateClick }) => {
+const AboutPage = () => {
   usePageTitle('About Us');
+  const { getStats } = useAppData();
+  const live = getStats();
+  const stats = [
+    { icon: <HeartIcon />, value: `${live.totalDonors}`, label: 'Verified donors in this demo' },
+    { icon: <DropIcon />,  value: `${live.totalDonations}`, label: 'Recorded donations' },
+    { icon: <HospitalIcon />, value: `${live.activeRequests}`,  label: 'Pending requests' },
+  ];
   return (
     <div className="about" id="about-page">
 
@@ -88,19 +91,18 @@ const AboutPage = ({ onDonateClick }) => {
               Saving Lives,<br />One Drop at a Time
             </h1>
             <p className="about__hero-desc">
-              Our mission is to seamlessly connect dedicated blood donors with
-              those in urgent need. We believe in a world where technology
-              empowers compassion, ensuring that every hospital has the resources
-              to save lives efficiently and safely.
+              LifeStream is a Final Year Project: a Pakistan-focused directory that
+              helps families find compatible donors and hospitals post blood requests.
+              It is a frontend demo — licensed blood banks still perform every medical screening.
             </p>
-            <button
+            <Link
               className="about__hero-cta"
               id="btn-about-become-donor"
-              onClick={onDonateClick}
+              to="/donate"
               aria-label="Become a Donor"
             >
               Become a Donor →
-            </button>
+            </Link>
           </div>
           <div className="about__hero-image">
             <img src={heroImg} alt="Medical professional helping blood donation patient" />
@@ -113,7 +115,7 @@ const AboutPage = ({ onDonateClick }) => {
         <div className="container">
           <h2 id="impact-heading" className="about__section-title">Our Impact So Far</h2>
           <p className="about__section-sub">
-            Together, we are making a measurable difference in communities across the country.
+            These numbers come from the demo dataset stored in your browser, not a national registry.
           </p>
           <div className="about__stats-grid">
             {stats.map((s, i) => (
@@ -136,18 +138,14 @@ const AboutPage = ({ onDonateClick }) => {
           <div className="about__story-text">
             <h2 id="story-heading" className="about__story-title">Our Story</h2>
             <p>
-              LifeStream was founded on a simple realisation: the gap between a
-              willing donor and a patient in critical need was often just a matter
-              of logistics. We saw an opportunity to bridge that gap using modern
-              technology, building a platform rooted in unwavering trust and
-              community spirit.
+              LifeStream started as a student project to replace chaotic WhatsApp
+              and Facebook blood appeals with a structured search and request flow
+              for cities such as Lahore, Karachi, and Islamabad.
             </p>
             <p>
-              What started as a small initiative to connect local clinics has
-              grown into a robust network. By prioritising safety, data integrity,
-              and a frictionless user experience, we've transformed the
-              often-daunting process of blood donation into a seamless act of
-              everyday heroism.
+              Hospital names in the demo are illustrative. We do not claim a live
+              partnership with those institutions. When a backend is added, the same
+              screens can talk to a real API without changing the user journeys.
             </p>
           </div>
         </div>
@@ -174,7 +172,7 @@ const AboutPage = ({ onDonateClick }) => {
         <div className="container">
           <h2 id="team-heading" className="about__section-title">Leadership Team</h2>
           <p className="about__section-sub">
-            Guided by medical experts and technology innovators.
+            Illustrative roles for this FYP demo — not a registered foundation.
           </p>
           <div className="about__team-grid">
             {team.map((member, i) => (
@@ -198,14 +196,14 @@ const AboutPage = ({ onDonateClick }) => {
             Your contribution matters. Every donation has the potential to save up to
             three lives. Register today and become a vital part of our community network.
           </p>
-          <button
+          <Link
             className="about__cta-btn"
             id="btn-about-cta-donate"
-            onClick={onDonateClick}
+            to="/donate"
             aria-label="Become a Donor"
           >
             Become a Donor
-          </button>
+          </Link>
         </div>
       </section>
 

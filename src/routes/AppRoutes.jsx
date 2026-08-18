@@ -9,6 +9,7 @@ import PrivateRoute from '../components/PrivateRoute/PrivateRoute';
 import Hero       from '../components/Hero/Hero';
 import Stats      from '../components/Stats/Stats';
 import HowItWorks from '../components/HowItWorks/HowItWorks';
+import HomeExtras from '../components/HomeExtras/HomeExtras';
 
 // ── Lazy-loaded page bundles (each becomes a separate JS chunk) ───────────────
 const AuthPage               = lazy(() => import('../pages/Auth/AuthPage'));
@@ -23,6 +24,10 @@ const NotFoundPage           = lazy(() => import('../pages/NotFound/NotFoundPage
 const TermsPage              = lazy(() => import('../pages/Legal/TermsPage'));
 const PrivacyPage            = lazy(() => import('../pages/Legal/PrivacyPage'));
 const DonorProfilePage       = lazy(() => import('../pages/DonorProfile/DonorProfilePage'));
+const ContactPage            = lazy(() => import('../pages/Contact/ContactPage'));
+const FaqPage                = lazy(() => import('../pages/Faq/FaqPage'));
+const EligibilityPage        = lazy(() => import('../pages/Eligibility/EligibilityPage'));
+const CompatibilityPage      = lazy(() => import('../pages/Compatibility/CompatibilityPage'));
 
 // ── Loading fallback ───────────────────────────────────────────────────────────
 const PageLoader = () => (
@@ -36,34 +41,36 @@ const LandingPage = () => (
     <Hero />
     <Stats />
     <HowItWorks />
+    <HomeExtras />
   </>
 );
 
-const AppRoutes = ({ onBack, onLoginSuccess, onDonateClick }) => {
+const AppRoutes = () => {
   return (
     <Suspense fallback={<PageLoader />}>
       <Routes>
         {/* ── Public ────────────────────────────────── */}
         <Route path="/" element={<LandingPage />} />
-        <Route
-          path="/auth"
-          element={<AuthPage onBack={onBack} onLoginSuccess={onLoginSuccess} />}
-        />
+        <Route path="/auth" element={<AuthPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/reset-password"  element={<ResetPasswordPage />}  />
         <Route path="/search"  element={<SearchBloodPage />} />
         <Route path="/request" element={<RequestPage />} />
-        <Route path="/about"   element={<AboutPage onDonateClick={onDonateClick} />} />
+        <Route path="/about"   element={<AboutPage />} />
         <Route path="/donor/:id" element={<DonorProfilePage />} />
         <Route path="/terms"   element={<TermsPage />} />
         <Route path="/privacy" element={<PrivacyPage />} />
+        <Route path="/contact" element={<ContactPage />} />
+        <Route path="/faq" element={<FaqPage />} />
+        <Route path="/eligibility" element={<EligibilityPage />} />
+        <Route path="/compatibility" element={<CompatibilityPage />} />
 
         {/* ── Protected ─────────────────────────────── */}
         <Route
           path="/donate"
           element={
             <PrivateRoute>
-              <DonorRegistrationPage onBack={onBack} />
+              <DonorRegistrationPage />
             </PrivateRoute>
           }
         />

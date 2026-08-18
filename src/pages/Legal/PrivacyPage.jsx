@@ -52,9 +52,9 @@ const PrivacyPage = () => {
         <article className="legal-page__article">
 
           <div className="legal-page__callout">
-            <strong>Our commitment</strong>
-            LifeStream is committed to protecting your personal and medical information.
-            This policy explains what we collect, why we collect it, and how we protect it.
+            <strong>Demo notice</strong>
+            LifeStream is a Final Year Project frontend. Data is stored in your browser&apos;s localStorage.
+            There is no production database, email delivery, or hospital integration yet.
           </div>
 
           <section className="legal-page__section" id="overview">
@@ -74,11 +74,11 @@ const PrivacyPage = () => {
             <h2 className="legal-page__section-title" data-num="2">Data We Collect</h2>
             <p className="legal-page__text">We collect the following categories of information:</p>
             <ul className="legal-page__list">
-              <li><strong>Account data:</strong> Full name, email address, phone number, and password (hashed).</li>
-              <li><strong>Medical data:</strong> Blood type, last donation date, and donor eligibility status.</li>
-              <li><strong>Location data:</strong> City and country you provide during registration; we do not collect real-time GPS data without explicit consent.</li>
-              <li><strong>Usage data:</strong> Pages visited, features used, search queries, and browser/device information.</li>
-              <li><strong>Communications:</strong> Messages sent via the platform between donors and requesters.</li>
+              <li><strong>Account data:</strong> Name, email, phone, and password stored in this browser for the demo (not hashed on a server).</li>
+              <li><strong>Medical data:</strong> Blood group, last donation date, and donor eligibility status you enter.</li>
+              <li><strong>Location data:</strong> City you provide during registration. We do not collect live GPS in this demo.</li>
+              <li><strong>Usage data:</strong> Pages visited in this session (not sent to an analytics vendor in the demo).</li>
+              <li><strong>Communications:</strong> Contact-form messages stay on the page; they are not emailed.</li>
             </ul>
           </section>
 
@@ -132,11 +132,10 @@ const PrivacyPage = () => {
               We implement industry-standard security measures to protect your data, including:
             </p>
             <ul className="legal-page__list">
-              <li>End-to-end encryption for sensitive communications.</li>
-              <li>Bcrypt hashing for all stored passwords.</li>
-              <li>Regular security audits and penetration testing.</li>
-              <li>Role-based access controls limiting employee access to personal data.</li>
-              <li>HTTPS/TLS for all data in transit.</li>
+              <li>HTTPS in production when the site is hosted (this demo may run on localhost).</li>
+              <li>Session data kept in the browser; passwords in this demo are stored in localStorage and are not production-grade.</li>
+              <li>A future backend should hash passwords (for example with bcrypt) and use HTTPS/TLS in transit.</li>
+              <li>Do not enter real medical secrets you would not want stored on this device.</li>
             </ul>
             <p className="legal-page__text">
               No method of transmission over the internet is 100% secure. While we strive to use
@@ -158,36 +157,26 @@ const PrivacyPage = () => {
               <li><strong>Withdrawal:</strong> Withdraw consent at any time without affecting prior lawful processing.</li>
             </ul>
             <p className="legal-page__text">
-              To exercise any of these rights, contact us at{' '}
-              <a href="mailto:privacy@lifestream.org">privacy@lifestream.org</a>.
-              We will respond within 30 days.
+              To exercise any of these rights in a future production system, contact{' '}
+              <a href="mailto:support@lifestream.pk">support@lifestream.pk</a>.
+              In this demo you can clear site data in your browser.
             </p>
           </section>
 
           <section className="legal-page__section" id="cookies">
             <h2 className="legal-page__section-title" data-num="8">Cookies</h2>
             <p className="legal-page__text">
-              We use cookies and similar tracking technologies to:
-            </p>
-            <ul className="legal-page__list">
-              <li>Keep you logged in across sessions (authentication cookies).</li>
-              <li>Remember your preferences (functional cookies).</li>
-              <li>Understand how users interact with our platform (analytics cookies).</li>
-            </ul>
-            <p className="legal-page__text">
-              You can control cookie settings through your browser. Disabling certain cookies may affect
-              the functionality of the platform.
+              This demo uses localStorage to keep you signed in. We do not set third-party marketing cookies.
+              If a future version uses cookies, we will describe them here.
             </p>
           </section>
 
           <section className="legal-page__section" id="children">
             <h2 className="legal-page__section-title" data-num="9">Children's Privacy</h2>
             <p className="legal-page__text">
-              LifeStream is not intended for use by individuals under the age of 13.
-              We do not knowingly collect personal data from children under 13.
-              If we become aware that we have collected data from a child, we will delete it promptly.
-              If you believe your child has provided us with personal information, please contact us at{' '}
-              <a href="mailto:privacy@lifestream.org">privacy@lifestream.org</a>.
+              LifeStream is not intended for people under 18 (the typical minimum age for whole-blood donation in this demo).
+              We do not knowingly collect personal data from children.
+              If you believe a minor has created an account, contact us so the local demo data can be cleared.
             </p>
           </section>
 
@@ -197,9 +186,9 @@ const PrivacyPage = () => {
               For any privacy-related questions, data requests, or concerns, please contact our Data Protection Officer:
             </p>
             <ul className="legal-page__list">
-              <li>Email: <a href="mailto:privacy@lifestream.org">privacy@lifestream.org</a></li>
-              <li>Address: LifeStream Foundation — Privacy Office, 123 Donor Lane, Medical District, CA 90001</li>
-              <li>Response time: Within 30 days of receipt</li>
+              <li>Email: <a href="mailto:support@lifestream.pk">support@lifestream.pk</a></li>
+              <li>Address: LifeStream (FYP Demo), Gulberg III, Lahore, Pakistan</li>
+              <li>Response time: this demo does not send email; use the Contact page for an on-screen confirmation</li>
             </ul>
           </section>
 

@@ -12,7 +12,9 @@ import './ActiveRequests.scss';
 import AppSpinner from '../AppSpinner/AppSpinner';
 import { filters, statusConfig } from '../../data/requests.data';
 import { fetchRequests } from '../../api/services';
-import { useToast } from '../../context/ToastContext';
+import { Link } from 'react-router-dom';
+import EmptyState from '../EmptyState/EmptyState';
+import { requestBloodGroup, normalizeRequestStatus } from '../../utils/status';
 import { useAuth } from '../../context/AuthContext';
 
 // ── iconKey → FontAwesome icon resolver ───────────────────────────────────────
@@ -39,17 +41,11 @@ const ActiveRequests = () => {
   const [activeFilter, setActiveFilter] = useState('All');
   const [requests, setRequests]   = useState([]);
   const [loading, setLoading]     = useState(true);
-  const { toast } = useToast();
+  const [selectedId, setSelectedId] = useState(null);
   const { currentUser } = useAuth();
 
-  const handleActionClick = (req, action) => {
-    if (action === 'View Details') {
-      toast.info(`Request Details — Patient: ${req.patient} | Hospital: ${req.hospital} | Units: ${req.units} units of ${req.blood} needed by ${req.neededBy}. Status: Pending review.`);
-    } else if (action === 'Contact Donor') {
-      toast.success(`Donor match found! Contact coordinator at +1 (555) 014-9921 to confirm dispatch for ${req.patient}.`);
-    } else if (action === 'View Reason') {
-      toast.warning(`Request Rejected: The medical record number provided could not be verified with ${req.hospital}.`);
-    }
+  const handleActionClick = (req) => {
+    setSelectedId((id) => (id === req.id ? null : req.id));
   };
 
   useEffect(() => {
@@ -115,18 +111,16 @@ const ActiveRequests = () => {
       {/* ── Request List ── */}
       <div className="ar-list" role="tabpanel">
         {filtered.length === 0 ? (
-          <div className="ar-empty">
-            <p>No <strong>{activeFilter.toLowerCase()}</strong> requests found.</p>
-            {activeFilter === 'All' && (
-              <p style={{ marginTop: '0.5rem', opacity: 0.65, fontSize: '0.9rem' }}>
-                You haven&rsquo;t submitted any blood requests yet.{' '}
-                <a href="/request" style={{ color: 'var(--color-primary, #e53e3e)', textDecoration: 'underline' }}>Submit a request</a>
-              </p>
-            )}
-          </div>
+          <EmptyState
+            title={activeFilter === 'All' ? 'No requests yet' : `No ${activeFilter.toLowerCase()} requests`}
+            message={activeFilter === 'All' ? 'Submit a blood request to track it here.' : 'Try another filter.'}
+            actionLabel="Submit a request"
+            actionTo="/request"
+          />
         ) : (
           filtered.map((req, idx) => {
-            const cfg = statusConfig[req.status];
+            const blood = requestBloodGroup(req);
+            const cfg = statusConfig[normalizeRequestStatus(req.status)] || statusConfig.Pending;
             return (
               <article
                 key={req.id}
@@ -134,9 +128,8 @@ const ActiveRequests = () => {
                 style={{ animationDelay: `${idx * 0.06}s` }}
                 aria-label={`Request for ${req.hospital}`}
               >
-                {/* Blood type badge */}
-                <div className={`ar-card__blood ar-card__blood--${bloodModifier(req.blood)}`}>
-                  {req.blood}
+                <div className={`ar-card__blood ar-card__blood--${bloodModifier(blood)}`}>
+                  {blood}
                 </div>
 
                 {/* Info */}
@@ -169,11 +162,24 @@ const ActiveRequests = () => {
                     className={`ar-card__action ar-card__action--${cfg.modifier}`}
                     id={`action-${req.id}`}
                     aria-label={`${cfg.action} for ${req.hospital}`}
-                    onClick={() => handleActionClick(req, cfg.action)}
+                    onClick={() => handleActionClick(req)}
                   >
-                    {cfg.action}
+                    {selectedId === req.id ? 'Hide details' : 'View details'}
                   </button>
                 </div>
+                {selectedId === req.id && (
+                  <div className="ar-card__details">
+                    <p>ID: {req.id}</p>
+                    <p>Urgency: {req.urgency}</p>
+                    <p>Component: {req.component || 'Whole Blood'}</p>
+                    <p>City: {req.location || '—'}</p>
+                    <p>Contact: {req.contactNumber || '—'}</p>
+                    {req.note && <p>Note: {req.note}</p>}
+                    <p>
+                      Need compatible donors? <Link to={`/search?q=${encodeURIComponent(blood)}`}>Search {blood}</Link>
+                    </p>
+                  </div>
+                )}
               </article>
             );
           })

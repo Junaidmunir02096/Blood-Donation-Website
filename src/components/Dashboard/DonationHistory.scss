@@ -71,25 +71,44 @@
   }
 }
 
-// ─── Table Wrapper (horizontal scroll — scrollbar hidden) ────────────────────
+// ─── Table Wrapper (horizontal scroll, visible scrollbar) ────────────────────
 .dh-table-wrapper {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
 
-  // Hide scrollbar — Chrome, Safari, Opera
-  &::-webkit-scrollbar {
+  &:focus-visible {
+    outline: 3px solid rgba($primary, 0.45);
+    outline-offset: 2px;
+  }
+
+  @media (max-width: $bp-md) {
     display: none;
   }
+}
 
-  // Hide scrollbar — Firefox
-  scrollbar-width: none;
+.dh-cards {
+  display: none;
+  padding: $spacing-4 $spacing-5;
+  gap: $spacing-3;
 
-  // Hide scrollbar — IE / legacy Edge
-  -ms-overflow-style: none;
-
-  &:focus {
-    outline: none;
+  @media (max-width: $bp-md) {
+    display: grid;
   }
+}
+
+.dh-card-item {
+  border: 1px solid $border-color;
+  border-radius: $radius-md;
+  padding: $spacing-3 $spacing-4;
+  font-size: $font-size-sm;
+  color: $text-body;
+}
+
+.dh-table__empty {
+  padding: $spacing-8 $spacing-6;
+  text-align: center;
+  color: $text-muted;
 }
 
 // ─── Table ───────────────────────────────────────────────────────────────────

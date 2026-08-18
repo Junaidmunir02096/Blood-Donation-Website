@@ -46,14 +46,22 @@ const ForgotPasswordPage = () => {
             <span className="forgot-pw__success-icon" role="img" aria-label="Email sent">📬</span>
             <h2>Check your inbox!</h2>
             <p>
-              We've sent a password reset link to{' '}
-              <strong>{email}</strong>. The link expires in 15 minutes.
+              No email is sent in this frontend demo. Continue with the mock reset
+              for <strong>{email}</strong> to try the next screen.
             </p>
             <Link
-              to="/auth"
+              to="/reset-password?token=demo"
+              className="forgot-pw__submit"
+              id="continue-demo-reset"
+              style={{ textDecoration: 'none' }}
+            >
+              Continue demo reset
+            </Link>
+            <Link
+              to="/auth?mode=login"
               className="forgot-pw__submit"
               id="back-to-login-btn"
-              style={{ textDecoration: 'none' }}
+              style={{ textDecoration: 'none', marginTop: '0.75rem' }}
             >
               Back to Login
             </Link>
@@ -105,7 +113,7 @@ const ForgotPasswordPage = () => {
 
         <h1 className="forgot-pw__title">Forgot your password?</h1>
         <p className="forgot-pw__subtitle">
-          No worries! Enter your registered email and we'll send you a secure link to reset it.
+          Frontend demo only — we cannot send email. Enter any valid address to continue to a mock reset screen.
         </p>
 
         <form className="forgot-pw__form" onSubmit={handleSubmit} noValidate id="forgot-pw-form">

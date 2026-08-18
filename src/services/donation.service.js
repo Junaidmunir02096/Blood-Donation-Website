@@ -21,6 +21,6 @@ export const fetchDonations = async (userId) => {
   await delay(400);
   const all = readDonations();
   // If userId provided, return only that user's donations; otherwise return all (seed data)
-  if (userId) return all.filter((d) => d.userId === userId || d.userId === 'seed');
+  if (userId) return all.filter((d) => d.userId === userId);
   return all;
 };

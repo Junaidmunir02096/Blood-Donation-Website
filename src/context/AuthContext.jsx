@@ -153,6 +153,23 @@ export const AuthProvider = ({ children }) => {
     setCurrentUser(null);
   }, []);
 
+  const changePassword = useCallback(async ({ currentPassword, newPassword }) => {
+    await delay(400);
+    if (!currentUser?.id) return { ok: false, error: 'You must be signed in.' };
+    const users = readUsers();
+    const idx = users.findIndex((u) => u.id === currentUser.id);
+    if (idx === -1) return { ok: false, error: 'Account not found.' };
+    if (users[idx].password !== currentPassword) {
+      return { ok: false, error: 'Current password is incorrect.' };
+    }
+    if (!newPassword || newPassword.length < 8) {
+      return { ok: false, error: 'New password must be at least 8 characters.' };
+    }
+    users[idx] = { ...users[idx], password: newPassword };
+    writeUsers(users);
+    return { ok: true };
+  }, [currentUser]);
+
   /* ── updateCurrentUser — refreshes session after profile edit */
   const updateCurrentUser = useCallback((updates) => {
     setCurrentUser(prev => {
@@ -169,7 +186,7 @@ export const AuthProvider = ({ children }) => {
     }
   }, [currentUser]);
 
-  const value = { isLoggedIn, currentUser, login, register, logout, updateCurrentUser };
+  const value = { isLoggedIn, currentUser, login, register, logout, updateCurrentUser, changePassword };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

@@ -494,12 +494,19 @@
   }
 
   /* Call button */
+  &__actions {
+    display: flex;
+    gap: $spacing-2;
+    flex-wrap: wrap;
+  }
+
   &__call-btn {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: $spacing-2;
-    width: 100%;
+    flex: 1;
+    min-width: 7rem;
     padding: $spacing-3;
     background: $primary-lighter;
     border: 1.5px solid $primary-light;
@@ -509,13 +516,25 @@
     font-weight: 700;
     color: $primary;
     cursor: pointer;
+    text-decoration: none;
     transition: all $transition-fast;
 
-    &:hover {
+    &:hover:not(:disabled) {
       background: $primary;
       border-color: $primary;
       color: #fff;
       box-shadow: 0 4px 14px rgba($primary, 0.3);
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    &--secondary {
+      background: transparent;
+      border-color: $border-color;
+      color: $text-body;
     }
   }
 

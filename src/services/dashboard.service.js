@@ -29,7 +29,7 @@ export const fetchDashboardData = async () => {
     .slice(0, 5)
     .map((r) => ({
       id:       r.id,
-      blood:    r.blood,
+      blood:    r.bloodGroup || r.blood,
       urgency:  r.urgency  || 'Routine',
       hospital: r.hospital || r.hospitalName || 'Hospital',
       distance: r.distance || '—',
@@ -41,7 +41,7 @@ export const fetchDashboardData = async () => {
   const nearbyDonors = donors.slice(0, 5).map((d) => ({
     id:       d.id,
     name:     d.name,
-    distance: d.miles ? `${d.miles} miles away` : 'Nearby',
+    distance: d.km != null ? `${Number(d.km).toFixed(1)} km away` : (d.miles ? `${d.miles} km away` : 'Nearby'),
     blood:    d.bloodGroup,
     initials: d.avatar || (d.name || 'XX').split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2),
   }));

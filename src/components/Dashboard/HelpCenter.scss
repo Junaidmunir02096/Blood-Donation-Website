@@ -135,6 +135,8 @@ $cat-colors: (
   border: 0.0625rem solid $border-color;
   cursor: pointer;
   text-align: left;
+  text-decoration: none;
+  color: inherit;
   transition: transform $transition-fast, box-shadow $transition-fast, border-color $transition-fast;
   overflow: hidden;
 
@@ -428,6 +430,8 @@ $cat-colors: (
   border: none;
   cursor: pointer;
   font-family: $font-family;
+  text-decoration: none;
+  color: inherit;
   transition: all $transition-fast;
   min-width: 10rem;
   position: relative;

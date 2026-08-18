@@ -11,32 +11,35 @@ import {
   faShieldHalved,
   faHeart,
   faCheck,
-  faFire,
   faCalendarCheck,
   faCircleCheck,
-  faChevronRight,
   faAward,
   faBell,
   faMoon,
   faSun,
-  faCamera,
 } from '@fortawesome/free-solid-svg-icons';
 import './MyProfile.scss';
 import AppSpinner from '../AppSpinner/AppSpinner';
-import { fetchProfileData } from '../../api/services';
+import { fetchProfileData, fetchDonations } from '../../api/services';
 import { useAuth } from '../../context/AuthContext';
+import { getInitials } from '../../utils/avatar';
+import { PAKISTAN_CITIES, isValidPakistanPhone } from '../../constants/pakistan';
 
-
-/* ─── Editable Field ─────────────────────────────────── */
-const EditableField = ({ label, value, type = 'text', id }) => {
+const EditableField = ({ label, value, type = 'text', id, onSave, listId, options }) => {
   const [editing, setEditing] = useState(false);
   const [val, setVal] = useState(value);
   const [saved, setSaved] = useState(false);
 
   const handleSave = () => {
+    onSave?.(val);
     setEditing(false);
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
+  };
+
+  const startEdit = () => {
+    setVal(value);
+    setEditing(true);
   };
 
   return (
@@ -49,20 +52,26 @@ const EditableField = ({ label, value, type = 'text', id }) => {
             type={type}
             className="profile-field__input"
             value={val}
+            list={listId}
             onChange={(e) => setVal(e.target.value)}
             autoFocus
           />
+          {options && (
+            <datalist id={listId}>
+              {options.map((opt) => <option key={opt} value={opt} />)}
+            </datalist>
+          )}
           <button className="profile-field__save-btn" type="button" onClick={handleSave} id={`${id}-save`}>
             <FontAwesomeIcon icon={faCheck} /> Save
           </button>
         </div>
       ) : (
         <div className="profile-field__view-row">
-          <span className="profile-field__value">{val}</span>
+          <span className="profile-field__value">{val || 'Not set'}</span>
           <button
             className="profile-field__edit-btn"
             type="button"
-            onClick={() => setEditing(true)}
+            onClick={startEdit}
             id={`${id}-edit`}
             aria-label={`Edit ${label}`}
           >
@@ -75,47 +84,6 @@ const EditableField = ({ label, value, type = 'text', id }) => {
   );
 };
 
-/* ─── Lifestyle Tracker Card ─────────────────────────── */
-const LifestyleTracker = ({ lifestyleItems }) => (
-  <div className="profile-lifestyle">
-    <div className="profile-lifestyle__header">
-      <div className="profile-lifestyle__title-group">
-        <span className="profile-lifestyle__icon-wrap" aria-hidden="true">
-          <FontAwesomeIcon icon={faFire} />
-        </span>
-        <div>
-          <h3 className="profile-lifestyle__title">Lifestyle Tracker</h3>
-          <p className="profile-lifestyle__subtitle">Today's wellness metrics</p>
-        </div>
-      </div>
-      <span className="profile-lifestyle__score">Score: <strong>76</strong>/100</span>
-    </div>
-    <div className="profile-lifestyle__items">
-      {lifestyleItems.map((item) => (
-        <div className="profile-lifestyle__item" key={item.id} id={item.id}>
-          <div className="profile-lifestyle__item-top">
-            <div className="profile-lifestyle__item-label">
-              <span className="profile-lifestyle__item-icon" style={{ color: item.color }} aria-hidden="true">
-                <FontAwesomeIcon icon={item.icon} />
-              </span>
-              <span className="profile-lifestyle__item-name">{item.label}</span>
-            </div>
-            <span className="profile-lifestyle__item-value">{item.value}</span>
-          </div>
-          <div className="profile-lifestyle__bar-track" role="progressbar" aria-valuenow={item.pct} aria-valuemin={0} aria-valuemax={100} aria-label={`${item.label}: ${item.pct}%`}>
-            <div
-              className="profile-lifestyle__bar-fill"
-              style={{ width: `${item.pct}%`, background: item.color }}
-            />
-          </div>
-          <p className="profile-lifestyle__item-target">Target: {item.target}</p>
-        </div>
-      ))}
-    </div>
-  </div>
-);
-
-/* ─── Donation Timeline ──────────────────────────────── */
 const DonationTimeline = ({ timelineEvents }) => (
   <div className="profile-timeline">
     <div className="profile-timeline__header">
@@ -123,35 +91,35 @@ const DonationTimeline = ({ timelineEvents }) => (
         <FontAwesomeIcon icon={faCalendarCheck} className="profile-timeline__title-icon" />
         Donation History
       </h3>
-      <span className="profile-timeline__count">14 Total</span>
+      <span className="profile-timeline__count">{timelineEvents.length} Total</span>
     </div>
-    <ol className="profile-timeline__list" aria-label="Donation history timeline">
-      {timelineEvents.map((ev, idx) => (
-        <li className="profile-timeline__item" key={ev.id} id={ev.id}>
-          <div className="profile-timeline__dot" aria-hidden="true">
-            <FontAwesomeIcon icon={faDroplet} />
-          </div>
-          {idx < timelineEvents.length - 1 && <div className="profile-timeline__line" aria-hidden="true" />}
-          <div className="profile-timeline__content">
-            <div className="profile-timeline__top">
-              <p className="profile-timeline__hospital">{ev.hospital}</p>
-              <span className="profile-timeline__badge">{ev.badge}</span>
+    {timelineEvents.length === 0 ? (
+      <p className="profile-timeline__meta">No donations recorded for this account yet.</p>
+    ) : (
+      <ol className="profile-timeline__list" aria-label="Donation history timeline">
+        {timelineEvents.map((ev, idx) => (
+          <li className="profile-timeline__item" key={ev.id} id={ev.id}>
+            <div className="profile-timeline__dot" aria-hidden="true">
+              <FontAwesomeIcon icon={faDroplet} />
             </div>
-            <p className="profile-timeline__meta">
-              <FontAwesomeIcon icon={faCalendarCheck} />
-              {ev.date} &bull; {ev.units} donated
-            </p>
-          </div>
-        </li>
-      ))}
-    </ol>
-    <button className="profile-timeline__show-more" type="button" id="profile-timeline-more">
-      View all 14 donations <FontAwesomeIcon icon={faChevronRight} />
-    </button>
+            {idx < timelineEvents.length - 1 && <div className="profile-timeline__line" aria-hidden="true" />}
+            <div className="profile-timeline__content">
+              <div className="profile-timeline__top">
+                <p className="profile-timeline__hospital">{ev.hospital}</p>
+                <span className="profile-timeline__badge">{ev.badge}</span>
+              </div>
+              <p className="profile-timeline__meta">
+                <FontAwesomeIcon icon={faCalendarCheck} />
+                {ev.date} &bull; {ev.units} donated
+              </p>
+            </div>
+          </li>
+        ))}
+      </ol>
+    )}
   </div>
 );
 
-/* ─── Achievement Badges ─────────────────────────────── */
 const Achievements = ({ achievements }) => (
   <div className="profile-achievements">
     <h3 className="profile-achievements__title">
@@ -178,7 +146,6 @@ const Achievements = ({ achievements }) => (
   </div>
 );
 
-/* ─── Notification Prefs ─────────────────────────────── */
 const NotificationSettings = ({ notifPrefs }) => {
   const [prefs, setPrefs] = useState(
     notifPrefs.reduce((acc, p) => ({ ...acc, [p.id]: p.default }), {})
@@ -190,6 +157,9 @@ const NotificationSettings = ({ notifPrefs }) => {
         <FontAwesomeIcon icon={faBell} className="profile-notif__title-icon" />
         Notification Preferences
       </h3>
+      <p className="profile-notif__desc" style={{ padding: '0 1.25rem', fontSize: '0.8rem', color: '#5c5c6a' }}>
+        Saved in this browser only. No emails are sent in the demo.
+      </p>
       <div className="profile-notif__list">
         {notifPrefs.map((pref) => (
           <div className="profile-notif__item" key={pref.id}>
@@ -221,38 +191,51 @@ const NotificationSettings = ({ notifPrefs }) => {
   );
 };
 
-/* ─── Main MyProfile Component ──────────────────── */
-const MyProfile = ({ onLogout }) => {
-  const { currentUser } = useAuth();
+const daysUntilEligible = (donations) => {
+  const GAP_DAYS = 84;
+  const dated = donations
+    .map((d) => d.rawDate)
+    .filter(Boolean)
+    .sort()
+    .reverse();
+  if (!dated.length) return 0;
+  const last = new Date(dated[0]);
+  const next = new Date(last);
+  next.setDate(next.getDate() + GAP_DAYS);
+  const diff = Math.ceil((next - new Date()) / (1000 * 60 * 60 * 24));
+  return Math.max(0, diff);
+};
 
-  // Derive display values from real auth data
-  const fullName    = currentUser?.fullName  ?? 'Unknown User';
-  const email       = currentUser?.email     ?? 'No email on file';
-  const bloodGroup  = currentUser?.bloodGroup ?? 'N/A';
-  const initials    = fullName
-    .split(' ')
-    .map((w) => w[0])
-    .join('')
-    .slice(0, 2)
-    .toUpperCase();
+const MyProfile = ({ onLogout }) => {
+  const { currentUser, updateCurrentUser, changePassword } = useAuth();
+
+  const fullName = currentUser?.fullName ?? 'Unknown User';
+  const email = currentUser?.email ?? 'No email on file';
+  const bloodGroup = currentUser?.bloodGroup ?? 'N/A';
+  const initials = getInitials(fullName);
 
   const [editingProfile, setEditingProfile] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
-  const [imgError, setImgError] = useState(false);
+  const [pwForm, setPwForm] = useState({ current: '', next: '', confirm: '' });
+  const [pwErrors, setPwErrors] = useState({});
+  const [pwStatus, setPwStatus] = useState('');
   const [profileData, setProfileData] = useState(null);
+  const [donations, setDonations] = useState([]);
   const [loading, setLoading] = useState(true);
-
-  const nextDonationDays = 12; // TODO: calculate from lastDonationDate once backend is live
 
   useEffect(() => {
     const load = async () => {
       setLoading(true);
-      const data = await fetchProfileData();
+      const [data, history] = await Promise.all([
+        fetchProfileData(),
+        fetchDonations(currentUser?.id),
+      ]);
       setProfileData(data);
+      setDonations(history);
       setLoading(false);
     };
     load();
-  }, []);
+  }, [currentUser?.id]);
 
   if (loading || !profileData) {
     return (
@@ -262,10 +245,41 @@ const MyProfile = ({ onLogout }) => {
     );
   }
 
+  const nextDonationDays = daysUntilEligible(donations);
+  const timelineEvents = donations.map((d) => ({
+    id: d.id,
+    hospital: d.location,
+    badge: d.type,
+    date: d.date,
+    units: d.volume,
+  }));
+  const donationCount = donations.length || currentUser?.donations || 0;
+  const lives = donationCount * 3;
+  const joinedLabel = currentUser?.createdAt
+    ? new Date(currentUser.createdAt).toLocaleDateString('en-PK', { month: 'long', year: 'numeric' })
+    : 'This year';
+
+  const handlePasswordSave = async () => {
+    const next = {};
+    if (!pwForm.current) next.current = 'Enter your current password.';
+    if (pwForm.next.length < 8) next.next = 'New password must be at least 8 characters.';
+    if (pwForm.next !== pwForm.confirm) next.confirm = 'Passwords do not match.';
+    if (Object.keys(next).length) { setPwErrors(next); return; }
+    const res = await changePassword({ currentPassword: pwForm.current, newPassword: pwForm.next });
+    if (!res.ok) {
+      setPwErrors({ current: res.error });
+      return;
+    }
+    setPwStatus('Password updated in this demo (stored in your browser).');
+    setPwForm({ current: '', next: '', confirm: '' });
+    setTimeout(() => {
+      setShowPasswordModal(false);
+      setPwStatus('');
+    }, 1200);
+  };
+
   return (
     <section className="my-profile" aria-labelledby="my-profile-title">
-
-      {/* ── Page Heading ── */}
       <div className="my-profile__heading">
         <div>
           <h1 className="my-profile__title" id="my-profile-title">My Profile</h1>
@@ -273,34 +287,12 @@ const MyProfile = ({ onLogout }) => {
         </div>
       </div>
 
-      {/* ══ Row 1: Hero Card + Blood Group ══════════════════ */}
       <div className="my-profile__hero-row">
-
-        {/* Hero Card */}
         <div className="profile-hero-card">
-          {/* Avatar */}
           <div className="profile-hero-card__avatar-wrap">
-            {!imgError ? (
-              <img
-                src="/profile_avatar.png"
-                alt={`${fullName} profile photo`}
-                className="profile-hero-card__avatar"
-                onError={() => setImgError(true)}
-              />
-            ) : (
-              <div className="profile-hero-card__avatar-fallback" aria-hidden="true">{initials}</div>
-            )}
-            <button
-              className="profile-hero-card__avatar-overlay"
-              type="button"
-              aria-label="Change profile photo"
-              id="profile-change-photo"
-            >
-              <FontAwesomeIcon icon={faCamera} />
-            </button>
+            <div className="profile-hero-card__avatar-fallback" aria-hidden="true">{initials}</div>
           </div>
 
-          {/* Info */}
           <div className="profile-hero-card__info">
             <div className="profile-hero-card__name-row">
               <h2 className="profile-hero-card__name">{fullName}</h2>
@@ -319,18 +311,17 @@ const MyProfile = ({ onLogout }) => {
             <div className="profile-hero-card__meta-row">
               <span className="profile-hero-card__verified-badge">
                 <FontAwesomeIcon icon={faShieldHalved} />
-                Verified Donor
+                {currentUser?.role === 'admin' ? 'Administrator' : 'Registered user'}
               </span>
-              <span className="profile-hero-card__joined">Joined March 2022</span>
+              <span className="profile-hero-card__joined">Joined {joinedLabel}</span>
             </div>
 
             <p className="profile-hero-card__bio">
-              Dedicated blood donor committed to helping the local community. Always ready to respond to urgent medical requests.
+              Profile photo upload will arrive with the backend. Your initials are shown until then.
             </p>
           </div>
         </div>
 
-        {/* Blood Group Card */}
         <div className="profile-blood-card" id="profile-blood-group-card">
           <p className="profile-blood-card__label">
             <FontAwesomeIcon icon={faDroplet} className="profile-blood-card__label-icon" />
@@ -338,32 +329,47 @@ const MyProfile = ({ onLogout }) => {
           </p>
           <div className="profile-blood-card__group" aria-label={`Blood group ${bloodGroup}`}>{bloodGroup || '—'}</div>
           <p className="profile-blood-card__eligibility">
-            Eligible to donate in{' '}
-            <strong className="profile-blood-card__days">{nextDonationDays} days</strong>
+            {nextDonationDays === 0 ? (
+              <strong className="profile-blood-card__days">Eligible to donate</strong>
+            ) : (
+              <>Eligible again in <strong className="profile-blood-card__days">{nextDonationDays} days</strong></>
+            )}
           </p>
           <div className="profile-blood-card__countdown-bar" aria-hidden="true">
             <div
               className="profile-blood-card__countdown-fill"
-              style={{ width: `${((90 - nextDonationDays) / 90) * 100}%` }}
+              style={{ width: `${((84 - nextDonationDays) / 84) * 100}%` }}
             />
           </div>
-          <p className="profile-blood-card__countdown-hint">90-day donation cycle</p>
+          <p className="profile-blood-card__countdown-hint">About 12 weeks between whole-blood donations</p>
         </div>
       </div>
 
-      {/* ══ Row 2: Contact + Lifetime Impact ════════════════ */}
       <div className="my-profile__mid-row">
-
-        {/* Contact Details */}
         <div className="profile-contact-card">
           <h3 className="profile-contact-card__title">Contact Details</h3>
 
           {editingProfile ? (
             <div className="profile-contact-card__fields">
-              <EditableField id="field-location" label="Primary Location" value="Not set" />
-              <EditableField id="field-center"   label="Preferred Center" value="Not set" />
-              <EditableField id="field-email"    label="Email Address"    value={email} type="email" />
-              <EditableField id="field-phone"    label="Phone Number"     value="Not set" type="tel" />
+              <EditableField
+                id="field-location"
+                label="City"
+                value={currentUser?.city || ''}
+                listId="profile-cities"
+                options={PAKISTAN_CITIES}
+                onSave={(city) => updateCurrentUser({ city })}
+              />
+              <EditableField id="field-email" label="Email Address" value={email} type="email" onSave={(nextEmail) => updateCurrentUser({ email: nextEmail })} />
+              <EditableField
+                id="field-phone"
+                label="Phone Number"
+                value={currentUser?.phone || ''}
+                type="tel"
+                onSave={(phone) => {
+                  if (phone && !isValidPakistanPhone(phone)) return;
+                  updateCurrentUser({ phone });
+                }}
+              />
             </div>
           ) : (
             <div className="profile-contact-card__items">
@@ -372,9 +378,8 @@ const MyProfile = ({ onLogout }) => {
                   <FontAwesomeIcon icon={faLocationDot} />
                 </span>
                 <div>
-                  <p className="profile-contact-item__primary">Primary Location</p>
-                  <p className="profile-contact-item__value">Portland Metro Area, Oregon</p>
-                  <p className="profile-contact-item__sub">Preferred Center: Westside General</p>
+                  <p className="profile-contact-item__primary">City</p>
+                  <p className="profile-contact-item__value">{currentUser?.city || 'Not set'}</p>
                 </div>
               </div>
 
@@ -394,14 +399,13 @@ const MyProfile = ({ onLogout }) => {
                 </span>
                 <div>
                   <p className="profile-contact-item__primary">Phone Number</p>
-                  <p className="profile-contact-item__value">+1 (503) 555-0182</p>
+                  <p className="profile-contact-item__value">{currentUser?.phone || 'Not set'}</p>
                 </div>
               </div>
             </div>
           )}
         </div>
 
-        {/* Lifetime Impact */}
         <div className="profile-impact-card" id="profile-lifetime-impact">
           <div className="profile-impact-card__header">
             <span className="profile-impact-card__icon" aria-hidden="true">
@@ -409,52 +413,33 @@ const MyProfile = ({ onLogout }) => {
             </span>
             <div>
               <h3 className="profile-impact-card__title">Lifetime Impact</h3>
-              <p className="profile-impact-card__subtitle">Your contributions matter</p>
+              <p className="profile-impact-card__subtitle">From your recorded donations in this demo</p>
             </div>
           </div>
 
           <div className="profile-impact-card__stats">
             <div className="profile-impact-stat" id="impact-total-donations">
-              <span className="profile-impact-stat__value">14</span>
+              <span className="profile-impact-stat__value">{donationCount}</span>
               <span className="profile-impact-stat__label">TOTAL DONATIONS</span>
             </div>
             <div className="profile-impact-divider" aria-hidden="true" />
             <div className="profile-impact-stat" id="impact-lives-saved">
-              <span className="profile-impact-stat__value">42</span>
-              <span className="profile-impact-stat__label">POTENTIAL LIVES SAVED</span>
-            </div>
-          </div>
-
-          <div className="profile-impact-card__extra">
-            <div className="profile-impact-mini" id="impact-ml-donated">
-              <span className="profile-impact-mini__val">6,300<span className="profile-impact-mini__unit">ml</span></span>
-              <span className="profile-impact-mini__lbl">Blood Donated</span>
-            </div>
-            <div className="profile-impact-mini" id="impact-streak">
-              <span className="profile-impact-mini__val">5<span className="profile-impact-mini__unit">×</span></span>
-              <span className="profile-impact-mini__lbl">Streak</span>
-            </div>
-            <div className="profile-impact-mini" id="impact-rank">
-              <span className="profile-impact-mini__val">Top<span className="profile-impact-mini__unit"> 10%</span></span>
-              <span className="profile-impact-mini__lbl">Donor Rank</span>
+              <span className="profile-impact-stat__value">{lives}</span>
+              <span className="profile-impact-stat__label">POTENTIAL LIVES HELPED</span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* ══ Row 3: Lifestyle Tracker + Achievements ═════════ */}
       <div className="my-profile__tracker-row">
-        <LifestyleTracker lifestyleItems={profileData.lifestyleItems} />
         <Achievements achievements={profileData.achievements} />
       </div>
 
-      {/* ══ Row 4: Donation Timeline + Notification Prefs ═══ */}
       <div className="my-profile__bottom-row">
-        <DonationTimeline timelineEvents={profileData.timelineEvents} />
+        <DonationTimeline timelineEvents={timelineEvents} />
         <NotificationSettings notifPrefs={profileData.notifPrefs} />
       </div>
 
-      {/* ══ Account Security ════════════════════════════════ */}
       <div className="profile-security-card" id="profile-account-security">
         <div className="profile-security-card__left">
           <span className="profile-security-card__icon" aria-hidden="true">
@@ -462,7 +447,7 @@ const MyProfile = ({ onLogout }) => {
           </span>
           <div>
             <p className="profile-security-card__title">Account Security</p>
-            <p className="profile-security-card__desc">Manage your password or sign out of your current session.</p>
+            <p className="profile-security-card__desc">Change your demo password or sign out of this browser session.</p>
           </div>
         </div>
         <div className="profile-security-card__actions">
@@ -487,7 +472,6 @@ const MyProfile = ({ onLogout }) => {
         </div>
       </div>
 
-      {/* ══ Change Password Modal ════════════════════════════ */}
       {showPasswordModal && (
         <div
           className="profile-modal-overlay"
@@ -500,20 +484,43 @@ const MyProfile = ({ onLogout }) => {
             <h3 className="profile-modal__title" id="modal-title">
               <FontAwesomeIcon icon={faKey} /> Change Password
             </h3>
+            <p className="profile-modal__hint">Passwords in this demo are stored in your browser, not on a server.</p>
             <div className="profile-modal__fields">
               <div className="profile-field">
                 <label className="profile-field__label" htmlFor="modal-current-pw">Current Password</label>
-                <input id="modal-current-pw" type="password" className="profile-field__input" placeholder="••••••••" />
+                <input
+                  id="modal-current-pw"
+                  type="password"
+                  className="profile-field__input"
+                  value={pwForm.current}
+                  onChange={(e) => { setPwForm((p) => ({ ...p, current: e.target.value })); setPwErrors((p) => ({ ...p, current: '' })); }}
+                />
+                {pwErrors.current && <span className="profile-field__error" role="alert">{pwErrors.current}</span>}
               </div>
               <div className="profile-field">
                 <label className="profile-field__label" htmlFor="modal-new-pw">New Password</label>
-                <input id="modal-new-pw" type="password" className="profile-field__input" placeholder="Min. 8 characters" />
+                <input
+                  id="modal-new-pw"
+                  type="password"
+                  className="profile-field__input"
+                  value={pwForm.next}
+                  onChange={(e) => { setPwForm((p) => ({ ...p, next: e.target.value })); setPwErrors((p) => ({ ...p, next: '' })); }}
+                />
+                {pwErrors.next && <span className="profile-field__error" role="alert">{pwErrors.next}</span>}
               </div>
               <div className="profile-field">
                 <label className="profile-field__label" htmlFor="modal-confirm-pw">Confirm New Password</label>
-                <input id="modal-confirm-pw" type="password" className="profile-field__input" placeholder="Repeat new password" />
+                <input
+                  id="modal-confirm-pw"
+                  type="password"
+                  className="profile-field__input"
+                  value={pwForm.confirm}
+                  onChange={(e) => { setPwForm((p) => ({ ...p, confirm: e.target.value })); setPwErrors((p) => ({ ...p, confirm: '' })); }}
+                />
+                {pwErrors.confirm && <span className="profile-field__error" role="alert">{pwErrors.confirm}</span>}
               </div>
             </div>
+            {pwStatus && <p role="status">{pwStatus}</p>}
             <div className="profile-modal__actions">
               <button
                 className="profile-security-card__btn profile-security-card__btn--outline"
@@ -527,7 +534,7 @@ const MyProfile = ({ onLogout }) => {
                 className="profile-security-card__btn profile-security-card__btn--primary"
                 type="button"
                 id="modal-save-password"
-                onClick={() => setShowPasswordModal(false)}
+                onClick={handlePasswordSave}
               >
                 <FontAwesomeIcon icon={faCheck} /> Update Password
               </button>
@@ -535,7 +542,6 @@ const MyProfile = ({ onLogout }) => {
           </div>
         </div>
       )}
-
     </section>
   );
 };

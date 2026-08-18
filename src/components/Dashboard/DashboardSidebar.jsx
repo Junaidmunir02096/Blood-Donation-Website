@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faClock,
   faDroplet,
-  faEnvelope,
   faGear,
   faShieldHalved,
   faTableColumns,
@@ -20,12 +20,11 @@ const allTabs = [
   { id: 'dashboard',        label: 'Dashboard',        icon: faTableColumns, adminOnly: false },
   { id: 'donation-history', label: 'Donation History', icon: faClock,        adminOnly: false },
   { id: 'active-requests',  label: 'Active Requests',  icon: faDroplet,      adminOnly: false },
-  { id: 'messages',         label: 'Messages',         icon: faEnvelope,     adminOnly: false },
   { id: 'admin-panel',      label: 'Admin Panel',      icon: faShieldHalved, adminOnly: true  },
   { id: 'settings',         label: 'Settings',         icon: faGear,         adminOnly: false },
 ];
 
-const SidebarContent = ({ activeTab, onSelect, isMobile = false, ctaRef, currentUser }) => {
+const SidebarContent = ({ activeTab, onSelect, isMobile = false, ctaRef, currentUser, onNewRequest }) => {
   const initials = currentUser?.fullName
     ? currentUser.fullName.split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase()
     : '?';
@@ -48,7 +47,7 @@ const SidebarContent = ({ activeTab, onSelect, isMobile = false, ctaRef, current
         className="dashboard-sidebar__cta"
         id={isMobile ? 'mobile-new-request' : 'dashboard-new-request'}
         type="button"
-        onClick={() => onSelect('active-requests')}
+        onClick={onNewRequest}
         ref={isMobile ? ctaRef : null}
       >
         <FontAwesomeIcon icon={faPlus} />
@@ -102,6 +101,7 @@ const SidebarContent = ({ activeTab, onSelect, isMobile = false, ctaRef, current
 
 const DashboardSidebar = ({ activeTab, onTabChange }) => {
   const { currentUser } = useAuth();
+  const navigate = useNavigate();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const drawerRef = useRef(null);
   const firstFocusableRef = useRef(null);
@@ -109,6 +109,11 @@ const DashboardSidebar = ({ activeTab, onTabChange }) => {
   const handleSelect = (id) => {
     onTabChange(id);
     setDrawerOpen(false);
+  };
+
+  const handleNewRequest = () => {
+    setDrawerOpen(false);
+    navigate('/request');
   };
 
   useEffect(() => {
@@ -132,7 +137,7 @@ const DashboardSidebar = ({ activeTab, onTabChange }) => {
   return (
     <>
       <aside className="dashboard-sidebar dashboard-sidebar--desktop" aria-label="Dashboard navigation">
-        <SidebarContent activeTab={activeTab} onSelect={handleSelect} currentUser={currentUser} />
+        <SidebarContent activeTab={activeTab} onSelect={handleSelect} currentUser={currentUser} onNewRequest={handleNewRequest} />
       </aside>
 
       <header className="db-topbar" role="banner">
@@ -204,6 +209,7 @@ const DashboardSidebar = ({ activeTab, onTabChange }) => {
             isMobile
             ctaRef={firstFocusableRef}
             currentUser={currentUser}
+            onNewRequest={handleNewRequest}
           />
         </div>
       </aside>

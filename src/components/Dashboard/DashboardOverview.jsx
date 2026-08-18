@@ -12,14 +12,14 @@ import './DashboardOverview.scss';
 import AppSpinner from '../AppSpinner/AppSpinner';
 import { fetchDashboardData } from '../../api/services';
 import { useAuth } from '../../context/AuthContext';
-import { useToast } from '../../context/ToastContext';
+import EmptyState from '../EmptyState/EmptyState';
 
 
 const DashboardOverview = ({ onTabChange }) => {
   const { currentUser } = useAuth();
   const firstName = currentUser?.fullName?.split(' ')[0] ?? 'there';
   const navigate = useNavigate();
-  const { toast } = useToast();
+  const [searchValue, setSearchValue] = useState('');
 
   const [activeRequests, setActiveRequests] = useState([]);
   const [nearbyDonors, setNearbyDonors] = useState([]);
@@ -55,7 +55,15 @@ const DashboardOverview = ({ onTabChange }) => {
             Your local blood network is active today. Every drop counts.
           </p>
         </div>
-        <label className="dashboard-overview__search" htmlFor="dashboard-search">
+        <form
+          className="dashboard-overview__search"
+          onSubmit={(e) => {
+            e.preventDefault();
+            const q = searchValue.trim();
+            navigate(q ? `/search?q=${encodeURIComponent(q)}` : '/search');
+          }}
+        >
+          <label htmlFor="dashboard-search" className="visually-hidden">Search donors</label>
           <FontAwesomeIcon
             icon={faMagnifyingGlass}
             className="dashboard-overview__search-icon"
@@ -64,10 +72,12 @@ const DashboardOverview = ({ onTabChange }) => {
           <input
             id="dashboard-search"
             type="search"
-            placeholder="Search blood type, location, or request ID..."
-            aria-label="Search dashboard"
+            placeholder="Search blood type, location..."
+            aria-label="Search donors"
+            value={searchValue}
+            onChange={(e) => setSearchValue(e.target.value)}
           />
-        </label>
+        </form>
       </header>
 
       {/* ── Action Cards ── */}
@@ -103,14 +113,14 @@ const DashboardOverview = ({ onTabChange }) => {
           </div>
           <h2 className="dashboard-overview__card-title">Become a Donor</h2>
           <p className="dashboard-overview__card-desc">
-            Schedule your next donation at a nearby center and save up to 3 lives.
+            Register as a donor so hospitals can reach you when a matching patient needs blood.
           </p>
           <button 
             className="dashboard-overview__card-cta dashboard-overview__card-cta--outline" 
             type="button"
             onClick={() => navigate('/donate')}
           >
-            Schedule Appointment
+            Complete donor profile
           </button>
         </article>
 
@@ -122,7 +132,7 @@ const DashboardOverview = ({ onTabChange }) => {
         {/* Active Requests */}
         <section className="dashboard-overview__requests" aria-label="Active blood requests">
           <div className="dashboard-overview__section-header">
-            <h3>Active Blood Requests</h3>
+            <h2>Active Blood Requests</h2>
             <button 
               type="button" 
               className="dashboard-overview__link" 
@@ -133,7 +143,14 @@ const DashboardOverview = ({ onTabChange }) => {
             </button>
           </div>
           <div className="dashboard-overview__request-list">
-            {activeRequests.map((req) => (
+            {activeRequests.length === 0 ? (
+              <EmptyState
+                title="No active requests"
+                message="When hospitals or patients submit urgent needs, they will appear here."
+                actionLabel="Submit a request"
+                actionTo="/request"
+              />
+            ) : activeRequests.map((req) => (
               <article key={req.id} className="dashboard-request" aria-label={`Request from ${req.hospital}`}>
                 <div className="dashboard-request__badge">
                   <span className="dashboard-request__group">{req.blood}</span>
@@ -158,10 +175,10 @@ const DashboardOverview = ({ onTabChange }) => {
                 <button 
                   className="dashboard-request__cta" 
                   type="button" 
-                  aria-label={`Respond to ${req.hospital}`}
-                  onClick={() => toast.success(`Response sent for the ${req.blood} request at ${req.hospital}. Coordinates shared!`)}
+                  aria-label={`View ${req.hospital} request`}
+                  onClick={() => onTabChange?.('active-requests')}
                 >
-                  Respond
+                  View
                 </button>
               </article>
             ))}
@@ -171,11 +188,16 @@ const DashboardOverview = ({ onTabChange }) => {
         {/* Nearby Donors */}
         <section className="dashboard-overview__donors" aria-label="Nearby donors">
           <div className="dashboard-overview__section-header">
-            <h3>Nearby Donors</h3>
+            <h2>Nearby Donors</h2>
           </div>
           <div className="dashboard-overview__donor-list">
             {nearbyDonors.map((donor) => (
-              <div key={donor.id} className="dashboard-donor">
+              <button
+                key={donor.id}
+                type="button"
+                className="dashboard-donor"
+                onClick={() => navigate(`/donor/${donor.id}`)}
+              >
                 <div className="dashboard-donor__avatar" aria-hidden="true">
                   {donor.initials}
                 </div>
@@ -184,11 +206,16 @@ const DashboardOverview = ({ onTabChange }) => {
                   <p className="dashboard-donor__distance">{donor.distance}</p>
                 </div>
                 <span className="dashboard-donor__group">{donor.blood}</span>
-              </div>
+              </button>
             ))}
           </div>
-          <button className="dashboard-overview__map-btn" type="button" id="btn-view-map">
-            View Map
+          <button
+            className="dashboard-overview__map-btn"
+            type="button"
+            id="btn-view-map"
+            onClick={() => navigate('/search')}
+          >
+            Find donors nearby
           </button>
         </section>
 
