@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-// import './ForgotPasswordPage.scss'; // shares the same SCSS file
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import '../ForgotPassword/ForgotPasswordPage.scss';
 import usePageTitle from '../../hooks/usePageTitle';
 
 /* ── Password strength checker ── */
@@ -25,6 +25,8 @@ const getStrength = (pw) => {
 const ResetPasswordPage = () => {
   usePageTitle('Reset Password');
   const navigate = useNavigate();
+  const [params] = useSearchParams();
+  const token = params.get('token');
 
   const [formData, setFormData] = useState({ password: '', confirm: '' });
   const [showPw, setShowPw]     = useState({ password: false, confirm: false });
@@ -60,6 +62,22 @@ const ResetPasswordPage = () => {
     setIsLoading(false);
     setDone(true);
   };
+
+  if (!token) {
+    return (
+      <div className="forgot-pw" id="reset-password-page">
+        <div className="forgot-pw__card">
+          <h1 className="forgot-pw__title">Reset link required</h1>
+          <p className="forgot-pw__subtitle">
+            This demo does not send email. Start from Forgot Password, or open the mock link with a token.
+          </p>
+          <Link to="/forgot-password" className="forgot-pw__submit" style={{ textDecoration: 'none' }}>
+            Go to Forgot Password
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   if (done) {
     return (
@@ -114,7 +132,7 @@ const ResetPasswordPage = () => {
 
         <h1 className="forgot-pw__title">Set a new password</h1>
         <p className="forgot-pw__subtitle">
-          Choose a strong password. It must be at least 8 characters long.
+          Demo reset (token present). Choose a password of at least 8 characters. This does not update a real account unless you are already signed in.
         </p>
 
         <form className="forgot-pw__form" onSubmit={handleSubmit} noValidate id="reset-pw-form">

@@ -2,10 +2,12 @@ import { Link } from 'react-router-dom';
 import './Footer.scss';
 
 const footerLinks = [
-  { id: 'link-privacy',  label: 'Privacy Policy',       to: '/privacy' },
-  { id: 'link-terms',    label: 'Terms of Service',      to: '/terms'   },
-  { id: 'link-donor',    label: 'Donor Guidelines',      to: '/terms#donor-conduct' },
-  { id: 'link-contact',  label: 'Contact Medical Team',  to: '/about'   },
+  { id: 'link-eligibility',   label: 'Eligibility',        to: '/eligibility' },
+  { id: 'link-compatibility', label: 'Compatibility',      to: '/compatibility' },
+  { id: 'link-faq',           label: 'FAQ',                to: '/faq' },
+  { id: 'link-contact',       label: 'Contact',            to: '/contact' },
+  { id: 'link-privacy',       label: 'Privacy Policy',     to: '/privacy' },
+  { id: 'link-terms',         label: 'Terms of Service',   to: '/terms' },
 ];
 
 const Footer = () => {
@@ -15,17 +17,15 @@ const Footer = () => {
     <footer className="footer" id="footer" role="contentinfo">
       <div className="container">
         <div className="footer__main">
-          {/* Brand */}
           <div className="footer__brand">
             <Link to="/" className="footer__logo" id="footer-logo" aria-label="LifeStream home">
               Life<span>Stream</span>
             </Link>
             <p className="footer__tagline">
-              Connecting donors with those in critical need.
+              Connecting donors with patients across Pakistan.
             </p>
           </div>
 
-          {/* Links */}
           <nav className="footer__links" aria-label="Footer navigation">
             {footerLinks.map((link) => (
               <Link
@@ -42,7 +42,7 @@ const Footer = () => {
 
         <div className="footer__bottom">
           <p className="footer__copyright">
-            © {year} LifeStream Blood Network. Every drop counts.
+            © {year} LifeStream Blood Network (FYP demo). Every drop counts.
           </p>
         </div>
       </div>

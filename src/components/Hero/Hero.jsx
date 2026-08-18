@@ -1,16 +1,21 @@
 import { Link } from 'react-router-dom';
+import { useAppData } from '../../context/AppDataContext';
 import './Hero.scss';
 
 const Hero = () => {
+  const { getStats } = useAppData();
+  const pending = getStats().activeRequests;
+
   return (
     <section className="hero" id="home" aria-labelledby="hero-heading">
       <div className="container">
         <div className="hero__inner">
-          {/* Content */}
           <div className="hero__content">
             <div className="hero__badge" role="status" aria-live="polite">
               <span className="badge-dot" aria-hidden="true"></span>
-              Urgent Need in Your Area
+              {pending > 0
+                ? `${pending} pending blood request${pending === 1 ? '' : 's'} in this demo`
+                : 'Search verified donors across Pakistan'}
             </div>
 
             <h1 className="hero__heading" id="hero-heading">
@@ -19,9 +24,8 @@ const Hero = () => {
             </h1>
 
             <p className="hero__description">
-              Join our modern donor network. Your single donation can save up to 
-              three lives. Experience a seamless, compassionate process from 
-              registration to recovery.
+              LifeStream matches voluntary donors with patients in Pakistani cities.
+              Search by blood group, submit a hospital request, or register as a donor.
             </p>
 
             <div className="hero__actions">
@@ -37,7 +41,6 @@ const Hero = () => {
             </div>
           </div>
 
-          {/* Image */}
           <div className="hero__image-wrapper">
             <div className="hero__image-decoration" aria-hidden="true"></div>
             <div className="hero__image-decoration-2" aria-hidden="true"></div>

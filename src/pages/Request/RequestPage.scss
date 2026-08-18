@@ -223,15 +223,23 @@
       .request-field__icon { color: $accent; }
     }
 
-    input {
-
+    input, select, textarea {
       border: none;
       outline: none;
       background: transparent;
       width: 100%;
       font-size: $font-size-sm;
       color: $text-dark;
+      font-family: $font-family;
     }
+  }
+
+  &__error {
+    display: block;
+    margin-top: $spacing-1;
+    font-size: $font-size-xs;
+    color: $accent;
+    font-weight: 600;
   }
 
   &__icon {
@@ -280,6 +288,12 @@
     font-size: $font-size-xs;
     color: $text-muted;
     max-width: 360px;
+
+    a {
+      color: $primary;
+      font-weight: 600;
+      text-decoration: underline;
+    }
   }
 
   &__submit {
@@ -305,3 +319,20 @@
     font-size: 0.75rem;
   }
 }
+
+.request-page__success {
+  text-align: center;
+  padding: $spacing-16 0;
+
+  h1 { margin-bottom: $spacing-3; }
+  p { color: $text-body; margin-bottom: $spacing-2; }
+}
+
+.request-page__success-actions {
+  display: flex;
+  gap: $spacing-3;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: $spacing-8;
+}
+

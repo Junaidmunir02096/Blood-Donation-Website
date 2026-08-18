@@ -1,0 +1,148 @@
+@import '../../styles/variables';
+
+.info-page {
+  padding: $spacing-16 0 $spacing-20;
+  background: $bg-light;
+  min-height: 70vh;
+
+  &__title {
+    font-size: $font-size-3xl;
+    font-weight: 800;
+    color: $text-dark;
+    margin-bottom: $spacing-3;
+  }
+
+  &__lead {
+    color: $text-body;
+    max-width: 40rem;
+    margin-bottom: $spacing-10;
+  }
+
+  &__card {
+    background: $bg-white;
+    border: 1px solid $border-color;
+    border-radius: $radius-lg;
+    padding: $spacing-8;
+    box-shadow: $shadow-sm;
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: $spacing-3;
+    overflow-x: auto;
+
+    @media (max-width: $bp-md) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  &__cell {
+    border: 1px solid $border-color;
+    border-radius: $radius-md;
+    padding: $spacing-3;
+    background: $bg-white;
+    font-size: $font-size-sm;
+
+    strong { display: block; color: $primary; margin-bottom: $spacing-1; }
+  }
+
+  &__form {
+    display: grid;
+    gap: $spacing-4;
+    max-width: 36rem;
+  }
+
+  &__label {
+    font-size: $font-size-sm;
+    font-weight: 600;
+    color: $text-dark;
+  }
+
+  &__input,
+  &__textarea,
+  &__select {
+    width: 100%;
+    margin-top: $spacing-1;
+    padding: $spacing-3 $spacing-4;
+    border: 1.5px solid $border-color;
+    border-radius: $radius-md;
+    font-family: $font-family;
+    font-size: $font-size-sm;
+
+    &:focus {
+      outline: 3px solid rgba($primary, 0.25);
+      border-color: $primary;
+    }
+  }
+
+  &__error {
+    color: $accent;
+    font-size: $font-size-xs;
+    font-weight: 600;
+  }
+
+  &__btn {
+    justify-self: start;
+    background: $primary;
+    color: #fff;
+    border: none;
+    border-radius: $radius-full;
+    padding: $spacing-3 $spacing-6;
+    font-weight: 700;
+    font-family: $font-family;
+
+    &:hover { background: $primary-dark; }
+    &:disabled { opacity: 0.7; }
+  }
+
+  &__result {
+    margin-top: $spacing-8;
+    padding: $spacing-6;
+    border-radius: $radius-md;
+    background: $primary-lighter;
+    color: $text-dark;
+  }
+
+  &__disclaimer {
+    font-size: $font-size-xs;
+    color: $text-muted;
+    margin-top: $spacing-6;
+  }
+
+  &__faq {
+    display: grid;
+    gap: $spacing-3;
+  }
+
+  &__faq-item {
+    background: $bg-white;
+    border: 1px solid $border-color;
+    border-radius: $radius-md;
+    overflow: hidden;
+  }
+
+  &__faq-q {
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+    padding: $spacing-4 $spacing-5;
+    font-weight: 600;
+    font-family: $font-family;
+    color: $text-dark;
+    cursor: pointer;
+  }
+
+  &__faq-a {
+    padding: 0 $spacing-5 $spacing-4;
+    color: $text-body;
+    font-size: $font-size-sm;
+  }
+
+  &__meta {
+    color: $text-body;
+    margin-bottom: $spacing-4;
+    a { color: $primary; font-weight: 600; }
+  }
+}

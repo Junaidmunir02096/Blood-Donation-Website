@@ -1,19 +1,13 @@
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
-
-/**
- * PrivateRoute
- * ──────────────────────────────────────────────────────────
- * Protects routes from unauthenticated users. If the user
- * is not logged in, redirects them to the auth page.
- */
 const PrivateRoute = ({ children }) => {
   const { isLoggedIn } = useAuth();
+  const location = useLocation();
 
   if (!isLoggedIn) {
-    // Redirect to the login page
-    return <Navigate to="/auth" replace />;
+    const redirect = encodeURIComponent(`${location.pathname}${location.search}`);
+    return <Navigate to={`/auth?mode=login&redirect=${redirect}`} replace />;
   }
 
   return children;

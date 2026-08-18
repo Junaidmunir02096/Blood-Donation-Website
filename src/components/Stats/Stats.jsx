@@ -6,9 +6,11 @@ import './Stats.scss';
 const useCountUp = (target, duration = 1800, start = false) => {
   const [count, setCount] = useState(0);
   const frameRef = useRef(null);
+  const reduceMotion = typeof window !== 'undefined'
+    && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   useEffect(() => {
-    if (!start || target === 0) return;
+    if (!start || target === 0 || reduceMotion) return;
     let startTime = null;
     const startVal = 0;
 
@@ -27,9 +29,9 @@ const useCountUp = (target, duration = 1800, start = false) => {
 
     frameRef.current = requestAnimationFrame(step);
     return () => cancelAnimationFrame(frameRef.current);
-  }, [target, duration, start]);
+  }, [target, duration, start, reduceMotion]);
 
-  return count;
+  return reduceMotion && start ? target : count;
 };
 
 /* ── Individual stat card ──────────────────────────────────── */
@@ -101,7 +103,7 @@ const Stats = () => {
       id: 'stat-lives',
       rawNumber: stats.totalDonations,
       suffix: '+',
-      label: 'Lives Saved',
+      label: 'Recorded donations',
       featured: true,
       isDecimal: false,
       icon: (

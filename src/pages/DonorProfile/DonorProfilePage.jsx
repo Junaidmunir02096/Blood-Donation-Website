@@ -3,32 +3,11 @@ import { useParams, Link } from 'react-router-dom';
 import AppSpinner from '../../components/AppSpinner/AppSpinner';
 import { fetchDonorById } from '../../api/services';
 import usePageTitle from '../../hooks/usePageTitle';
+import { getAvatarColor } from '../../utils/avatar';
+import { formatKm } from '../../constants/pakistan';
+import { DONOR_STATUS } from '../../utils/status';
 import './DonorProfilePage.scss';
 
-/* ── Avatar color palette (same as Search page) ── */
-const AVATAR_COLORS = [
-  '#c0392b', '#2980b9', '#27ae60', '#8e44ad',
-  '#e67e22', '#16a085', '#d35400', '#2c3e50',
-];
-const getAvatarColor = (id) => AVATAR_COLORS[(id - 1) % AVATAR_COLORS.length];
-
-/* ── Donor details enriched beyond the list card ── */
-const DONOR_EXTRA = {
-  1:  { donations: 14, lives: 42, streak: 5, joined: 'March 2022',  phone: '+1 (206) 555-0101', canContact: true  },
-  2:  { donations: 8,  lives: 24, streak: 3, joined: 'July 2022',   phone: '+1 (425) 555-0182', canContact: true  },
-  3:  { donations: 3,  lives: 9,  streak: 1, joined: 'January 2023', phone: null,               canContact: false },
-  4:  { donations: 22, lives: 66, streak: 8, joined: 'September 2021', phone: '+1 (425) 555-0211', canContact: true },
-  5:  { donations: 11, lives: 33, streak: 4, joined: 'April 2022',  phone: '+1 (425) 555-0177', canContact: true  },
-  6:  { donations: 17, lives: 51, streak: 6, joined: 'December 2021', phone: '+1 (425) 555-0134', canContact: true },
-  7:  { donations: 9,  lives: 27, streak: 2, joined: 'June 2022',   phone: '+1 (425) 555-0198', canContact: true  },
-  8:  { donations: 2,  lives: 6,  streak: 1, joined: 'March 2023',  phone: null,               canContact: false },
-  9:  { donations: 7,  lives: 21, streak: 3, joined: 'August 2022', phone: '+1 (253) 555-0163', canContact: true  },
-  10: { donations: 12, lives: 36, streak: 5, joined: 'November 2021', phone: '+1 (253) 555-0145', canContact: true },
-  11: { donations: 1,  lives: 3,  streak: 1, joined: 'May 2023',    phone: null,               canContact: false },
-  12: { donations: 28, lives: 84, streak: 11, joined: 'January 2021', phone: '+1 (425) 555-0122', canContact: true },
-};
-
-/* ── Info row item ── */
 const InfoItem = ({ icon, label, value }) => (
   <div className="donor-profile__info-item">
     <div className="donor-profile__info-item-icon" aria-hidden="true">{icon}</div>
@@ -47,7 +26,7 @@ const BloodSvg = () => (
 
 const LocationSvg = () => (
   <svg viewBox="0 0 24 24" aria-hidden="true">
-    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 1.12 2.5 2.5 2.5-1.12 2.5-2.5 2.5z"/>
   </svg>
 );
 
@@ -63,40 +42,42 @@ const PhoneSvg = () => (
   </svg>
 );
 
-/* ═══════════════════════════════════════════════════════
-   Main Page Component
-═══════════════════════════════════════════════════════ */
 const DonorProfilePage = () => {
   const { id } = useParams();
   const [donor, setDonor] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   usePageTitle(donor ? `${donor.name} — Donor Profile` : 'Donor Profile');
 
   useEffect(() => {
     const load = async () => {
       setLoading(true);
-      const data = await fetchDonorById(id);
-      setDonor(data);
-      setLoading(false);
+      setError('');
+      try {
+        const data = await fetchDonorById(id);
+        setDonor(data);
+      } catch {
+        setError('Could not load this donor. Please try again.');
+      } finally {
+        setLoading(false);
+      }
     };
     load();
   }, [id]);
 
-  /* ── Loading ── */
   if (loading) {
     return (
       <div className="donor-profile">
         <div className="donor-profile__hero" />
-        <div style={{ display: 'flex', justifyContent: 'center', paddingTop: '4rem' }}>
+        <div className="donor-profile__loading">
           <AppSpinner label="Loading donor profile..." />
         </div>
       </div>
     );
   }
 
-  /* ── Not found ── */
-  if (!donor) {
+  if (error || !donor) {
     return (
       <div className="donor-profile" id="donor-profile-page">
         <div className="donor-profile__hero">
@@ -106,10 +87,9 @@ const DonorProfilePage = () => {
           </Link>
         </div>
         <div className="donor-profile__not-found">
-          <span className="donor-profile__not-found-icon" aria-hidden="true">🔍</span>
-          <h2>Donor not found</h2>
-          <p>This donor profile doesn't exist or may have been removed.</p>
-          <Link to="/search" className="not-found__btn-primary" id="search-again-btn" style={{ textDecoration: 'none' }}>
+          <h2>{error ? 'Something went wrong' : 'Donor not found'}</h2>
+          <p>{error || "This donor profile doesn't exist or may have been removed."}</p>
+          <Link to="/search" className="not-found__btn-primary" id="search-again-btn">
             Find another donor
           </Link>
         </div>
@@ -117,14 +97,13 @@ const DonorProfilePage = () => {
     );
   }
 
-  const extra = DONOR_EXTRA[donor.id] ?? { donations: 1, lives: 3, streak: 1, joined: '2024', canContact: false };
-  const isVerified = donor.status === 'verified';
+  const isVerified = donor.status === DONOR_STATUS.verified;
+  const canContact = Boolean(isVerified && donor.canContact && donor.phone);
   const avatarColor = getAvatarColor(donor.id);
+  const distance = formatKm(donor.km ?? donor.miles);
 
   return (
     <div className="donor-profile" id={`donor-profile-${donor.id}`}>
-
-      {/* ── Hero Banner ─────────────────────────── */}
       <div className="donor-profile__hero">
         <Link to="/search" className="donor-profile__back-link" id="back-to-search-btn">
           <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -134,13 +113,8 @@ const DonorProfilePage = () => {
         </Link>
       </div>
 
-      {/* ── Profile Card ────────────────────────── */}
       <div className="donor-profile__card" id="donor-profile-card">
-
-        {/* Header */}
         <div className="donor-profile__header">
-
-          {/* Avatar */}
           <div
             className="donor-profile__avatar"
             style={{ background: avatarColor }}
@@ -148,85 +122,75 @@ const DonorProfilePage = () => {
           >
             {donor.avatar}
             {isVerified && (
-              <span className="donor-profile__avatar-status" aria-label="Active donor" />
+              <span className="donor-profile__avatar-status" aria-label="Verified donor" />
             )}
           </div>
 
-          {/* Name + meta */}
           <div className="donor-profile__name-group">
             <h1 className="donor-profile__name">{donor.name}</h1>
-
             {isVerified ? (
               <span className="donor-profile__verified">
                 <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5l-4-4 1.41-1.41L10 13.67l6.59-6.59L18 8.5l-8 8z"/></svg>
                 Verified Donor
               </span>
             ) : (
-              <span style={{ display: 'inline-block', fontSize: '0.75rem', color: '#f59e0b', fontWeight: 600, marginBottom: '0.5rem' }}>
-                ⏳ Pending Verification
-              </span>
+              <span className="donor-profile__pending">Pending verification</span>
             )}
 
             <div className="donor-profile__tags">
               <span className="donor-profile__tag">
-                <LocationSvg />{donor.city}
+                <LocationSvg />{donor.city} · {distance}
               </span>
               <span className="donor-profile__tag">
-                <CalSvg />Joined {extra.joined}
+                <CalSvg />Joined {donor.joined || 'Recently'}
               </span>
               <span className="donor-profile__tag">
-                🕐 Last donated: {donor.lastDonated}
+                Last donated: {donor.lastDonated || 'Not recorded'}
               </span>
             </div>
           </div>
 
-          {/* Blood group badge */}
           <div className="donor-profile__blood-badge" aria-label={`Blood group ${donor.bloodGroup}`}>
             <span className="donor-profile__blood-badge-label">Blood</span>
             <span className="donor-profile__blood-badge-group">{donor.bloodGroup}</span>
           </div>
         </div>
 
-        {/* Stats row */}
         <div className="donor-profile__stats" role="list" aria-label="Donation statistics">
-          <div className="donor-profile__stat" role="listitem" id={`stat-donations-${donor.id}`}>
-            <span className="donor-profile__stat-value">{extra.donations}</span>
+          <div className="donor-profile__stat" role="listitem">
+            <span className="donor-profile__stat-value">{donor.donations ?? 0}</span>
             <span className="donor-profile__stat-label">Total Donations</span>
           </div>
-          <div className="donor-profile__stat" role="listitem" id={`stat-lives-${donor.id}`}>
-            <span className="donor-profile__stat-value">{extra.lives}</span>
+          <div className="donor-profile__stat" role="listitem">
+            <span className="donor-profile__stat-value">{donor.lives ?? 0}</span>
             <span className="donor-profile__stat-label">Lives Impacted</span>
           </div>
-          <div className="donor-profile__stat" role="listitem" id={`stat-streak-${donor.id}`}>
-            <span className="donor-profile__stat-value">{extra.streak}×</span>
+          <div className="donor-profile__stat" role="listitem">
+            <span className="donor-profile__stat-value">{donor.streak ?? 0}×</span>
             <span className="donor-profile__stat-label">Donation Streak</span>
           </div>
         </div>
 
-        {/* Info grid */}
         <div className="donor-profile__info-grid">
-          <InfoItem icon={<BloodSvg />}    label="Blood Group" value={donor.bloodGroup} />
+          <InfoItem icon={<BloodSvg />} label="Blood Group" value={donor.bloodGroup} />
           <InfoItem icon={<LocationSvg />} label="Location" value={donor.city} />
-          <InfoItem icon={<CalSvg />}      label="Last Donation" value={donor.lastDonated} />
-          <InfoItem icon={<CalSvg />}      label="Member Since" value={extra.joined} />
-          {extra.canContact && extra.phone && (
-            <InfoItem icon={<PhoneSvg />} label="Contact" value={extra.phone} />
-          )}
+          <InfoItem icon={<CalSvg />} label="Last Donation" value={donor.lastDonated || 'Not recorded'} />
+          <InfoItem icon={<CalSvg />} label="Member Since" value={donor.joined || 'Recently'} />
+          {canContact && <InfoItem icon={<PhoneSvg />} label="Contact" value={donor.phone} />}
           <InfoItem
             icon={isVerified
               ? <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5l-4-4 1.41-1.41L10 13.67l6.59-6.59L18 8.5l-8 8z"/></svg>
               : <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
             }
             label="Status"
-            value={isVerified ? 'Verified ✓' : 'Pending Verification'}
+            value={isVerified ? 'Verified' : 'Pending verification'}
           />
         </div>
 
-        {/* Actions */}
         <div className="donor-profile__actions">
-          {extra.canContact && extra.phone ? (
+          {canContact ? (
             <a
-              href={`tel:${extra.phone}`}
+              href={`tel:${donor.phone}`}
               className="donor-profile__btn-primary"
               id={`call-donor-${donor.id}`}
             >
@@ -236,20 +200,17 @@ const DonorProfilePage = () => {
           ) : (
             <button
               className="donor-profile__btn-primary"
-              id={`request-contact-${donor.id}`}
               type="button"
-              style={{ cursor: 'not-allowed', opacity: 0.6 }}
-              title="Contact unavailable until donor is verified"
               disabled
+              title="Contact is available after the donor is verified"
             >
-              Contact Unavailable
+              Contact unavailable
             </button>
           )}
           <Link to="/search" className="donor-profile__btn-secondary" id="find-another-donor-btn">
             Find Another Donor
           </Link>
         </div>
-
       </div>
     </div>
   );

@@ -2,7 +2,7 @@
 
 .footer {
   background: $bg-footer;
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(255, 255, 255, 0.75);
   padding-top: $spacing-12;
 
   &__main {
@@ -37,7 +37,7 @@
 
   &__tagline {
     font-size: $font-size-sm;
-    color: rgba(255, 255, 255, 0.5);
+    color: rgba(255, 255, 255, 0.78);
     max-width: 220px;
     line-height: 1.6;
   }
@@ -55,7 +55,7 @@
 
   &__link {
     font-size: $font-size-sm;
-    color: rgba(255, 255, 255, 0.55);
+    color: rgba(255, 255, 255, 0.78);
     transition: color $transition-base;
 
     &:hover {
@@ -70,7 +70,7 @@
 
   &__copyright {
     font-size: $font-size-xs;
-    color: rgba(255, 255, 255, 0.35);
+    color: rgba(255, 255, 255, 0.72);
     text-align: left;
   }
 }

@@ -260,6 +260,46 @@
     }
   }
 
+  &__error {
+    color: $accent;
+    font-size: $font-size-xs;
+    font-weight: 600;
+  }
+
+  &__map-link {
+    align-self: flex-start;
+    background: none;
+    border: none;
+    padding: 0;
+    color: $primary;
+    font-size: $font-size-xs;
+    font-weight: 600;
+    font-family: $font-family;
+    text-decoration: underline;
+  }
+
+  &__hint {
+    font-size: $font-size-xs;
+    color: $text-muted;
+    margin: $spacing-2 0 0;
+
+    a { color: $primary; font-weight: 600; }
+  }
+
+}
+
+.donor-reg-check {
+  display: flex;
+  align-items: flex-start;
+  gap: $spacing-2;
+  font-size: $font-size-sm;
+  color: $text-body;
+  cursor: pointer;
+
+  input { margin-top: 3px; }
+}
+
+.donor-reg-form {
   /* Side-by-side row */
   &__row {
     display: grid;

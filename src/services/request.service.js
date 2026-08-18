@@ -21,6 +21,14 @@ export const fetchRequests = async (userId) => {
   await delay(400);
   const all = readRequests();
   // If userId provided, return only that user's requests; otherwise return all
-  if (userId) return all.filter((r) => r.userId === userId);
+  if (userId) {
+    const users = (() => {
+      try { return JSON.parse(localStorage.getItem('ls_users') || '[]'); }
+      catch { return []; }
+    })();
+    const user = users.find((u) => u.id === userId);
+    const email = user?.email?.toLowerCase();
+    return all.filter((r) => r.userId === userId || (email && r.email?.toLowerCase() === email));
+  }
   return all;
 };

@@ -53,8 +53,8 @@ const TermsPage = () => {
 
           <div className="legal-page__callout">
             <strong>Please read carefully</strong>
-            By accessing or using LifeStream you agree to be bound by these Terms of Service.
-            If you do not agree to these terms, please do not use our platform.
+            LifeStream is a student demo for coordinating blood donors in Pakistan.
+            By using the site you agree to these terms. It is not a licensed blood bank.
           </div>
 
           <section className="legal-page__section" id="acceptance">
@@ -78,13 +78,13 @@ const TermsPage = () => {
               To use LifeStream, you must:
             </p>
             <ul className="legal-page__list">
-              <li>Be at least 17 years of age (or 16 with parental/guardian consent where applicable by law).</li>
+              <li>Be at least 18 years of age to register as a donor in this demo (aligned with typical whole-blood donation age in Pakistan).</li>
               <li>Meet the minimum medical criteria set by your regional blood donation authority.</li>
               <li>Provide accurate, truthful, and current information during registration.</li>
               <li>Not be subject to any legal prohibition that would prevent you from using the Service.</li>
             </ul>
             <p className="legal-page__text">
-              LifeStream does not collect data from individuals under the age of 13.
+              LifeStream does not collect data from individuals under the age of 18 for donor registration.
               If you believe we have inadvertently collected such data, please contact us immediately.
             </p>
           </section>
@@ -187,9 +187,9 @@ const TermsPage = () => {
               If you have questions about these Terms, please contact us:
             </p>
             <ul className="legal-page__list">
-              <li>Email: <a href="mailto:legal@lifestream.org">legal@lifestream.org</a></li>
-              <li>Address: LifeStream Foundation, 123 Donor Lane, Medical District, CA 90001</li>
-              <li>Support hours: Monday–Friday, 9 AM–5 PM PST</li>
+              <li>Email: <a href="mailto:support@lifestream.pk">support@lifestream.pk</a></li>
+              <li>Address: LifeStream (FYP Demo), Gulberg III, Lahore, Pakistan</li>
+              <li>Support hours: Monday–Saturday, 9:00 AM–6:00 PM PKT</li>
             </ul>
           </section>
 

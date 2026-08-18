@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  faBell,
   faDroplet,
   faUserGroup,
   faFlask,
@@ -12,8 +11,6 @@ import {
   faChevronLeft,
   faChevronRight,
   faTriangleExclamation,
-  faArrowTrendUp,
-  faEllipsisVertical,
   faCircleCheck,
   faCircleXmark,
   faHourglassHalf,
@@ -30,6 +27,14 @@ import {
   fetchAdminDonors,
   fetchAdminUsers,
 } from '../../api/services';
+import {
+  isPendingRequest,
+  normalizeRequestStatus,
+  requestBloodGroup,
+  donorLastDonated,
+  DONOR_STATUS,
+  REQUEST_STATUS,
+} from '../../utils/status';
 
 
 /* ─── Urgency Badge ─────────────────────────────────────── */
@@ -52,14 +57,16 @@ const UrgencyBadge = ({ urgency }) => {
 
 /* ─── Status Pill ───────────────────────────────────────── */
 const StatusPill = ({ status }) => {
+  const key = String(status || '').toLowerCase();
   const map = {
     pending: { cls: 'pending', icon: faHourglassHalf, label: 'Pending' },
     approved: { cls: 'approved', icon: faCircleCheck, label: 'Approved' },
+    verified: { cls: 'approved', icon: faCircleCheck, label: 'Verified' },
     active: { cls: 'approved', icon: faCircleCheck, label: 'Active' },
     rejected: { cls: 'rejected', icon: faCircleXmark, label: 'Rejected' },
     inactive: { cls: 'rejected', icon: faCircleXmark, label: 'Inactive' },
   };
-  const { cls, icon, label } = map[status] || map['pending'];
+  const { cls, icon, label } = map[key] || map.pending;
   return (
     <span className={`admin-status admin-status--${cls}`}>
       <FontAwesomeIcon icon={icon} />
@@ -121,6 +128,7 @@ const RequestsTable = () => {
   const [loading, setLoading] = useState(true);
   const { currentUser } = useAuth();
   const { deleteRequest, updateRequest } = useAppData();
+  const [statusFilter, setStatusFilter] = useState('All');
   const PER_PAGE = 3;
 
   const reload = async () => {
@@ -134,19 +142,23 @@ const RequestsTable = () => {
 
   if (loading) return <AppSpinner label="Loading requests..." />;
 
-  const filtered = data.filter(
-    (r) =>
-      r.id.toLowerCase().includes(search.toLowerCase()) ||
-      (r.hospital || '').toLowerCase().includes(search.toLowerCase()) ||
-      (r.patient  || '').toLowerCase().includes(search.toLowerCase())
-  );
+  const filtered = data.filter((r) => {
+    const q = search.toLowerCase();
+    const matchesSearch =
+      r.id.toLowerCase().includes(q) ||
+      (r.hospital || '').toLowerCase().includes(q) ||
+      (r.patient  || '').toLowerCase().includes(q);
+    const matchesStatus = statusFilter === 'All' || normalizeRequestStatus(r.status) === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
   const total = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
   const paged = filtered.slice((page - 1) * PER_PAGE, page * PER_PAGE);
 
   const handleAction = (id, action) => {
-    updateRequest(id, { status: action });
+    const status = normalizeRequestStatus(action);
+    updateRequest(id, { status });
     setData((prev) =>
-      prev.map((r) => (r.id === id ? { ...r, status: action } : r))
+      prev.map((r) => (r.id === id ? { ...r, status } : r))
     );
   };
 
@@ -172,10 +184,20 @@ const RequestsTable = () => {
             id="admin-requests-search"
           />
         </div>
-        <button className="admin-filter-btn" id="admin-requests-filter" type="button">
+        <label className="admin-filter-btn" htmlFor="admin-requests-filter">
           <FontAwesomeIcon icon={faFilter} />
-          Filter
-        </button>
+          <select
+            id="admin-requests-filter"
+            value={statusFilter}
+            onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
+            aria-label="Filter requests by status"
+          >
+            <option value="All">All statuses</option>
+            <option value="Pending">Pending</option>
+            <option value="Approved">Approved</option>
+            <option value="Rejected">Rejected</option>
+          </select>
+        </label>
       </div>
 
       {/* Table */}
@@ -205,17 +227,17 @@ const RequestsTable = () => {
                     <p className="admin-table__primary">{req.hospital}</p>
                     <p className="admin-table__secondary">Patient: {req.patient}</p>
                   </td>
-                  <td><BloodBadge group={req.bloodGroup} /></td>
+                  <td><BloodBadge group={requestBloodGroup(req)} /></td>
                   <td className="admin-table__units">{req.units} {req.units === 1 ? 'Unit' : 'Units'}</td>
                   <td><UrgencyBadge urgency={req.urgency} /></td>
-                  <td className="admin-table__date">{req.date}</td>
+                  <td className="admin-table__date">{req.neededBy || req.date || '—'}</td>
                   <td>
                     <div className="admin-actions">
-                      {req.status === 'pending' && (
+                      {isPendingRequest(req.status) && (
                         <>
                           <button
                             className="admin-actions__btn admin-actions__btn--approve"
-                            onClick={() => handleAction(req.id, 'approved')}
+                            onClick={() => handleAction(req.id, REQUEST_STATUS.Approved)}
                             aria-label={`Approve request ${req.id}`}
                             id={`approve-req-${req.id}`}
                             type="button"
@@ -225,7 +247,7 @@ const RequestsTable = () => {
                           </button>
                           <button
                             className="admin-actions__btn admin-actions__btn--reject"
-                            onClick={() => handleAction(req.id, 'rejected')}
+                            onClick={() => handleAction(req.id, REQUEST_STATUS.Rejected)}
                             aria-label={`Reject request ${req.id}`}
                             id={`reject-req-${req.id}`}
                             type="button"
@@ -235,7 +257,7 @@ const RequestsTable = () => {
                           </button>
                         </>
                       )}
-                      {req.status !== 'pending' && (
+                      {!isPendingRequest(req.status) && (
                         <StatusPill status={req.status} />
                       )}
                       <button
@@ -276,7 +298,7 @@ const DonorsTable = () => {
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const { currentUser } = useAuth();
-  const { deleteDonor } = useAppData();
+  const { deleteDonor, updateDonor } = useAppData();
   const PER_PAGE = 4;
 
   const reload = async () => {
@@ -300,9 +322,11 @@ const DonorsTable = () => {
   const paged = filtered.slice((page - 1) * PER_PAGE, page * PER_PAGE);
 
   const handleAction = (id, action) => {
+    const status = action === 'approve' ? DONOR_STATUS.verified : DONOR_STATUS.pending;
+    updateDonor(id, { status, canContact: status === DONOR_STATUS.verified });
     setData((prev) =>
       prev.map((d) =>
-        d.id === id ? { ...d, status: action === 'approve' ? 'active' : 'inactive' } : d
+        d.id === id ? { ...d, status, canContact: status === DONOR_STATUS.verified } : d
       )
     );
   };
@@ -328,10 +352,6 @@ const DonorsTable = () => {
             id="admin-donors-search"
           />
         </div>
-        <button className="admin-filter-btn" id="admin-donors-filter" type="button">
-          <FontAwesomeIcon icon={faFilter} />
-          Filter
-        </button>
       </div>
 
       <div className="admin-table-wrapper">
@@ -362,7 +382,7 @@ const DonorsTable = () => {
                   </td>
                   <td><BloodBadge group={donor.bloodGroup} /></td>
                   <td className="admin-table__secondary">{donor.city}</td>
-                  <td className="admin-table__date">{donor.lastDonation}</td>
+                  <td className="admin-table__date">{donorLastDonated(donor)}</td>
                   <td><StatusPill status={donor.status} /></td>
                   <td>
                     <div className="admin-actions">
@@ -483,10 +503,6 @@ const UsersTable = () => {
             id="admin-users-search"
           />
         </div>
-        <button className="admin-filter-btn" id="admin-users-filter" type="button">
-          <FontAwesomeIcon icon={faFilter} />
-          Filter
-        </button>
       </div>
 
       <div className="admin-table-wrapper">
@@ -585,8 +601,9 @@ const TABS = ['Donors', 'Requests', 'Users'];
 
 const AdminPanel = () => {
   const { currentUser } = useAuth();
+  const { getStats } = useAppData();
   const [activeTab, setActiveTab] = useState('Requests');
-  const [notifCount] = useState(3);
+  const live = getStats();
 
   // ── Role guard ─────────────────────────────────────────────────
   if (currentUser?.role !== 'admin') {
@@ -609,24 +626,22 @@ const AdminPanel = () => {
   const stats = [
     {
       label: 'Pending Requests',
-      value: '42',
-      trend: '+12%',
+      value: String(live.activeRequests),
       icon: faDroplet,
       iconClass: 'red',
       id: 'stat-pending',
     },
     {
-      label: 'Active Donors',
-      value: '1,204',
-      trend: '+5%',
+      label: 'Verified Donors',
+      value: String(live.totalDonors),
       icon: faUserGroup,
       iconClass: 'teal',
       id: 'stat-donors',
     },
     {
-      label: 'Total Blood Units',
-      value: '8,450',
-      unit: 'ml available',
+      label: 'Blood logged',
+      value: String(live.totalLitres),
+      unit: 'L donated (demo)',
       icon: faFlask,
       iconClass: 'indigo',
       id: 'stat-units',
@@ -647,22 +662,9 @@ const AdminPanel = () => {
             </h1>
           </div>
           <p className="admin-panel__subtitle">
-            Manage donors, hospital requests, and user accounts.
+            Manage donors, hospital requests, and user accounts. Demo data is stored locally.
           </p>
         </div>
-        <button
-          className="admin-panel__notif-btn"
-          aria-label={`${notifCount} notifications`}
-          id="admin-notifications-btn"
-          type="button"
-        >
-          <FontAwesomeIcon icon={faBell} />
-          {notifCount > 0 && (
-            <span className="admin-panel__notif-badge" aria-hidden="true">
-              {notifCount}
-            </span>
-          )}
-        </button>
       </div>
 
       {/* Stats Cards */}

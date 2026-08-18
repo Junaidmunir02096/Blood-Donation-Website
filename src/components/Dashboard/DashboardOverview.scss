@@ -361,6 +361,11 @@
   gap: $spacing-3;
   padding: $spacing-2 0;
   border-bottom: 1px solid $border-color;
+  width: 100%;
+  background: none;
+  text-align: left;
+  font-family: inherit;
+  cursor: pointer;
 
   &:last-child {
     border-bottom: none;

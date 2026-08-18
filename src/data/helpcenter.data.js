@@ -1,89 +1,87 @@
 /**
- * src/data/helpcenter.data.js
- * ─────────────────────────────────────────────────────────────────────────────
- * Static content for the Help Center dashboard section.
- * Moved out of HelpCenter.jsx to keep component files logic-only.
- *
- * Icon references use FontAwesome icon name strings to keep data files
- * free of library imports. The component resolves them to FA icon objects.
+ * Shared FAQ and help-category copy for the dashboard Help Center and public FAQ page.
  */
 
-// ── Help Category Cards ───────────────────────────────────────────────────────
 export const HELP_CATEGORIES = [
   {
     id: 'post-donation',
     iconKey: 'heartPulse',
-    title: 'Post-Donation Care',
-    desc: 'How to stay hydrated and energized after your heroics.',
+    title: 'After donation',
+    desc: 'Rest, fluids, and when you can donate whole blood again.',
     color: 'red',
   },
   {
     id: 'account-privacy',
     iconKey: 'userShield',
-    title: 'Account & Privacy',
-    desc: 'Managing your data and clinical records securely.',
+    title: 'Account & privacy',
+    desc: 'How this demo stores your session in the browser.',
     color: 'blue',
   },
   {
     id: 'blood-requests',
     iconKey: 'droplet',
-    title: 'Blood Requests',
-    desc: 'How to initiate and manage urgent blood requests.',
+    title: 'Blood requests',
+    desc: 'How to submit and track a request for a patient.',
     color: 'rose',
   },
   {
     id: 'eligibility',
     iconKey: 'circleCheck',
-    title: 'Eligibility & Screening',
-    desc: 'Who can donate and what the screening process involves.',
+    title: 'Eligibility',
+    desc: 'Age, weight, and typical waiting periods.',
     color: 'green',
   },
   {
     id: 'donation-process',
     iconKey: 'bookOpen',
-    title: 'Donation Process',
-    desc: 'Step-by-step guide through your entire donation journey.',
+    title: 'How matching works',
+    desc: 'Search by city, name, and compatible blood groups.',
     color: 'amber',
   },
   {
     id: 'emergency',
     iconKey: 'bolt',
-    title: 'Emergency Protocols',
-    desc: 'Critical support for urgent and life-threatening situations.',
+    title: 'Urgent help',
+    desc: 'Use Request Blood and Contact — this demo has no live chat.',
     color: 'purple',
   },
 ];
 
-// ── FAQ Items ─────────────────────────────────────────────────────────────────
 export const FAQS = [
   {
     id: 'faq-1',
     question: 'How often can I donate whole blood?',
     answer:
-      'You can donate whole blood every 56 days (8 weeks). This waiting period allows your body to fully replenish red blood cells. Platelet donations can be made more frequently — up to 24 times per year.',
+      'A common interval is about 12 weeks (roughly three months) between whole-blood donations. Plasma and platelets can have different gaps. Always follow the licensed blood bank that screens you.',
   },
   {
     id: 'faq-2',
-    question: 'What should I eat before my appointment?',
+    question: 'Who can typically donate in Pakistan?',
     answer:
-      'Eat a healthy, iron-rich meal at least 3 hours before donating. Avoid fatty foods. Good choices include lean meats, leafy greens, beans, and whole grains. Stay well-hydrated by drinking at least 16 oz of water beforehand.',
+      'Educational guidance used in this app: about 18–65 years old, at least 50 kg, and feeling well on the day. Final eligibility is decided by trained staff after a health history and haemoglobin check — not by this website.',
   },
   {
     id: 'faq-3',
-    question: 'Can I donate if I have a recent tattoo?',
+    question: 'How do I find a compatible donor?',
     answer:
-      'It depends on your location and tattoo studio. In many regions, you must wait 3–12 months after getting a tattoo. If the tattoo was done at a state-regulated facility with sterile needles, the wait period may be shorter or waived.',
+      'Open Search, pick the patient’s blood group, and choose Compatible donors. O− can donate red cells to all groups in the usual chart; hospitals still confirm compatibility in the lab.',
   },
   {
     id: 'faq-4',
-    question: 'How long does the donation appointment take?',
+    question: 'Can I request blood without an account?',
     answer:
-      'A typical whole blood donation takes about 8–10 minutes. Including registration, health screening, and the post-donation rest period, plan for about 45–60 minutes total for your first visit.',
+      'Yes. Guests must leave an email so the request can be followed up. Create an account if you want the request to appear in Dashboard. This demo stores data in your browser only.',
   },
   {
     id: 'faq-5',
-    question: 'What happens to my blood after donation?',
+    question: 'Is my data encrypted or emailed?',
     answer:
-      'Your blood is tested, processed, and separated into components (red cells, plasma, platelets). Each component is distributed to hospitals and patients in need. Your donation can potentially save up to 3 lives.',
+      'No. LifeStream is a Final Year Project frontend demo. Accounts and requests are saved in localStorage. There is no real email, Google sign-in, or hospital integration yet.',
+  },
+  {
+    id: 'faq-6',
+    question: 'What should I do before donating?',
+    answer:
+      'Eat a normal meal, drink water, and bring a valid ID to the blood bank. Avoid donating if you have a fever or feel unwell. Iron-rich foods (spinach, meat, lentils) support recovery afterwards.',
   },
 ];

@@ -106,6 +106,18 @@ const DonationHistory = () => {
           </button>
         </div>
 
+        <div className="dh-cards">
+          {sorted.length === 0 ? (
+            <p className="dh-table__empty">No donations recorded yet. After you donate, your history will appear here.</p>
+          ) : sorted.map((row) => (
+            <article key={`card-${row.id}`} className="dh-card-item">
+              <p><strong>{row.date}</strong> · {row.type}</p>
+              <p>{row.location}</p>
+              <p>{row.volume} · {row.status}</p>
+            </article>
+          ))}
+        </div>
+
         {/* Table */}
         <div className="dh-table-wrapper" role="region" aria-label="Donation history table" tabIndex={0}>
           <table className="dh-table" aria-label="Recent donations">
@@ -129,7 +141,13 @@ const DonationHistory = () => {
               </tr>
             </thead>
             <tbody>
-              {sorted.map((row, idx) => (
+              {sorted.length === 0 ? (
+                <tr>
+                  <td colSpan={columns.length} className="dh-table__empty">
+                    No donations recorded yet. After you donate, your history will appear here.
+                  </td>
+                </tr>
+              ) : sorted.map((row, idx) => (
                 <tr key={row.id} className="dh-table__row" style={{ animationDelay: `${idx * 0.05}s` }}>
                   <td className="dh-table__td dh-table__td--date">{row.date}</td>
                   <td className="dh-table__td">{row.location}</td>

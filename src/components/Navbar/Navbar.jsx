@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faXmark,
@@ -10,33 +10,28 @@ import {
   faCircleInfo,
   faRightToBracket,
   faHeartPulse,
+  faGaugeHigh,
+  faRightFromBracket,
 } from '@fortawesome/free-solid-svg-icons';
+import { useAuth } from '../../context/AuthContext';
+import { getInitials } from '../../utils/avatar';
 import './Navbar.scss';
 
 const NAV_LINKS = [
-  { id: 'landing',  label: 'Home',         icon: faHouse,               action: 'onHomeClick'    },
-  { id: 'search',   label: 'Search Blood', icon: faMagnifyingGlass,      action: 'onSearchClick'  },
-  { id: 'request',  label: 'Requests',     icon: faHandHoldingDroplet,   action: 'onRequestClick' },
-  { id: 'about',    label: 'About Us',     icon: faCircleInfo,           action: 'onAboutClick'   },
+  { to: '/',        label: 'Home',         icon: faHouse,             end: true },
+  { to: '/search',  label: 'Search Blood', icon: faMagnifyingGlass },
+  { to: '/request', label: 'Requests',     icon: faHandHoldingDroplet },
+  { to: '/about',   label: 'About Us',     icon: faCircleInfo },
 ];
 
-const Navbar = ({
-  activePage = 'landing',
-  onLoginClick,
-  onDonateClick,
-  onHomeClick,
-  onSearchClick,
-  onRequestClick,
-  onAboutClick,
-}) => {
+const Navbar = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { isLoggedIn, currentUser, logout } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled]  = useState(false);
-  const drawerRef  = useRef(null);
   const triggerRef = useRef(null);
-
-  const handlers = { onHomeClick, onSearchClick, onRequestClick, onAboutClick };
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
@@ -46,107 +41,132 @@ const Navbar = ({
     }
   };
 
-  /* ── elevate navbar on scroll ── */
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  /* ── lock body scroll while mobile menu is open ── */
   useEffect(() => {
     document.body.style.overflow = menuOpen ? 'hidden' : '';
     return () => { document.body.style.overflow = ''; };
   }, [menuOpen]);
 
-  /* ── close on Escape ── */
   useEffect(() => {
     const handler = (e) => { if (e.key === 'Escape') setMenuOpen(false); };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
   }, []);
 
-  const handleNavClick = (actionKey) => {
-    handlers[actionKey]?.();
+  useEffect(() => {
     setMenuOpen(false);
+  }, [location.pathname]);
+
+  const handleLogout = () => {
+    logout();
+    setMenuOpen(false);
+    navigate('/');
   };
 
-  const handleLogin = () => { onLoginClick?.(); setMenuOpen(false); };
-  const handleDonate = () => { onDonateClick?.(); setMenuOpen(false); };
+  const initials = getInitials(currentUser?.fullName);
 
   return (
     <>
       <nav
         className={`navbar${scrolled ? ' navbar--scrolled' : ''}`}
-        role="navigation"
         aria-label="Main navigation"
       >
         <div className="container">
           <div className="navbar__inner">
-
-            {/* ── Logo ── */}
-            <button
+            <Link
+              to="/"
               className="navbar__logo"
               id="nav-logo"
-              onClick={onHomeClick}
               aria-label="Go to home"
             >
               <span className="navbar__logo-icon" aria-hidden="true">
                 <FontAwesomeIcon icon={faDroplet} />
               </span>
               Life<span>Stream</span>
-            </button>
+            </Link>
 
-            {/* ── Desktop Nav Links ── */}
-            <ul className="navbar__nav" role="menubar">
+            <ul className="navbar__nav">
               {NAV_LINKS.map((link) => (
-                <li key={link.id} role="none">
-                  <button
-                    className={`navbar__link${activePage === link.id ? ' navbar__link--active' : ''}`}
-                    id={`nav-${link.id}`}
-                    role="menuitem"
-                    onClick={() => handleNavClick(link.action)}
+                <li key={link.to}>
+                  <NavLink
+                    to={link.to}
+                    end={link.end}
+                    className={({ isActive }) =>
+                      `navbar__link${isActive ? ' navbar__link--active' : ''}`
+                    }
+                    id={`nav-${link.to === '/' ? 'landing' : link.to.slice(1)}`}
                   >
                     {link.label}
-                  </button>
+                  </NavLink>
                 </li>
               ))}
             </ul>
 
-            {/* ── Desktop Search ── */}
             <form onSubmit={handleSearchSubmit} className="navbar__search" role="search">
               <FontAwesomeIcon icon={faMagnifyingGlass} aria-hidden="true" />
               <input
-                type="text"
-                placeholder="Search..."
+                type="search"
+                placeholder="Search city, name, or blood group"
                 id="nav-search-input"
-                aria-label="Search"
+                aria-label="Search donors by city, name, or blood group"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </form>
 
-            {/* ── Desktop Actions ── */}
             <div className="navbar__actions">
-              <button
-                className="navbar__login-btn"
-                id="btn-login"
-                aria-label="Login"
-                onClick={onLoginClick}
-              >
-                Login
-              </button>
-              <button
-                className="navbar__donate-btn"
-                id="btn-donate-nav"
-                aria-label="Donate Now"
-                onClick={onDonateClick}
-              >
-                Donate Now
-              </button>
+              {isLoggedIn ? (
+                <>
+                  <Link
+                    to="/dashboard"
+                    className="navbar__user"
+                    id="nav-dashboard-link"
+                    aria-label={`Open dashboard for ${currentUser?.fullName || 'account'}`}
+                  >
+                    <span className="navbar__avatar" aria-hidden="true">{initials}</span>
+                    <span className="navbar__user-name">{currentUser?.fullName?.split(' ')[0]}</span>
+                  </Link>
+                  <button
+                    type="button"
+                    className="navbar__login-btn"
+                    id="btn-logout-nav"
+                    onClick={handleLogout}
+                  >
+                    Logout
+                  </button>
+                  <Link
+                    to="/donate"
+                    className="navbar__donate-btn"
+                    id="btn-donate-nav"
+                  >
+                    Donate Now
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <Link
+                    to="/auth?mode=login"
+                    className="navbar__login-btn"
+                    id="btn-login"
+                  >
+                    Login
+                  </Link>
+                  <Link
+                    to="/donate"
+                    className="navbar__donate-btn"
+                    id="btn-donate-nav"
+                  >
+                    Donate Now
+                  </Link>
+                </>
+              )}
             </div>
 
-            {/* ── Mobile Hamburger ── */}
             <button
               ref={triggerRef}
               className={`navbar__hamburger${menuOpen ? ' navbar__hamburger--open' : ''}`}
@@ -161,29 +181,24 @@ const Navbar = ({
               <span className="navbar__hamburger-bar" />
               <span className="navbar__hamburger-bar" />
             </button>
-
           </div>
         </div>
       </nav>
 
-      {/* ── Backdrop ── */}
       <div
         className={`nav-backdrop${menuOpen ? ' nav-backdrop--visible' : ''}`}
         aria-hidden="true"
         onClick={() => setMenuOpen(false)}
       />
 
-      {/* ── Mobile Drawer ── */}
       <aside
         id="nav-mobile-drawer"
-        ref={drawerRef}
         className={`nav-drawer${menuOpen ? ' nav-drawer--open' : ''}`}
         aria-label="Mobile navigation"
         aria-hidden={!menuOpen}
         role="dialog"
         aria-modal="true"
       >
-        {/* Drawer header */}
         <div className="nav-drawer__header">
           <div className="nav-drawer__brand">
             <span className="nav-drawer__brand-icon" aria-hidden="true">
@@ -204,69 +219,82 @@ const Navbar = ({
           </button>
         </div>
 
-        {/* Drawer search */}
         <form onSubmit={handleSearchSubmit} className="nav-drawer__search-wrap" role="search">
           <FontAwesomeIcon icon={faMagnifyingGlass} className="nav-drawer__search-icon" aria-hidden="true" />
           <input
-            type="text"
+            type="search"
             className="nav-drawer__search-input"
-            placeholder="Search blood type, location…"
-            aria-label="Search"
+            placeholder="Search blood type, city, or name…"
+            aria-label="Search donors"
             id="nav-drawer-search"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </form>
 
-        {/* Drawer nav links */}
         <nav className="nav-drawer__nav" aria-label="Mobile navigation links">
           <p className="nav-drawer__section-label">Navigation</p>
           {NAV_LINKS.map((link) => (
-            <button
-              key={link.id}
-              type="button"
-              className={`nav-drawer__link${activePage === link.id ? ' nav-drawer__link--active' : ''}`}
-              id={`nav-drawer-${link.id}`}
-              onClick={() => handleNavClick(link.action)}
+            <NavLink
+              key={link.to}
+              to={link.to}
+              end={link.end}
+              className={({ isActive }) =>
+                `nav-drawer__link${isActive ? ' nav-drawer__link--active' : ''}`
+              }
+              onClick={() => setMenuOpen(false)}
             >
               <span className="nav-drawer__link-icon" aria-hidden="true">
                 <FontAwesomeIcon icon={link.icon} />
               </span>
               <span>{link.label}</span>
-              {activePage === link.id && (
-                <span className="nav-drawer__link-dot" aria-hidden="true" />
-              )}
-            </button>
+            </NavLink>
           ))}
         </nav>
 
-        {/* Drawer divider */}
         <div className="nav-drawer__divider" aria-hidden="true" />
 
-        {/* Drawer CTA buttons */}
         <div className="nav-drawer__actions">
           <p className="nav-drawer__section-label">Account</p>
-          <button
-            className="nav-drawer__login-btn"
-            type="button"
-            id="nav-drawer-login"
-            onClick={handleLogin}
-          >
-            <FontAwesomeIcon icon={faRightToBracket} />
-            Login
-          </button>
-          <button
+          {isLoggedIn ? (
+            <>
+              <Link
+                to="/dashboard"
+                className="nav-drawer__login-btn"
+                onClick={() => setMenuOpen(false)}
+              >
+                <FontAwesomeIcon icon={faGaugeHigh} />
+                Dashboard
+              </Link>
+              <button
+                className="nav-drawer__login-btn"
+                type="button"
+                onClick={handleLogout}
+              >
+                <FontAwesomeIcon icon={faRightFromBracket} />
+                Logout
+              </button>
+            </>
+          ) : (
+            <Link
+              to="/auth?mode=login"
+              className="nav-drawer__login-btn"
+              onClick={() => setMenuOpen(false)}
+            >
+              <FontAwesomeIcon icon={faRightToBracket} />
+              Login
+            </Link>
+          )}
+          <Link
+            to="/donate"
             className="nav-drawer__donate-btn"
-            type="button"
-            id="nav-drawer-donate"
-            onClick={handleDonate}
+            onClick={() => setMenuOpen(false)}
           >
             <FontAwesomeIcon icon={faHeartPulse} />
             Donate Now
-          </button>
+          </Link>
         </div>
 
-        {/* Drawer footer */}
         <div className="nav-drawer__footer">
           <FontAwesomeIcon icon={faDroplet} className="nav-drawer__footer-icon" aria-hidden="true" />
           <p>Every drop of blood saves a life.</p>

@@ -1,11 +1,14 @@
 import { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './DonorRegistrationPage.scss';
 import MapPickerModal from '../../components/MapPicker/MapPickerModal';
 import CustomCalendar, { formatDisplayDate } from '../../components/CustomCalendar/CustomCalendar';
 import { useAuth } from '../../context/AuthContext';
 import { useAppData } from '../../context/AppDataContext';
-
-const BLOOD_GROUPS = ['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-'];
+import usePageTitle from '../../hooks/usePageTitle';
+import { BLOOD_GROUPS } from '../../constants/blood';
+import { PAKISTAN_CITIES, isValidPakistanPhone } from '../../constants/pakistan';
+import { DONOR_STATUS } from '../../utils/status';
 
 // ─── Application Status Banner ────────────────────────────────────────────────
 const StatusBanner = ({ status }) => {
@@ -47,8 +50,10 @@ const StatusBanner = ({ status }) => {
 };
 
 // ─── Donor Registration Page ───────────────────────────────────────────────────
-const DonorRegistrationPage = ({ onBack }) => {
-  const { currentUser } = useAuth();
+const DonorRegistrationPage = () => {
+  usePageTitle('Donor Registration');
+  const navigate = useNavigate();
+  const { currentUser, updateCurrentUser } = useAuth();
   const { addDonor, addDonation } = useAppData();
 
   const [formData, setFormData] = useState({
@@ -62,14 +67,19 @@ const DonorRegistrationPage = ({ onBack }) => {
   const [errors, setErrors]             = useState({});
   const [submitted, setSubmitted]       = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isMapOpen, setIsMapOpen]       = useState(false);
+  const [eligibility, setEligibility] = useState({
+    age: false,
+    weight: false,
+    well: false,
+  });
+  const [isMapOpen, setIsMapOpen] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
   const dateFieldRef                    = useRef(null); // wraps trigger + inline calendar
 
   // Show the pending status banner only when user already has a submitted registration.
   // For now this is tied to role: in future replace with a real API check.
   // role === 'donor' means they've completed registration before (mock logic).
-  const showBanner = currentUser?.hasPendingRegistration === true;
+  const showBanner = currentUser?.hasPendingRegistration === true || currentUser?.donorStatus === DONOR_STATUS.pending;
 
   // Close calendar when clicking outside the entire date field
   useEffect(() => {
@@ -90,9 +100,12 @@ const DonorRegistrationPage = ({ onBack }) => {
     const e = {};
     if (!formData.fullName.trim()) e.fullName = 'Full name is required.';
     if (!formData.phone.trim()) e.phone = 'Phone number is required.';
-    else if (!/^\+?[\d\s\-().]{7,20}$/.test(formData.phone)) e.phone = 'Enter a valid phone number.';
+    else if (!isValidPakistanPhone(formData.phone)) e.phone = 'Use a Pakistani mobile number, e.g. 0300-1234567.';
     if (!formData.city.trim()) e.city = 'City is required.';
     if (!formData.bloodGroup) e.bloodGroup = 'Please select a blood group.';
+    if (!eligibility.age || !eligibility.weight || !eligibility.well) {
+      e.eligibility = 'Please confirm the eligibility checklist.';
+    }
     return e;
   };
 
@@ -134,11 +147,19 @@ const DonorRegistrationPage = ({ onBack }) => {
       bloodGroup:  formData.bloodGroup,
       city:        formData.city + (formData.country ? `, ${formData.country}` : ''),
       phone:       formData.phone,
-      miles:       null,
+      km:          null,
       lastDonated: formData.lastDonationDate ? formatDisplayDate(formData.lastDonationDate) : 'Recently',
       avatar:      initials,
       userId:      currentUser?.id ?? null,
-      canContact:  true,
+      canContact:  false,
+    });
+
+    updateCurrentUser({
+      hasPendingRegistration: true,
+      donorStatus: DONOR_STATUS.pending,
+      phone: formData.phone,
+      city: formData.city,
+      bloodGroup: formData.bloodGroup,
     });
 
     /* Also add a donation record if they have a last donation date */
@@ -192,9 +213,9 @@ const DonorRegistrationPage = ({ onBack }) => {
             <button
               className="donor-reg-btn donor-reg-btn--primary"
               id="back-to-home-after-register"
-              onClick={onBack}
+              onClick={() => navigate('/dashboard')}
             >
-              Back to Home
+              Go to Dashboard
             </button>
           </div>
         </div>
@@ -261,7 +282,7 @@ const DonorRegistrationPage = ({ onBack }) => {
                     name="phone"
                     type="tel"
                     className="donor-reg-form__input donor-reg-form__input--icon"
-                    placeholder="+1 (555) 019-2834"
+                    placeholder="0300-1234567"
                     value={formData.phone}
                     onChange={handleChange}
                     autoComplete="tel"
@@ -273,32 +294,24 @@ const DonorRegistrationPage = ({ onBack }) => {
               {/* ── City: Map Picker field ── */}
               <div className={`donor-reg-form__field ${errors.city ? 'donor-reg-form__field--error' : ''}`}>
                 <label htmlFor="donor-city" className="donor-reg-form__label">City / Location</label>
-                <div
-                  className={`donor-reg-form__map-trigger ${formData.city ? 'donor-reg-form__map-trigger--filled' : ''}`}
-                  id="donor-city-map-trigger"
-                  role="button"
-                  tabIndex={0}
-                  onClick={() => setIsMapOpen(true)}
-                  onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && setIsMapOpen(true)}
-                  aria-label={formData.city ? `Selected: ${formData.city}. Click to change.` : 'Click to pick city on map'}
-                >
-                  {/* Pin icon */}
-                  <svg viewBox="0 0 24 24" className="donor-reg-form__map-pin-icon" aria-hidden="true">
-                    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
-                  </svg>
-
-                  <span className={`donor-reg-form__map-trigger-text ${!formData.city ? 'donor-reg-form__map-trigger-text--placeholder' : ''}`}>
-                    {formData.city
-                      ? `${formData.city}${formData.country ? `, ${formData.country}` : ''}`
-                      : 'Pick city on map…'}
-                  </span>
-
-                  {/* Open map icon */}
-                  <svg viewBox="0 0 24 24" className="donor-reg-form__map-open-icon" aria-hidden="true">
-                    <path d="M20.5 3l-.16.03L15 5.1 9 3 3.36 4.9c-.21.07-.36.25-.36.48V20.5c0 .28.22.5.5.5l.16-.03L9 18.9l6 2.1 5.64-1.9c.21-.07.36-.25.36-.48V3.5c0-.28-.22-.5-.5-.5zM15 19l-6-2.11V5l6 2.11V19z"/>
-                  </svg>
-                </div>
-                {errors.city && <span className="donor-reg-form__error">{errors.city}</span>}
+                <input
+                  id="donor-city"
+                  name="city"
+                  type="text"
+                  list="pk-cities"
+                  className="donor-reg-form__input"
+                  placeholder="Lahore, Karachi, Islamabad…"
+                  value={formData.city}
+                  onChange={handleChange}
+                  autoComplete="address-level2"
+                />
+                <datalist id="pk-cities">
+                  {PAKISTAN_CITIES.map((city) => <option key={city} value={city} />)}
+                </datalist>
+                <button type="button" className="donor-reg-form__map-link" onClick={() => setIsMapOpen(true)}>
+                  Or pick on map
+                </button>
+                {errors.city && <span className="donor-reg-form__error" role="alert">{errors.city}</span>}
               </div>
             </div>
 
@@ -396,13 +409,31 @@ const DonorRegistrationPage = ({ onBack }) => {
               )}
             </div>
 
+            <div className="donor-reg-form__field">
+              <p className="donor-reg-form__label">Eligibility checklist</p>
+              <label className="donor-reg-check">
+                <input type="checkbox" checked={eligibility.age} onChange={(e) => setEligibility((p) => ({ ...p, age: e.target.checked }))} />
+                I am 18–65 years old
+              </label>
+              <label className="donor-reg-check">
+                <input type="checkbox" checked={eligibility.weight} onChange={(e) => setEligibility((p) => ({ ...p, weight: e.target.checked }))} />
+                I weigh at least 50 kg
+              </label>
+              <label className="donor-reg-check">
+                <input type="checkbox" checked={eligibility.well} onChange={(e) => setEligibility((p) => ({ ...p, well: e.target.checked }))} />
+                I feel well and have not donated whole blood in the last 12 weeks
+              </label>
+              {errors.eligibility && <span className="donor-reg-form__error" role="alert">{errors.eligibility}</span>}
+              <p className="donor-reg-form__hint">This is an educational screen, not a medical assessment. See the <a href="/eligibility">eligibility checker</a>.</p>
+            </div>
+
             {/* Actions */}
             <div className="donor-reg-form__actions">
               <button
                 type="button"
                 className="donor-reg-btn donor-reg-btn--cancel"
                 id="donor-reg-cancel-btn"
-                onClick={onBack}
+                onClick={() => navigate('/dashboard')}
               >
                 Cancel
               </button>
