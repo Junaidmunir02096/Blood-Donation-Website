@@ -35,7 +35,7 @@
     z-index: 2;
     display: flex;
     align-items: center;
-    gap: $spacing-3;
+    gap: $spacing-4;
     padding: $spacing-5 $spacing-6 0;
   }
 
@@ -69,26 +69,62 @@
   &__brand {
     position: relative;
     z-index: 2;
-    display: flex;
+    display: inline-flex;
     align-items: center;
     gap: $spacing-2;
+    padding: $spacing-1 $spacing-3 $spacing-1 $spacing-1;
+    background: transparent;
+    border: none;
+    border-radius: $radius-full;
+    font-family: $font-family;
     font-size: $font-size-xl;
-    font-weight: 700;
+    font-weight: 800;
     color: $text-light;
     letter-spacing: -0.02em;
     text-decoration: none;
     cursor: pointer;
-    transition: opacity $transition-fast;
+    white-space: nowrap;
+    transition: background $transition-fast, transform $transition-fast;
 
-    &:hover { opacity: 0.85; }
+    &:hover {
+      background: rgba(255, 255, 255, 0.08);
+      transform: translateY(-1px);
+    }
 
-    span { color: $accent; }
+    &:active {
+      transform: translateY(0);
+    }
+
+    > span:last-child {
+      color: $accent;
+      font-weight: 800;
+    }
+  }
+
+  &__brand-icon-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: $radius-sm;
+    background: rgba(255, 255, 255, 0.14);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    backdrop-filter: blur(8px);
+    flex-shrink: 0;
+    transition: transform $transition-fast, background $transition-fast;
+
+    .auth__brand:hover & {
+      background: rgba(255, 255, 255, 0.22);
+      transform: rotate(-8deg) scale(1.06);
+    }
   }
 
   &__brand-icon {
-    width: 26px;
-    height: 26px;
-    fill: $accent;
+    width: 0.875rem;
+    height: 0.875rem;
+    color: #fff;
+    font-size: 0.875rem;
   }
 
 
@@ -247,7 +283,7 @@
 
     &--error {
       .auth__label { color: $accent; }
-      .auth__input {
+      .auth__input-wrap {
         border-color: rgba($accent, 0.4);
         background: rgba($accent, 0.02);
       }
@@ -293,7 +329,7 @@
 
     &:focus-within {
       border-color: $primary;
-      box-shadow: 0 0 0 3px rgba($primary, 0.12);
+      // box-shadow: 0 0 0 3px rgba($primary, 0.12);
     }
   }
 
@@ -307,6 +343,7 @@
 
   &__input {
     flex: 1;
+    min-width: 0;
     border: none;
     background: transparent;
     padding: $spacing-3 0;
@@ -314,6 +351,15 @@
     font-size: $font-size-base;
     color: $text-dark;
     outline: none;
+    box-shadow: none;
+    appearance: none;
+    -webkit-appearance: none;
+
+    &:focus,
+    &:focus-visible {
+      outline: none;
+      box-shadow: none;
+    }
 
     &::placeholder { color: #bbb; }
   }
