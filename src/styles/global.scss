@@ -49,8 +49,21 @@ textarea:focus-visible,
   outline-offset: 2px;
 }
 
-/* Nested search fields already use a rounded :focus-within ring on the wrapper */
-[role="search"] input:focus-visible {
+/* Nested / themed fields use their own border focus — skip the global outline halo */
+[role="search"] input:focus-visible,
+[class*="input-wrap"] input:focus-visible,
+[class*="input-wrap"] select:focus-visible,
+[class*="input-wrap"] textarea:focus-visible,
+.request-field__input input:focus-visible,
+.request-field__input select:focus-visible,
+.request-field__input textarea:focus-visible,
+.donor-reg-form__input:focus-visible,
+.donor-reg-form__input-wrap:focus-within .donor-reg-form__input:focus-visible,
+.donor-reg-form__map-trigger:focus-visible,
+.donor-reg-form__date-trigger:focus-visible,
+.info-page__input:focus-visible,
+.info-page__textarea:focus-visible,
+.info-page__select:focus-visible {
   outline: none;
 }
 

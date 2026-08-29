@@ -252,10 +252,9 @@
     gap: $spacing-2;
 
     &--error {
-      .donor-reg-form__input,
+      .donor-reg-form__input:not(.donor-reg-form__input--icon),
       .donor-reg-form__input-wrap {
         border-color: $primary;
-        box-shadow: 0 0 0 3px rgba($primary, 0.1);
       }
     }
   }
@@ -333,11 +332,13 @@
     border-radius: $radius-md;
     padding: 0 $spacing-4;
     background: $bg-white;
-    transition: border-color $transition-fast, box-shadow $transition-fast;
+    box-shadow: none;
+    transition: border-color $transition-fast;
 
     &:focus-within {
       border-color: $primary;
-      box-shadow: 0 0 0 3px rgba($primary, 0.1);
+      box-shadow: none;
+      outline: none;
     }
   }
 
@@ -359,24 +360,35 @@
     color: $text-dark;
     background: $bg-white;
     outline: none;
-    transition: border-color $transition-fast, box-shadow $transition-fast;
+    box-shadow: none;
+    transition: border-color $transition-fast;
 
     &::placeholder { color: #bbb; }
 
-    &:focus {
+    &:focus,
+    &:focus-visible {
       border-color: $primary;
-      box-shadow: 0 0 0 3px rgba($primary, 0.1);
+      outline: none;
+      box-shadow: none;
     }
 
-    /* When inside input-wrap, reset border */
+    /* When inside input-wrap, reset border — keep the inner field invisible */
     &--icon {
       border: none;
       border-radius: 0;
       padding: $spacing-3 0;
       flex: 1;
       box-shadow: none;
+      outline: none;
+      appearance: none;
+      background: transparent;
 
-      &:focus { box-shadow: none; }
+      &:focus,
+      &:focus-visible {
+        outline: none;
+        box-shadow: none;
+        border: none;
+      }
     }
 
     &--date {
@@ -405,9 +417,10 @@
     min-height: 46px;
 
     &:hover,
-    &:focus {
+    &:focus,
+    &:focus-visible {
       border-color: $primary;
-      box-shadow: 0 0 0 3px rgba($primary, 0.1);
+      box-shadow: none;
       outline: none;
     }
 
@@ -473,9 +486,10 @@
 
     &:hover,
     &:focus,
+    &:focus-visible,
     &--open {
       border-color: $primary;
-      box-shadow: 0 0 0 3px rgba($primary, 0.1);
+      box-shadow: none;
       outline: none;
 
       .donor-reg-form__date-icon { fill: $primary; }

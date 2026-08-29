@@ -1,0 +1,675 @@
+@import '../../../styles/variables';
+
+.crm {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-6;
+  animation: dashboard-rise 0.4s ease both;
+}
+
+.crm__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: $spacing-5;
+  flex-wrap: wrap;
+}
+
+.crm__title-row {
+  display: flex;
+  align-items: center;
+  gap: $spacing-3;
+}
+
+.crm__mark {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: $radius-md;
+  background: $primary-lighter;
+  color: $primary;
+  display: grid;
+  place-items: center;
+  font-size: 1.125rem;
+  flex-shrink: 0;
+}
+
+.crm__title {
+  font-size: $font-size-2xl;
+  font-weight: 800;
+  color: $text-dark;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  margin: 0;
+
+  @media (max-width: $bp-sm) {
+    font-size: $font-size-xl;
+  }
+}
+
+.crm__subtitle {
+  margin: $spacing-1 0 0 calc(2.5rem + $spacing-3);
+  font-size: $font-size-sm;
+  color: $text-muted;
+
+  @media (max-width: $bp-sm) {
+    margin-left: 0;
+  }
+}
+
+.crm__toolbar {
+  display: flex;
+  align-items: flex-end;
+  gap: $spacing-3;
+  flex-wrap: wrap;
+}
+
+.crm__export {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-2;
+  height: 2.5rem;
+  padding: 0 $spacing-4;
+  border-radius: $radius-md;
+  border: 1px solid $border-color;
+  background: $bg-white;
+  color: $text-dark;
+  font-family: $font-family;
+  font-size: $font-size-sm;
+  font-weight: 600;
+  box-shadow: $shadow-sm;
+  transition: border-color $transition-fast, background $transition-fast, transform $transition-fast;
+
+  &:hover:not(:disabled) {
+    border-color: $primary-light;
+    background: $primary-lighter;
+    color: $primary-dark;
+    transform: translateY(-1px);
+  }
+
+  &:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+}
+
+.crm__error {
+  background: rgba($accent, 0.08);
+  border: 1px solid rgba($accent, 0.2);
+  color: $primary-dark;
+  padding: $spacing-3 $spacing-4;
+  border-radius: $radius-md;
+  font-size: $font-size-sm;
+  font-weight: 600;
+}
+
+.crm__body {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-5;
+  transition: opacity $transition-fast;
+
+  &--refreshing {
+    opacity: 0.72;
+    pointer-events: none;
+  }
+}
+
+.crm__grid {
+  display: grid;
+  gap: $spacing-5;
+
+  &--charts {
+    grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+  }
+
+  &--mix {
+    grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.25fr);
+  }
+
+  &--ops {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+  }
+
+  @media (max-width: $bp-lg) {
+    &--charts,
+    &--mix,
+    &--ops {
+      grid-template-columns: 1fr;
+    }
+  }
+}
+
+.crm__footnote {
+  display: flex;
+  align-items: flex-start;
+  gap: $spacing-2;
+  font-size: $font-size-xs;
+  color: $text-muted;
+  line-height: 1.55;
+  margin: 0;
+
+  svg {
+    margin-top: 2px;
+    color: $primary;
+    flex-shrink: 0;
+  }
+
+  code {
+    font-size: 0.7rem;
+    background: $primary-lighter;
+    color: $primary-dark;
+    padding: 0 4px;
+    border-radius: 4px;
+  }
+}
+
+/* ── Filters ─────────────────────────────────────────────── */
+.crm-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-3;
+}
+
+.crm-filters__field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 8.5rem;
+}
+
+.crm-filters__label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: $text-muted;
+}
+
+.crm-filters__select {
+  height: 2.5rem;
+  padding: 0 $spacing-3;
+  border: 1px solid $border-color;
+  border-radius: $radius-md;
+  background: $bg-white;
+  color: $text-dark;
+  font-family: $font-family;
+  font-size: $font-size-sm;
+  font-weight: 500;
+  box-shadow: $shadow-sm;
+  outline: none;
+  cursor: pointer;
+  transition: border-color $transition-fast, box-shadow $transition-fast;
+
+  &:focus,
+  &:focus-visible {
+    border-color: $primary;
+    box-shadow: 0 0 0 3px rgba($primary, 0.12);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+/* ── KPI cards ───────────────────────────────────────────── */
+.crm-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: $spacing-4;
+
+  @media (max-width: $bp-lg) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  @media (max-width: $bp-sm) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.crm-kpi {
+  position: relative;
+  background: $bg-white;
+  border: 1px solid $border-color;
+  border-radius: $radius-xl;
+  padding: $spacing-5 $spacing-5 $spacing-4;
+  box-shadow: $shadow-sm;
+  overflow: hidden;
+  transition: transform $transition-fast, box-shadow $transition-fast;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: $primary;
+  }
+
+  &--teal::before { background: #0f766e; }
+  &--amber::before { background: #d97706; }
+  &--danger::before { background: $accent; }
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: $shadow-md;
+  }
+}
+
+.crm-kpi__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-4;
+}
+
+.crm-kpi__icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: $radius-md;
+  display: grid;
+  place-items: center;
+  font-size: 1rem;
+
+  &--red {
+    background: $primary-lighter;
+    color: $primary;
+  }
+
+  &--teal {
+    background: #e0f2f1;
+    color: #0f766e;
+  }
+
+  &--amber {
+    background: #fef3c7;
+    color: #d97706;
+  }
+
+  &--danger {
+    background: rgba($accent, 0.12);
+    color: $accent;
+  }
+}
+
+.crm-kpi__trend {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: $font-size-xs;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: $radius-full;
+
+  &--up {
+    color: #15803d;
+    background: #dcfce7;
+  }
+
+  &--down {
+    color: $primary-dark;
+    background: $primary-lighter;
+  }
+}
+
+.crm-kpi__label {
+  margin: 0;
+  font-size: $font-size-xs;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: $text-muted;
+}
+
+.crm-kpi__value {
+  margin: 6px 0 0;
+  font-size: 1.85rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  color: $text-dark;
+  line-height: 1.1;
+}
+
+.crm-kpi__hint {
+  margin: $spacing-2 0 0;
+  font-size: $font-size-xs;
+  color: $text-muted;
+  line-height: 1.4;
+}
+
+/* ── Panels / charts ─────────────────────────────────────── */
+.crm-panel {
+  background: $bg-white;
+  border: 1px solid $border-color;
+  border-radius: $radius-xl;
+  box-shadow: $shadow-sm;
+  padding: $spacing-5;
+  min-width: 0;
+}
+
+.crm-panel__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: $spacing-3;
+  margin-bottom: $spacing-4;
+}
+
+.crm-panel__title {
+  margin: 0;
+  font-size: $font-size-base;
+  font-weight: 800;
+  color: $text-dark;
+  letter-spacing: -0.02em;
+}
+
+.crm-panel__subtitle {
+  margin: 4px 0 0;
+  font-size: $font-size-xs;
+  color: $text-muted;
+}
+
+.crm-panel__link {
+  background: none;
+  border: none;
+  color: $primary;
+  font-family: $font-family;
+  font-size: $font-size-sm;
+  font-weight: 700;
+  padding: 0;
+  white-space: nowrap;
+
+  &:hover { color: $primary-dark; }
+
+  &--block {
+    display: block;
+    margin-top: $spacing-4;
+    text-align: right;
+  }
+}
+
+.crm-chart {
+  width: 100%;
+  height: 16.5rem;
+
+  &--donut {
+    height: 14.5rem;
+  }
+
+  &--cities {
+    height: 24rem;
+  }
+}
+
+.crm-tooltip {
+  background: $bg-white;
+  border: 1px solid $border-color;
+  border-radius: $radius-md;
+  box-shadow: $shadow-md;
+  padding: $spacing-2 $spacing-3;
+  min-width: 9rem;
+}
+
+.crm-tooltip__label {
+  margin: 0 0 6px;
+  font-size: $font-size-xs;
+  font-weight: 700;
+  color: $text-dark;
+}
+
+.crm-tooltip__row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 4px;
+  font-size: $font-size-xs;
+  color: $text-body;
+
+  strong {
+    margin-left: auto;
+    color: $text-dark;
+  }
+}
+
+.crm-tooltip__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: $radius-full;
+  flex-shrink: 0;
+}
+
+.crm-donut {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 8.5rem;
+  gap: $spacing-3;
+  align-items: center;
+
+  @media (max-width: $bp-sm) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.crm-donut .crm-chart--donut {
+  position: relative;
+}
+
+.crm-donut__center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.crm-donut__center-value {
+  font-size: $font-size-lg;
+  font-weight: 800;
+  color: $text-dark;
+  line-height: 1;
+}
+
+.crm-donut__center-label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: $text-muted;
+  margin-top: 4px;
+}
+
+.crm-donut__legend {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: $font-size-xs;
+    color: $text-body;
+
+    strong {
+      margin-left: auto;
+      color: $text-dark;
+    }
+  }
+}
+
+.crm-donut__swatch {
+  width: 8px;
+  height: 8px;
+  border-radius: $radius-full;
+  flex-shrink: 0;
+}
+
+/* ── Operational lists ───────────────────────────────────── */
+.crm-list {
+  min-width: 0;
+}
+
+.crm-emergency {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-3;
+  margin: 0;
+  padding: 0;
+}
+
+.crm-emergency__item {
+  display: grid;
+  grid-template-columns: 3.5rem minmax(0, 1fr);
+  gap: $spacing-3;
+  align-items: center;
+  padding: $spacing-3;
+  border: 1px solid $border-color;
+  border-radius: $radius-lg;
+  background: $bg-white;
+  transition: border-color $transition-fast, box-shadow $transition-fast;
+
+  &:hover {
+    border-color: rgba($primary, 0.25);
+    box-shadow: 0 2px 10px rgba($primary, 0.08);
+  }
+}
+
+.crm-emergency__badge {
+  text-align: center;
+  background: $primary-lighter;
+  border-radius: $radius-md;
+  padding: $spacing-2 4px;
+  border: 1px solid rgba($primary, 0.12);
+
+  span {
+    display: block;
+    font-size: $font-size-base;
+    font-weight: 800;
+    color: $primary-dark;
+    line-height: 1.1;
+  }
+
+  small {
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: $text-muted;
+  }
+}
+
+.crm-emergency__meta {
+  display: flex;
+  align-items: center;
+  gap: $spacing-2;
+  flex-wrap: wrap;
+  margin-bottom: 4px;
+}
+
+.crm-emergency__hospital {
+  margin: 0;
+  font-size: $font-size-sm;
+  font-weight: 700;
+  color: $text-dark;
+}
+
+.crm-emergency__detail,
+.crm-emergency__time {
+  margin: 2px 0 0;
+  font-size: $font-size-xs;
+  color: $text-muted;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  svg { font-size: 0.65rem; }
+}
+
+.crm-emergency__time { margin: 0; }
+
+.crm-pill {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: $radius-full;
+
+  &--critical {
+    background: $primary-lighter;
+    color: $primary-dark;
+  }
+
+  &--urgent {
+    background: #fef3c7;
+    color: #b45309;
+  }
+
+  &--routine,
+  &--standard {
+    background: #e0f2f1;
+    color: #0f766e;
+  }
+}
+
+.crm-table-wrap {
+  overflow-x: auto;
+  margin: 0 (-$spacing-1);
+}
+
+.crm-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: $font-size-sm;
+
+  th {
+    text-align: left;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: $text-muted;
+    padding: 0 $spacing-2 $spacing-3;
+    border-bottom: 1px solid $border-color;
+    white-space: nowrap;
+  }
+
+  td {
+    padding: $spacing-3 $spacing-2;
+    border-bottom: 1px solid $border-color;
+    color: $text-body;
+    white-space: nowrap;
+  }
+
+  tbody tr:last-child td { border-bottom: none; }
+
+  tbody tr:hover td { background: $primary-lighter; }
+}
+
+.crm-table__primary {
+  font-weight: 700;
+  color: $text-dark;
+}
+
+.crm-table__muted {
+  color: $text-muted;
+  max-width: 12rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.crm-blood {
+  display: inline-flex;
+  min-width: 2.25rem;
+  justify-content: center;
+  font-weight: 800;
+  font-size: $font-size-xs;
+  color: $primary-dark;
+  background: $primary-lighter;
+  border-radius: $radius-sm;
+  padding: 2px 6px;
+}

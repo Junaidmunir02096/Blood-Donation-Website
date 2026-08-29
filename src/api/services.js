@@ -13,6 +13,7 @@ export { fetchDonors, fetchDonorById } from '../services/donor.service';
 export { fetchRequests }               from '../services/request.service';
 export { fetchConversations, getAutoReplies } from '../services/message.service';
 export { fetchDashboardData }          from '../services/dashboard.service';
+export { fetchCrmOverview, downloadCrmCsv } from '../services/crm.service';
 export { fetchProfileData }            from '../services/profile.service';
 export { fetchAdminRequests, fetchAdminDonors, fetchAdminUsers } from '../services/admin.service';
 export { fetchDonations }              from '../services/donation.service';
