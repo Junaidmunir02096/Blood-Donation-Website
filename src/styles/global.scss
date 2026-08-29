@@ -49,6 +49,11 @@ textarea:focus-visible,
   outline-offset: 2px;
 }
 
+/* Nested search fields already use a rounded :focus-within ring on the wrapper */
+[role="search"] input:focus-visible {
+  outline: none;
+}
+
 img {
   max-width: 100%;
   display: block;
