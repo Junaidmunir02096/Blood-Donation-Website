@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { useAppData } from '../../context/AppDataContext';
+import { useAppData } from '../../hooks/useAppData';
 import './Stats.scss';
 
 /* ── Animated counter hook ─────────────────────────────────── */

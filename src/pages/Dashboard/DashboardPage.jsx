@@ -9,7 +9,7 @@ import AdminPanel from '../../components/Dashboard/AdminPanel';
 import MyProfile from '../../components/Dashboard/MyProfile';
 import HelpCenter from '../../components/Dashboard/HelpCenter';
 import LogoutModal from '../../components/Dashboard/LogoutModal';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../hooks/useAuth';
 import usePageTitle from '../../hooks/usePageTitle';
 import './DashboardPage.scss';
 

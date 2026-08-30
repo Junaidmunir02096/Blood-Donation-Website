@@ -21,7 +21,7 @@ import {
 import './MyProfile.scss';
 import AppSpinner from '../AppSpinner/AppSpinner';
 import { fetchProfileData, fetchDonations } from '../../api/services';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../hooks/useAuth';
 import { getInitials } from '../../utils/avatar';
 import { PAKISTAN_CITIES, isValidPakistanPhone } from '../../constants/pakistan';
 

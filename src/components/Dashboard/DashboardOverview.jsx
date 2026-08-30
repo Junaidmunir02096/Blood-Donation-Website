@@ -11,7 +11,7 @@ import {
 import './DashboardOverview.scss';
 import AppSpinner from '../AppSpinner/AppSpinner';
 import { fetchDashboardData } from '../../api/services';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../hooks/useAuth';
 import EmptyState from '../EmptyState/EmptyState';
 
 

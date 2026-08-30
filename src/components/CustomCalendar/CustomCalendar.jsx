@@ -21,17 +21,6 @@ const parseLocalDate = (str) => {
   return isNaN(date.getTime()) ? null : date;
 };
 
-/** Formats a Date for the trigger label, e.g. "Jun 16, 2026" */
-export const formatDisplayDate = (str) => {
-  const d = parseLocalDate(str);
-  if (!d) return '';
-  return d.toLocaleDateString('en-US', {
-    month: 'short',
-    day: '2-digit',
-    year: 'numeric',
-  });
-};
-
 // ─── CustomCalendar component ─────────────────────────────────────────────────
 /**
  * Props:

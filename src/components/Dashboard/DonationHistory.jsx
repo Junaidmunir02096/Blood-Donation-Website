@@ -11,7 +11,7 @@ import './DonationHistory.scss';
 import AppSpinner from '../AppSpinner/AppSpinner';
 import { columns } from '../../data/donations.data';
 import { fetchDonations } from '../../api/services';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../hooks/useAuth';
 
 
 // ── CSV Export ────────────────────────────────────────────────────────────────

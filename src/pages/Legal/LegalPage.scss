@@ -1,4 +1,5 @@
-@import '../../styles/variables';
+@use 'sass:color';
+@use '../../styles/variables' as *;
 
 /* ═══════════════════════════════════════════════════════
    Legal Pages — Terms & Privacy (shared styles)
@@ -9,7 +10,7 @@
 
   /* ── Hero Banner ────────────────────────────── */
   &__hero {
-    background: linear-gradient(135deg, $primary-dark 0%, darken($primary, 8%) 100%);
+    background: linear-gradient(135deg, $primary-dark 0%, color.adjust($primary, $lightness: -8%) 100%);
     padding: $spacing-16 0 $spacing-12;
     position: relative;
     overflow: hidden;

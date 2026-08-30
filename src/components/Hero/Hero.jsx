@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { useAppData } from '../../context/AppDataContext';
+import { useAppData } from '../../hooks/useAppData';
 import './Hero.scss';
 
 const Hero = () => {

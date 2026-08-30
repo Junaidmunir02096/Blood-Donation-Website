@@ -15,7 +15,7 @@ import { fetchRequests } from '../../api/services';
 import { Link } from 'react-router-dom';
 import EmptyState from '../EmptyState/EmptyState';
 import { requestBloodGroup, normalizeRequestStatus } from '../../utils/status';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../hooks/useAuth';
 
 // ── iconKey → FontAwesome icon resolver ───────────────────────────────────────
 // Keeps data files free of icon-library imports. Add new keys here as needed.

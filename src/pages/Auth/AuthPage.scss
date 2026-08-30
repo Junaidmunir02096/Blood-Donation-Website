@@ -1,3 +1,4 @@
+@use 'sass:color';
 @use '../../styles/variables' as *;
 
 /* ═══════════════════════════════════════════════
@@ -239,7 +240,7 @@
     margin-bottom: $spacing-5;
 
     &:hover {
-      border-color: darken(#e8e0df, 10%);
+      border-color: color.adjust(#e8e0df, $lightness: -10%);
       box-shadow: $shadow-sm;
     }
   }

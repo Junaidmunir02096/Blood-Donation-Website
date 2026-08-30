@@ -14,7 +14,7 @@ import {
   faXmark,
 } from '@fortawesome/free-solid-svg-icons';
 import './DashboardSidebar.scss';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../hooks/useAuth';
 
 const allTabs = [
   { id: 'dashboard',        label: 'Dashboard',        icon: faTableColumns, adminOnly: false },

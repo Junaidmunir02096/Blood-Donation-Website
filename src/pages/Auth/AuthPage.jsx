@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faDroplet } from '@fortawesome/free-solid-svg-icons';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../hooks/useAuth';
 import usePageTitle from '../../hooks/usePageTitle';
 import './AuthPage.scss';
 import authHero from '../../assets/auth-hero.png';

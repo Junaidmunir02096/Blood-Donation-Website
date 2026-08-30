@@ -17,11 +17,13 @@ import {
   faShieldHalved,
   faLock,
   faTrash,
+  faArrowTrendUp,
 } from '@fortawesome/free-solid-svg-icons';
 import './AdminPanel.scss';
 import AppSpinner from '../AppSpinner/AppSpinner';
-import { useAuth } from '../../context/AuthContext';
-import { useAppData } from '../../context/AppDataContext';
+import { useAuth } from '../../hooks/useAuth';
+import { useAppData } from '../../hooks/useAppData';
+import { omitKey } from '../../utils/object';
 import {
   fetchAdminRequests,
   fetchAdminDonors,
@@ -457,7 +459,7 @@ const UsersTable = () => {
     setLoading(true);
     const rows = await fetchAdminUsers();
     // Show all users except passwords
-    setData(rows.map(({ password: _pw, ...u }) => u));
+    setData(rows.map((u) => omitKey(u, 'password')));
     setLoading(false);
   };
 

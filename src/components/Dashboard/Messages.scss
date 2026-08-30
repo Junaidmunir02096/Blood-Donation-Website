@@ -1,4 +1,4 @@
-@import '../../styles/variables';
+@use '../../styles/variables' as *;
 
 // ─── Outer Shell ─────────────────────────────────────────────────────────────
 // Takes up the full dashboard-main area as a two-panel layout

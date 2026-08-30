@@ -70,15 +70,19 @@ const MapPickerModal = ({ isOpen, onClose, onConfirm, initialCity }) => {
   const [isGpsLoading, setIsGpsLoading] = useState(false);
   const mapRef = useRef(null);
 
-  // Reset state when modal opens
+  // Reset state when modal opens; show existing city selection as a hint
   useEffect(() => {
     if (isOpen) {
       setMarker(null);
-      setLocationInfo(null);
+      setLocationInfo(
+        initialCity?.trim()
+          ? { city: initialCity.trim(), country: '', countryCode: '', displayName: initialCity.trim() }
+          : null
+      );
       setGeocodeError('');
       setIsGpsLoading(false);
     }
-  }, [isOpen]);
+  }, [isOpen, initialCity]);
 
   // Handle map click → reverse geocode
   const handleLocationSelect = useCallback(async (lat, lng) => {
