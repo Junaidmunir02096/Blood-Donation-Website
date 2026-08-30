@@ -60,7 +60,7 @@ const useFetch = (fetchFn, deps = []) => {
         setLoading(false);
       }
     }
-  }, [fetchFn]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [fetchFn]);
 
   useEffect(() => {
     if (deps === null) return; // manual mode — don't auto-fetch

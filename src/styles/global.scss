@@ -1,4 +1,4 @@
-@import './variables';
+@use './variables' as *;
 
 *, *::before, *::after {
   box-sizing: border-box;
@@ -47,6 +47,24 @@ textarea:focus-visible,
 [tabindex]:focus-visible {
   outline: 3px solid rgba($primary, 0.45);
   outline-offset: 2px;
+}
+
+/* Nested / themed fields use their own border focus — skip the global outline halo */
+[role="search"] input:focus-visible,
+[class*="input-wrap"] input:focus-visible,
+[class*="input-wrap"] select:focus-visible,
+[class*="input-wrap"] textarea:focus-visible,
+.request-field__input input:focus-visible,
+.request-field__input select:focus-visible,
+.request-field__input textarea:focus-visible,
+.donor-reg-form__input:focus-visible,
+.donor-reg-form__input-wrap:focus-within .donor-reg-form__input:focus-visible,
+.donor-reg-form__map-trigger:focus-visible,
+.donor-reg-form__date-trigger:focus-visible,
+.info-page__input:focus-visible,
+.info-page__textarea:focus-visible,
+.info-page__select:focus-visible {
+  outline: none;
 }
 
 img {

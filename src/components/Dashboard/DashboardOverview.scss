@@ -1,4 +1,4 @@
-@import '../../styles/variables';
+@use '../../styles/variables' as *;
 
 // ─── Overview Container ──────────────────────────────────────────────────────
 .dashboard-overview {
@@ -63,7 +63,8 @@
 
 .dashboard-overview__search input {
   border: none;
-  outline: none;
+  box-shadow: none;
+  appearance: none;
   font-size: $font-size-sm;
   width: 100%;
   font-family: inherit;
@@ -72,6 +73,13 @@
 
   &::placeholder {
     color: $text-muted;
+  }
+
+  &:focus,
+  &:focus-visible {
+    outline: none;
+    border: none;
+    box-shadow: none;
   }
 }
 

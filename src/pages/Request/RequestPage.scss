@@ -231,6 +231,13 @@
       font-size: $font-size-sm;
       color: $text-dark;
       font-family: $font-family;
+
+      &:focus,
+      &:focus-visible {
+        outline: none;
+        box-shadow: none;
+        border: none;
+      }
     }
   }
 

@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faDroplet } from '@fortawesome/free-solid-svg-icons';
+import { useAuth } from '../../hooks/useAuth';
 import usePageTitle from '../../hooks/usePageTitle';
 import './AuthPage.scss';
 import authHero from '../../assets/auth-hero.png';
@@ -471,9 +473,9 @@ const AuthPage = () => {
             onClick={goHome}
             aria-label="Go to home"
           >
-            <svg viewBox="0 0 24 24" className="auth__brand-icon" aria-hidden="true">
-              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/>
-            </svg>
+            <span className="auth__brand-icon-wrap" aria-hidden="true">
+              <FontAwesomeIcon icon={faDroplet} className="auth__brand-icon" />
+            </span>
             Life<span>Stream</span>
           </button>
         </div>

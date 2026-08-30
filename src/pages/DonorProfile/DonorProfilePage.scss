@@ -1,4 +1,5 @@
-@import '../../styles/variables';
+@use 'sass:color';
+@use '../../styles/variables' as *;
 
 /* ═══════════════════════════════════════════════════════
    Public Donor Profile Page
@@ -10,7 +11,7 @@
 
   /* ── Hero band ──────────────────────────────── */
   &__hero {
-    background: linear-gradient(135deg, $primary-dark 0%, darken($primary, 5%) 100%);
+    background: linear-gradient(135deg, $primary-dark 0%, color.adjust($primary, $lightness: -5%) 100%);
     padding: $spacing-12 $spacing-6 $spacing-20;
     position: relative;
     overflow: hidden;

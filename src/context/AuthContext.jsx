@@ -1,4 +1,5 @@
-import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { createContext, useState, useEffect, useCallback } from 'react';
+import { omitKey } from '../utils/object';
 
 /* ──────────────────────────────────────────────────────────────
    AuthContext
@@ -36,7 +37,9 @@ const readUsers = () => {
 const writeUsers = (users) => {
   try {
     localStorage.setItem(USERS_KEY, JSON.stringify(users));
-  } catch {}
+  } catch {
+    /* ignore localStorage quota errors in demo mode */
+  }
 };
 
 /* ── AuthProvider ─────────────────────────────────────────── */
@@ -98,7 +101,7 @@ export const AuthProvider = ({ children }) => {
     writeUsers([...users, newUser]);
 
     /* Strip password before storing in session */
-    const { password: _pw, ...sessionUser } = newUser;
+    const sessionUser = omitKey(newUser, 'password');
     localStorage.setItem(TOKEN_KEY, `mock-jwt-${newUser.id}`);
     setCurrentUser(sessionUser);
     return { ok: true };
@@ -132,7 +135,7 @@ export const AuthProvider = ({ children }) => {
     }
 
     /* Strip password before storing in session */
-    const { password: _pw, ...sessionUser } = found;
+    const sessionUser = omitKey(found, 'password');
 
     /* Always enforce admin role for admin email */
     if (email.toLowerCase() === ADMIN_EMAIL) {
@@ -189,13 +192,6 @@ export const AuthProvider = ({ children }) => {
   const value = { isLoggedIn, currentUser, login, register, logout, updateCurrentUser, changePassword };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-};
-
-/* ── useAuth hook ─────────────────────────────────────────── */
-export const useAuth = () => {
-  const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error('useAuth must be used inside <AuthProvider>');
-  return ctx;
 };
 
 export default AuthContext;

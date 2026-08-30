@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import './RequestPage.scss';
 import usePageTitle from '../../hooks/usePageTitle';
-import { useAppData } from '../../context/AppDataContext';
-import { useAuth } from '../../context/AuthContext';
+import { useAppData } from '../../hooks/useAppData';
+import { useAuth } from '../../hooks/useAuth';
 import { BLOOD_GROUPS, BLOOD_COMPONENTS } from '../../constants/blood';
 import { PAKISTAN_CITIES, isValidPakistanPhone } from '../../constants/pakistan';
 

@@ -2,12 +2,14 @@ import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import DashboardSidebar from '../../components/Dashboard/DashboardSidebar';
 import DashboardOverview from '../../components/Dashboard/DashboardOverview';
+import CrmDashboard from '../../components/Dashboard/Crm';
 import DonationHistory from '../../components/Dashboard/DonationHistory';
 import ActiveRequests from '../../components/Dashboard/ActiveRequests';
 import AdminPanel from '../../components/Dashboard/AdminPanel';
 import MyProfile from '../../components/Dashboard/MyProfile';
 import HelpCenter from '../../components/Dashboard/HelpCenter';
 import LogoutModal from '../../components/Dashboard/LogoutModal';
+import { useAuth } from '../../hooks/useAuth';
 import usePageTitle from '../../hooks/usePageTitle';
 import './DashboardPage.scss';
 
@@ -21,6 +23,8 @@ const TAB_TITLES = {
 };
 
 const DashboardPage = () => {
+  const { currentUser } = useAuth();
+  const isAdmin = currentUser?.role === 'admin';
   const [params, setParams] = useSearchParams();
   const initialTab = TAB_TITLES[params.get('tab')] ? params.get('tab') : 'dashboard';
   const [activeTab, setActiveTab] = useState(initialTab);
@@ -39,7 +43,9 @@ const DashboardPage = () => {
   const renderContent = () => {
     switch (activeTab) {
       case 'dashboard':
-        return <DashboardOverview onTabChange={handleTabChange} />;
+        return isAdmin
+          ? <CrmDashboard onTabChange={handleTabChange} />
+          : <DashboardOverview onTabChange={handleTabChange} />;
       case 'donation-history':
         return <DonationHistory />;
       case 'active-requests':
@@ -51,7 +57,9 @@ const DashboardPage = () => {
       case 'help-center':
         return <HelpCenter />;
       default:
-        return <DashboardOverview onTabChange={handleTabChange} />;
+        return isAdmin
+          ? <CrmDashboard onTabChange={handleTabChange} />
+          : <DashboardOverview onTabChange={handleTabChange} />;
     }
   };
 

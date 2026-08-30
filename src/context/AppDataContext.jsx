@@ -3,7 +3,7 @@
  * Bump KEYS.seeded when seed shape changes so demos pick up new Pakistan data.
  */
 
-import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { createContext, useState, useEffect, useCallback } from 'react';
 import { DONOR_STATUS, REQUEST_STATUS } from '../utils/status';
 import { getInitials } from '../utils/avatar';
 
@@ -285,12 +285,6 @@ export const AppDataProvider = ({ children }) => {
       {children}
     </AppDataContext.Provider>
   );
-};
-
-export const useAppData = () => {
-  const ctx = useContext(AppDataContext);
-  if (!ctx) throw new Error('useAppData must be used inside <AppDataProvider>');
-  return ctx;
 };
 
 export default AppDataContext;

@@ -6,7 +6,7 @@ import marcusImg from '../../assets/team_marcus.png';
 import elenaImg from '../../assets/team_elena.png';
 import './AboutPage.scss';
 import usePageTitle from '../../hooks/usePageTitle';
-import { useAppData } from '../../context/AppDataContext';
+import { useAppData } from '../../hooks/useAppData';
 
 /* ── Icon Components ─────────────────────────────────────────── */
 const HeartIcon = () => (
