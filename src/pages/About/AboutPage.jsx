@@ -1,9 +1,9 @@
 import { Link } from 'react-router-dom';
-import heroImg from '../../assets/about_hero.png';
-import storyImg from '../../assets/about_story.png';
-import sarahImg from '../../assets/team_sarah.png';
-import marcusImg from '../../assets/team_marcus.png';
-import elenaImg from '../../assets/team_elena.png';
+import heroImg from '../../assets/about_hero.jpg';
+import storyImg from '../../assets/about_story.jpg';
+import sarahImg from '../../assets/team_sarah.jpg';
+import marcusImg from '../../assets/team_marcus.jpg';
+import elenaImg from '../../assets/team_elena.jpg';
 import './AboutPage.scss';
 import usePageTitle from '../../hooks/usePageTitle';
 import { useAppData } from '../../hooks/useAppData';
@@ -105,7 +105,7 @@ const AboutPage = () => {
             </Link>
           </div>
           <div className="about__hero-image">
-            <img src={heroImg} alt="Medical professional helping blood donation patient" />
+            <img src={heroImg} alt="Medical professional helping blood donation patient" width="768" height="768" />
           </div>
         </div>
       </section>
@@ -133,7 +133,7 @@ const AboutPage = () => {
       <section className="about__story" aria-labelledby="story-heading">
         <div className="container about__story-inner">
           <div className="about__story-image">
-            <img src={storyImg} alt="LifeStream technology platform dashboard" />
+            <img src={storyImg} alt="LifeStream technology platform dashboard" width="768" height="768" loading="lazy" />
           </div>
           <div className="about__story-text">
             <h2 id="story-heading" className="about__story-title">Our Story</h2>
@@ -178,7 +178,7 @@ const AboutPage = () => {
             {team.map((member, i) => (
               <div className="about__team-card" key={i}>
                 <div className="about__team-avatar">
-                  <img src={member.img} alt={member.name} />
+                  <img src={member.img} alt={member.name} width="384" height="384" loading="lazy" />
                 </div>
                 <h3 className="about__team-name">{member.name}</h3>
                 <p className="about__team-role">{member.role}</p>

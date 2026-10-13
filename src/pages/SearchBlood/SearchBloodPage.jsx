@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useRef } from 'react';
+import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import './SearchBloodPage.scss';
 import AppSpinner from '../../components/AppSpinner/AppSpinner';
@@ -110,7 +110,7 @@ const DonorCard = ({ donor }) => {
           </button>
         )}
         <Link
-          to={`/donor/${donor.id}`}
+          to={`/donor/${encodeURIComponent(String(donor.id))}`}
           className="donor-card__call-btn donor-card__call-btn--secondary"
           id={`view-profile-${donor.id}`}
           aria-label={`View profile of ${donor.name}`}
@@ -164,21 +164,22 @@ const SearchBloodPage = () => {
     };
   }, [showSortMenu]);
 
-  useEffect(() => {
-    const loadDonors = async () => {
-      setLoading(true);
-      setError('');
-      try {
-        const data = await fetchDonors();
-        setDonors(data);
-      } catch {
-        setError('Could not load donors. Please try again.');
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadDonors();
+  const loadDonors = useCallback(async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const data = await fetchDonors();
+      setDonors(data);
+    } catch {
+      setError('Could not load donors. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    loadDonors();
+  }, [loadDonors]);
 
   // Filter & sort donors
   const filteredDonors = useMemo(() => {
@@ -390,7 +391,7 @@ const SearchBloodPage = () => {
               title="Could not load donors"
               message={error}
               actionLabel="Try again"
-              onAction={() => window.location.reload()}
+              onAction={loadDonors}
             />
           ) : visibleDonors.length > 0 ? (
             <>

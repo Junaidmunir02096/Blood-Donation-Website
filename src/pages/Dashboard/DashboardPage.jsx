@@ -1,17 +1,19 @@
-import { useState } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import DashboardSidebar from '../../components/Dashboard/DashboardSidebar';
-import DashboardOverview from '../../components/Dashboard/DashboardOverview';
-import CrmDashboard from '../../components/Dashboard/Crm';
-import DonationHistory from '../../components/Dashboard/DonationHistory';
-import ActiveRequests from '../../components/Dashboard/ActiveRequests';
-import AdminPanel from '../../components/Dashboard/AdminPanel';
-import MyProfile from '../../components/Dashboard/MyProfile';
-import HelpCenter from '../../components/Dashboard/HelpCenter';
 import LogoutModal from '../../components/Dashboard/LogoutModal';
+import AppSpinner from '../../components/AppSpinner/AppSpinner';
 import { useAuth } from '../../hooks/useAuth';
 import usePageTitle from '../../hooks/usePageTitle';
 import './DashboardPage.scss';
+
+const DashboardOverview = lazy(() => import('../../components/Dashboard/DashboardOverview'));
+const CrmDashboard = lazy(() => import('../../components/Dashboard/Crm/CrmDashboard'));
+const DonationHistory = lazy(() => import('../../components/Dashboard/DonationHistory'));
+const ActiveRequests = lazy(() => import('../../components/Dashboard/ActiveRequests'));
+const AdminPanel = lazy(() => import('../../components/Dashboard/AdminPanel'));
+const MyProfile = lazy(() => import('../../components/Dashboard/MyProfile'));
+const HelpCenter = lazy(() => import('../../components/Dashboard/HelpCenter'));
 
 const TAB_TITLES = {
   'dashboard':        'Dashboard',
@@ -68,7 +70,9 @@ const DashboardPage = () => {
       <div className="dashboard-layout">
         <DashboardSidebar activeTab={activeTab} onTabChange={handleTabChange} />
         <div className="dashboard-main" aria-live="polite">
-          {renderContent()}
+          <Suspense fallback={<AppSpinner label="Loading dashboard section…" />}>
+            {renderContent()}
+          </Suspense>
         </div>
       </div>
 

@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 
@@ -14,16 +14,36 @@ import './LogoutModal.scss';
 const LogoutModal = ({ onStay }) => {
   const navigate = useNavigate();
   const { logout } = useAuth();
+  const dialogRef = useRef(null);
 
   useEffect(() => {
+    const previouslyFocused = document.activeElement;
+    const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
-    return () => { document.body.style.overflow = ''; };
-  }, []);
-
-  useEffect(() => {
-    const handler = (e) => { if (e.key === 'Escape') onStay(); };
+    const handler = (event) => {
+      if (event.key === 'Escape') {
+        onStay();
+        return;
+      }
+      if (event.key !== 'Tab' || !dialogRef.current) return;
+      const focusable = [...dialogRef.current.querySelectorAll('button, [href], [tabindex]:not([tabindex="-1"])')]
+        .filter((element) => !element.disabled);
+      const first = focusable[0];
+      const last = focusable.at(-1);
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last?.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first?.focus();
+      }
+    };
     window.addEventListener('keydown', handler);
-    return () => window.removeEventListener('keydown', handler);
+    return () => {
+      window.removeEventListener('keydown', handler);
+      document.body.style.overflow = previousOverflow;
+      previouslyFocused?.focus?.();
+    };
   }, [onStay]);
 
   const handleLogout = () => {
@@ -39,6 +59,7 @@ const LogoutModal = ({ onStay }) => {
       aria-labelledby="logout-title"
       aria-describedby="logout-desc"
       onClick={(e) => e.target === e.currentTarget && onStay()}
+      ref={dialogRef}
     >
       <header className="logout-topbar">
         <Link to="/" className="logout-topbar__brand" aria-label="LifeStream home">

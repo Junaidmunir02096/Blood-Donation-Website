@@ -105,6 +105,7 @@ const DashboardSidebar = ({ activeTab, onTabChange }) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const drawerRef = useRef(null);
   const firstFocusableRef = useRef(null);
+  const menuButtonRef = useRef(null);
 
   const handleSelect = (id) => {
     onTabChange(id);
@@ -118,21 +119,40 @@ const DashboardSidebar = ({ activeTab, onTabChange }) => {
 
   useEffect(() => {
     if (drawerOpen) {
+      const menuButton = menuButtonRef.current;
       document.body.style.overflow = 'hidden';
       const id = setTimeout(() => firstFocusableRef.current?.focus(), 50);
       return () => {
         clearTimeout(id);
         document.body.style.overflow = '';
+        menuButton?.focus();
       };
     }
     document.body.style.overflow = '';
   }, [drawerOpen]);
 
   useEffect(() => {
-    const onKey = (e) => { if (e.key === 'Escape') setDrawerOpen(false); };
+    const onKey = (event) => {
+      if (event.key === 'Escape') {
+        setDrawerOpen(false);
+        return;
+      }
+      if (!drawerOpen || event.key !== 'Tab' || !drawerRef.current) return;
+      const focusable = [...drawerRef.current.querySelectorAll('button, [href], [tabindex]:not([tabindex="-1"])')]
+        .filter((element) => !element.disabled);
+      const first = focusable[0];
+      const last = focusable.at(-1);
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last?.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first?.focus();
+      }
+    };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, []);
+  }, [drawerOpen]);
 
   return (
     <>
@@ -155,6 +175,7 @@ const DashboardSidebar = ({ activeTab, onTabChange }) => {
         </span>
 
         <button
+          ref={menuButtonRef}
           className="db-topbar__menu-btn"
           type="button"
           aria-label="Open navigation menu"
@@ -181,6 +202,7 @@ const DashboardSidebar = ({ activeTab, onTabChange }) => {
         ref={drawerRef}
         role="dialog"
         aria-modal="true"
+        inert={!drawerOpen ? true : undefined}
       >
         <div className="db-drawer__header">
           <div className="db-drawer__brand">

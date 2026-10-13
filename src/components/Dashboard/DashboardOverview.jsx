@@ -196,7 +196,7 @@ const DashboardOverview = ({ onTabChange }) => {
                 key={donor.id}
                 type="button"
                 className="dashboard-donor"
-                onClick={() => navigate(`/donor/${donor.id}`)}
+                onClick={() => navigate(`/donor/${encodeURIComponent(String(donor.id))}`)}
               >
                 <div className="dashboard-donor__avatar" aria-hidden="true">
                   {donor.initials}

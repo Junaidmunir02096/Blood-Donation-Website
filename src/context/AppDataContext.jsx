@@ -209,8 +209,7 @@ export const AppDataProvider = ({ children }) => {
     setDonors((prev) => prev.map((d) => {
       if (d.id !== id) return d;
       const next = { ...d, ...updates };
-      if (next.status === DONOR_STATUS.verified) next.canContact = true;
-      if (next.status === DONOR_STATUS.pending) next.canContact = false;
+      next.canContact = next.status === DONOR_STATUS.verified;
       return next;
     }));
   }, []);
@@ -266,17 +265,15 @@ export const AppDataProvider = ({ children }) => {
   }, []);
 
   const getDonorsByUserId    = useCallback((uid) => donors.filter((d) => d.userId === uid), [donors]);
-  const getRequestsByUserId  = useCallback((uid) => requests.filter((r) => r.userId === uid), [requests]);
   const getDonationsByUserId = useCallback((uid) => donations.filter((d) => d.userId === uid), [donations]);
   const getUserByEmail       = useCallback((email) => users.find((u) => u.email?.toLowerCase() === email?.toLowerCase()), [users]);
-  const getDonorById         = useCallback((id) => donors.find((d) => String(d.id) === String(id)), [donors]);
 
   const value = {
     users, donors, requests, donations,
     getStats,
     addUser, deleteUser, updateUser, getUserByEmail,
-    addDonor, updateDonor, deleteDonor, getDonorsByUserId, getDonorById,
-    addRequest, updateRequest, deleteRequest, getRequestsByUserId,
+    addDonor, updateDonor, deleteDonor, getDonorsByUserId,
+    addRequest, updateRequest, deleteRequest,
     addDonation, getDonationsByUserId,
   };
 

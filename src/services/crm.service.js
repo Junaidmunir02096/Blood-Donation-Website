@@ -32,6 +32,7 @@ import {
   CRM_GROUP_SHARE,
 } from '../data/crm.data';
 import { DONOR_STATUS, isPendingRequest, requestBloodGroup } from '../utils/status';
+import { rowsToCsv } from '../utils/csv';
 
 const delay = (ms) => new Promise((res) => setTimeout(res, ms));
 
@@ -176,12 +177,6 @@ export const fetchCrmOverview = async (filters = {}) => {
   };
 };
 
-const csvEscape = (value) => {
-  const str = String(value ?? '');
-  if (/[",\n]/.test(str)) return `"${str.replace(/"/g, '""')}"`;
-  return str;
-};
-
 /** Build a CSV of the current overview — no backend required. */
 export const overviewToCsv = (overview) => {
   const lines = [
@@ -207,7 +202,7 @@ export const overviewToCsv = (overview) => {
     ...overview.emergencyRequests.map((r) => [r.hospital, r.bloodGroup, r.urgency, r.city, r.time]),
   ];
 
-  return lines.map((row) => row.map(csvEscape).join(',')).join('\n');
+  return rowsToCsv(lines);
 };
 
 export const downloadCrmCsv = (overview) => {

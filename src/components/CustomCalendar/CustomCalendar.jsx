@@ -1,25 +1,9 @@
 import { useState, useMemo } from 'react';
 import './CustomCalendar.scss';
+import { formatDateInputValue, parseLocalDate } from '../../utils/dateFormat';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const DAY_LABELS = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
-
-// ─── Helpers ─────────────────────────────────────────────────────────────────
-/** Returns 'YYYY-MM-DD' string in local time (not UTC) */
-const toLocalDateString = (date) => {
-  const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, '0');
-  const d = String(date.getDate()).padStart(2, '0');
-  return `${y}-${m}-${d}`;
-};
-
-/** Parses 'YYYY-MM-DD' string as a local Date (avoids UTC off-by-one) */
-const parseLocalDate = (str) => {
-  if (!str) return null;
-  const [y, m, d] = str.split('-').map(Number);
-  const date = new Date(y, m - 1, d);
-  return isNaN(date.getTime()) ? null : date;
-};
 
 // ─── CustomCalendar component ─────────────────────────────────────────────────
 /**
@@ -70,7 +54,7 @@ const CustomCalendar = ({ value, maxDate, onChange, onClose }) => {
     // ── Current month days ──
     for (let d = 1; d <= daysInMonth; d++) {
       const date    = new Date(year, month, d);
-      const dateStr = toLocalDateString(date);
+      const dateStr = formatDateInputValue(date);
       const isDisabled = maxDate ? dateStr > maxDate : false;
 
       cells.push({
@@ -111,13 +95,13 @@ const CustomCalendar = ({ value, maxDate, onChange, onClose }) => {
   // ── Select a day ──────────────────────────────────────────────────────────
   const selectDate = (cell) => {
     if (!cell.currentMonth || cell.isDisabled) return;
-    onChange(toLocalDateString(cell.date));
+    onChange(formatDateInputValue(cell.date));
     onClose();
   };
 
   // ── Today shortcut ─────────────────────────────────────────────────────────
   const goToday = () => {
-    const str = toLocalDateString(today);
+    const str = formatDateInputValue(today);
     if (!maxDate || str <= maxDate) {
       onChange(str);
       onClose();
@@ -192,7 +176,7 @@ const CustomCalendar = ({ value, maxDate, onChange, onClose }) => {
               className={classes}
               role={cell.currentMonth && !cell.isDisabled ? 'button' : 'gridcell'}
               tabIndex={cell.currentMonth && !cell.isDisabled ? 0 : -1}
-              aria-label={cell.currentMonth ? toLocalDateString(cell.date) : undefined}
+              aria-label={cell.currentMonth ? formatDateInputValue(cell.date) : undefined}
               aria-selected={cell.isSelected}
               aria-disabled={cell.isDisabled}
               onClick={() => selectDate(cell)}
@@ -216,7 +200,7 @@ const CustomCalendar = ({ value, maxDate, onChange, onClose }) => {
           className="cust-cal__footer-btn cust-cal__footer-btn--today"
           id="cal-today-btn"
           onClick={goToday}
-          disabled={!!maxDate && toLocalDateString(today) > maxDate}
+          disabled={!!maxDate && formatDateInputValue(today) > maxDate}
         >
           Today
         </button>

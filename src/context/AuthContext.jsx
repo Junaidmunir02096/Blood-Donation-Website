@@ -1,5 +1,6 @@
 import { createContext, useState, useEffect, useCallback } from 'react';
 import { omitKey } from '../utils/object';
+import { useAppData } from '../hooks/useAppData';
 
 /* ──────────────────────────────────────────────────────────────
    AuthContext
@@ -16,7 +17,6 @@ import { omitKey } from '../utils/object';
 
 const STORAGE_KEY = 'ls_user';   // localStorage key for session persistence
 const TOKEN_KEY   = 'ls_token';  // mock token key
-const USERS_KEY   = 'ls_users';  // all registered users array
 const ADMIN_EMAIL = 'admin@lifestream.com';
 
 const AuthContext = createContext(null);
@@ -24,26 +24,9 @@ const AuthContext = createContext(null);
 /* ── Helper — simulate an API delay ────────────────────────── */
 const delay = (ms) => new Promise((res) => setTimeout(res, ms));
 
-/* ── Helpers — read / write users array ────────────────────── */
-const readUsers = () => {
-  try {
-    const raw = localStorage.getItem(USERS_KEY);
-    return raw ? JSON.parse(raw) : [];
-  } catch {
-    return [];
-  }
-};
-
-const writeUsers = (users) => {
-  try {
-    localStorage.setItem(USERS_KEY, JSON.stringify(users));
-  } catch {
-    /* ignore localStorage quota errors in demo mode */
-  }
-};
-
 /* ── AuthProvider ─────────────────────────────────────────── */
 export const AuthProvider = ({ children }) => {
+  const { users, addUser, updateUser, getUserByEmail } = useAppData();
   const [currentUser, setCurrentUser] = useState(() => {
     /* Rehydrate from localStorage so refresh doesn't log user out */
     try {
@@ -58,11 +41,15 @@ export const AuthProvider = ({ children }) => {
 
   /* Persist logged-in user to localStorage whenever it changes */
   useEffect(() => {
-    if (currentUser) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(currentUser));
-    } else {
-      localStorage.removeItem(STORAGE_KEY);
-      localStorage.removeItem(TOKEN_KEY);
+    try {
+      if (currentUser) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(currentUser));
+      } else {
+        localStorage.removeItem(STORAGE_KEY);
+        localStorage.removeItem(TOKEN_KEY);
+      }
+    } catch {
+      /* Storage may be unavailable in privacy mode; keep the in-memory session. */
     }
   }, [currentUser]);
 
@@ -76,36 +63,37 @@ export const AuthProvider = ({ children }) => {
   const register = useCallback(async ({ fullName, email, password, bloodGroup, phone, city }) => {
     await delay(900);
 
+    const normalizedEmail = email.trim().toLowerCase();
+
     /* Check for duplicate email */
-    const users = readUsers();
-    const duplicate = users.find(u => u.email?.toLowerCase() === email?.toLowerCase());
+    const duplicate = getUserByEmail(normalizedEmail);
     if (duplicate) {
       return { ok: false, error: 'An account with this email already exists.' };
     }
 
     /* Determine role — admin gets admin, everyone else is donor */
-    const role = email.toLowerCase() === ADMIN_EMAIL ? 'admin' : 'donor';
+    const role = normalizedEmail === ADMIN_EMAIL ? 'admin' : 'donor';
 
-    const newUser = {
-      id: `usr-${Date.now()}`,
-      fullName,
-      email,
+    const newUser = addUser({
+      fullName: fullName.trim(),
+      email: normalizedEmail,
       password,            // stored in plain text (portfolio demo — swap with bcrypt on backend)
       bloodGroup: bloodGroup || null,
       role,
       phone:   phone   || null,
       city:    city    || null,
-      createdAt: new Date().toISOString(),
-    };
-
-    writeUsers([...users, newUser]);
+    });
 
     /* Strip password before storing in session */
     const sessionUser = omitKey(newUser, 'password');
-    localStorage.setItem(TOKEN_KEY, `mock-jwt-${newUser.id}`);
+    try {
+      localStorage.setItem(TOKEN_KEY, `mock-jwt-${newUser.id}`);
+    } catch {
+      /* Keep the in-memory session when storage is unavailable. */
+    }
     setCurrentUser(sessionUser);
     return { ok: true };
-  }, []);
+  }, [addUser, getUserByEmail]);
 
   /* ── login ─────────────────────────────────────────────────
      Validates email + password against ls_users array.
@@ -123,8 +111,8 @@ export const AuthProvider = ({ children }) => {
       return { ok: false, error: 'Email and password are required.' };
     }
 
-    const users = readUsers();
-    const found = users.find(u => u.email?.toLowerCase() === email?.toLowerCase());
+    const normalizedEmail = email.trim().toLowerCase();
+    const found = getUserByEmail(normalizedEmail);
 
     if (!found) {
       return { ok: false, error: 'No account found with this email. Please register.' };
@@ -134,18 +122,26 @@ export const AuthProvider = ({ children }) => {
       return { ok: false, error: 'Incorrect password. Please try again.' };
     }
 
+    if (found.status === 'inactive') {
+      return { ok: false, error: 'This account is inactive. Please contact support.' };
+    }
+
     /* Strip password before storing in session */
     const sessionUser = omitKey(found, 'password');
 
     /* Always enforce admin role for admin email */
-    if (email.toLowerCase() === ADMIN_EMAIL) {
+    if (normalizedEmail === ADMIN_EMAIL) {
       sessionUser.role = 'admin';
     }
 
-    localStorage.setItem(TOKEN_KEY, `mock-jwt-${found.id}`);
+    try {
+      localStorage.setItem(TOKEN_KEY, `mock-jwt-${found.id}`);
+    } catch {
+      /* Keep the in-memory session when storage is unavailable. */
+    }
     setCurrentUser(sessionUser);
     return { ok: true };
-  }, []);
+  }, [getUserByEmail]);
 
   /* ── logout ────────────────────────────────────────────────
      Clears session. Pair with navigate('/') in the caller.
@@ -159,37 +155,50 @@ export const AuthProvider = ({ children }) => {
   const changePassword = useCallback(async ({ currentPassword, newPassword }) => {
     await delay(400);
     if (!currentUser?.id) return { ok: false, error: 'You must be signed in.' };
-    const users = readUsers();
-    const idx = users.findIndex((u) => u.id === currentUser.id);
-    if (idx === -1) return { ok: false, error: 'Account not found.' };
-    if (users[idx].password !== currentPassword) {
+    const account = users.find((user) => user.id === currentUser.id);
+    if (!account) return { ok: false, error: 'Account not found.' };
+    if (account.password !== currentPassword) {
       return { ok: false, error: 'Current password is incorrect.' };
     }
     if (!newPassword || newPassword.length < 8) {
       return { ok: false, error: 'New password must be at least 8 characters.' };
     }
-    users[idx] = { ...users[idx], password: newPassword };
-    writeUsers(users);
+    updateUser(account.id, { password: newPassword });
     return { ok: true };
-  }, [currentUser]);
+  }, [currentUser, updateUser, users]);
+
+  const resetPassword = useCallback(async ({ email, newPassword }) => {
+    await delay(600);
+    const account = getUserByEmail(email);
+    if (!account) return { ok: false, error: 'No demo account was found for this email.' };
+    if (!newPassword || newPassword.length < 8) {
+      return { ok: false, error: 'New password must be at least 8 characters.' };
+    }
+    updateUser(account.id, { password: newPassword });
+    return { ok: true };
+  }, [getUserByEmail, updateUser]);
 
   /* ── updateCurrentUser — refreshes session after profile edit */
   const updateCurrentUser = useCallback((updates) => {
     setCurrentUser(prev => {
-      const updated = { ...prev, ...updates };
-      return updated;
+      if (!prev) return prev;
+      return { ...prev, ...updates };
     });
 
-    /* Also update the stored record in ls_users */
-    const users = readUsers();
-    const idx   = users.findIndex(u => u.id === updates.id || (currentUser && u.id === currentUser.id));
-    if (idx !== -1) {
-      users[idx] = { ...users[idx], ...updates };
-      writeUsers(users);
-    }
-  }, [currentUser]);
+    const userId = updates.id || currentUser?.id;
+    if (userId) updateUser(userId, omitKey(updates, 'id'));
+  }, [currentUser, updateUser]);
 
-  const value = { isLoggedIn, currentUser, login, register, logout, updateCurrentUser, changePassword };
+  const value = {
+    isLoggedIn,
+    currentUser,
+    login,
+    register,
+    logout,
+    updateCurrentUser,
+    changePassword,
+    resetPassword,
+  };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

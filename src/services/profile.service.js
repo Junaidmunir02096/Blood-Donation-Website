@@ -7,12 +7,10 @@
 
 import { simulateApi } from '../api/apiSimulator';
 import {
-  lifestyleItems,
-  timelineEvents,
   achievements,
   notifPrefs,
 } from '../data/profile.data';
 
 /** Fetch the current user's full profile data */
 export const fetchProfileData = () =>
-  simulateApi({ lifestyleItems, timelineEvents, achievements, notifPrefs });
+  simulateApi({ achievements, notifPrefs });

@@ -37,10 +37,11 @@ function ClickHandler({ onLocationSelect }) {
 }
 
 // ── Nominatim reverse geocode ────────────────────────────────────────────────
-async function reverseGeocode(lat, lng) {
+async function reverseGeocode(lat, lng, signal) {
   const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=10&addressdetails=1`;
   const res = await fetch(url, {
     headers: { 'Accept-Language': 'en', 'User-Agent': 'BloodDonationApp/1.0' },
+    signal,
   });
   if (!res.ok) throw new Error('Geocoding failed');
   const data = await res.json();
@@ -69,6 +70,9 @@ const MapPickerModal = ({ isOpen, onClose, onConfirm, initialCity }) => {
   const [geocodeError, setGeocodeError] = useState('');
   const [isGpsLoading, setIsGpsLoading] = useState(false);
   const mapRef = useRef(null);
+  const modalRef = useRef(null);
+  const closeButtonRef = useRef(null);
+  const geocodeControllerRef = useRef(null);
 
   // Reset state when modal opens; show existing city selection as a hint
   useEffect(() => {
@@ -86,17 +90,21 @@ const MapPickerModal = ({ isOpen, onClose, onConfirm, initialCity }) => {
 
   // Handle map click → reverse geocode
   const handleLocationSelect = useCallback(async (lat, lng) => {
+    geocodeControllerRef.current?.abort();
+    const controller = new AbortController();
+    geocodeControllerRef.current = controller;
     setMarker({ lat, lng });
     setIsGeocoding(true);
     setGeocodeError('');
     setLocationInfo(null);
     try {
-      const info = await reverseGeocode(lat, lng);
+      const info = await reverseGeocode(lat, lng, controller.signal);
       setLocationInfo(info);
-    } catch {
+    } catch (error) {
+      if (error.name === 'AbortError') return;
       setGeocodeError('Could not fetch location. Please try again.');
     } finally {
-      setIsGeocoding(false);
+      if (geocodeControllerRef.current === controller) setIsGeocoding(false);
     }
   }, []);
 
@@ -134,11 +142,40 @@ const MapPickerModal = ({ isOpen, onClose, onConfirm, initialCity }) => {
     }
   };
 
-  // Close on Escape key
+  // Keep keyboard focus inside the modal and restore it when closing.
   useEffect(() => {
-    const handler = (e) => { if (e.key === 'Escape') onClose(); };
-    if (isOpen) window.addEventListener('keydown', handler);
-    return () => window.removeEventListener('keydown', handler);
+    if (!isOpen) return;
+    const previouslyFocused = document.activeElement;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    closeButtonRef.current?.focus();
+
+    const handler = (event) => {
+      if (event.key === 'Escape') {
+        onClose();
+        return;
+      }
+      if (event.key !== 'Tab' || !modalRef.current) return;
+      const focusable = [...modalRef.current.querySelectorAll('button, [href], input, [tabindex]:not([tabindex="-1"])')]
+        .filter((element) => !element.disabled);
+      if (!focusable.length) return;
+      const first = focusable[0];
+      const last = focusable.at(-1);
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => {
+      window.removeEventListener('keydown', handler);
+      document.body.style.overflow = previousOverflow;
+      geocodeControllerRef.current?.abort();
+      previouslyFocused?.focus?.();
+    };
   }, [isOpen, onClose]);
 
   if (!isOpen) return null;
@@ -152,7 +189,7 @@ const MapPickerModal = ({ isOpen, onClose, onConfirm, initialCity }) => {
       aria-label="Pick your city on the map"
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
-      <div className="map-modal" id="map-picker-modal">
+      <div className="map-modal" id="map-picker-modal" ref={modalRef}>
         {/* Header */}
         <div className="map-modal__header">
           <div className="map-modal__title-group">
@@ -162,6 +199,7 @@ const MapPickerModal = ({ isOpen, onClose, onConfirm, initialCity }) => {
             <h2 className="map-modal__title">Pick Your City</h2>
           </div>
           <button
+            ref={closeButtonRef}
             className="map-modal__close"
             id="map-modal-close-btn"
             onClick={onClose}
