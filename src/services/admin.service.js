@@ -1,35 +1,51 @@
 /**
  * src/services/admin.service.js
  * ─────────────────────────────────────────────────────────────────────────────
- * Reads all admin data from localStorage — populated by AppDataContext.
- * Swap for real API calls when backend is ready.
+ * Admin management API calls.
  */
 
-const delay = (ms) => new Promise((res) => setTimeout(res, ms));
+import { apiClient } from '../api/client';
 
-const readLS = (key) => {
+/** Fetch all blood requests for admin review */
+export const fetchAdminRequests = async () => {
   try {
-    const raw = localStorage.getItem(key);
-    return raw ? JSON.parse(raw) : [];
-  } catch {
+    const response = await apiClient.get('/admin/requests');
+    return response.data || [];
+  } catch (err) {
+    console.error('Failed to fetch admin requests:', err);
     return [];
   }
 };
 
-/** Fetch all blood requests for admin review */
-export const fetchAdminRequests = async () => {
-  await delay(400);
-  return readLS('ls_requests');
-};
-
 /** Fetch all registered donors for admin management */
 export const fetchAdminDonors = async () => {
-  await delay(400);
-  return readLS('ls_donors');
+  try {
+    const response = await apiClient.get('/admin/donors');
+    return response.data || [];
+  } catch (err) {
+    console.error('Failed to fetch admin donors:', err);
+    return [];
+  }
 };
 
 /** Fetch all registered users for admin management */
 export const fetchAdminUsers = async () => {
-  await delay(400);
-  return readLS('ls_users');
+  try {
+    const response = await apiClient.get('/admin/users');
+    return response.data || [];
+  } catch (err) {
+    console.error('Failed to fetch admin users:', err);
+    return [];
+  }
+};
+
+/** Update user role/status (admin only) */
+export const updateUserRole = async (userId, role, status) => {
+  try {
+    const response = await apiClient.put(`/admin/users/${userId}`, { role, status });
+    return { ok: true, data: response.data };
+  } catch (err) {
+    const errorMessage = err instanceof Error ? err.message : 'Failed to update user.';
+    return { ok: false, error: errorMessage };
+  }
 };

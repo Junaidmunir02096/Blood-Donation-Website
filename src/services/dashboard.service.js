@@ -1,50 +1,31 @@
 /**
  * src/services/dashboard.service.js
  * ─────────────────────────────────────────────────────────────────────────────
- * Dashboard overview widget data — reads from localStorage.
- * Swap for real API calls when backend is ready.
+ * Dashboard overview widget data — fetches from backend API.
  */
+
+import { apiClient } from '../api/client';
 
 const delay = (ms) => new Promise((res) => setTimeout(res, ms));
 
-const readLS = (key) => {
+/** Fetch summary data shown on the Dashboard Overview widget */
+export const fetchDashboardData = async () => {
   try {
-    const raw = localStorage.getItem(key);
-    return raw ? JSON.parse(raw) : [];
-  } catch {
-    return [];
+    const response = await apiClient.get('/dashboard/summary');
+    return response.data || { activeRequests: [], nearbyDonors: [] };
+  } catch (err) {
+    console.error('Failed to fetch dashboard data:', err);
+    return { activeRequests: [], nearbyDonors: [] };
   }
 };
 
-/** Fetch summary data shown on the Dashboard Overview widget */
-export const fetchDashboardData = async () => {
-  await delay(400);
-
-  const requests = readLS('ls_requests');
-  const donors   = readLS('ls_donors');
-
-  /* Active (pending) requests for dashboard overview */
-  const activeRequests = requests
-    .filter((r) => r.status === 'Pending')
-    .slice(0, 5)
-    .map((r) => ({
-      id:       r.id,
-      blood:    r.bloodGroup || r.blood,
-      urgency:  r.urgency  || 'Routine',
-      hospital: r.hospital || r.hospitalName || 'Hospital',
-      distance: r.distance || '—',
-      time:     r.time     || 'Recently',
-      note:     r.note     || r.urgency || 'Standard',
-    }));
-
-  /* Nearby donors — first 5 from the list */
-  const nearbyDonors = donors.slice(0, 5).map((d) => ({
-    id:       d.id,
-    name:     d.name,
-    distance: d.km != null ? `${Number(d.km).toFixed(1)} km away` : (d.miles ? `${d.miles} km away` : 'Nearby'),
-    blood:    d.bloodGroup,
-    initials: d.avatar || (d.name || 'XX').split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2),
-  }));
-
-  return { activeRequests, nearbyDonors };
+/** Fetch dashboard stats (counts, etc.) */
+export const fetchDashboardStats = async () => {
+  try {
+    const response = await apiClient.get('/dashboard/stats');
+    return response.data || {};
+  } catch (err) {
+    console.error('Failed to fetch dashboard stats:', err);
+    return {};
+  }
 };

@@ -1,26 +1,30 @@
 /**
  * src/services/donation.service.js
  * ─────────────────────────────────────────────────────────────────────────────
- * Reads donation records from localStorage (ls_donations) — populated by AppDataContext.
- * Swap for real API calls when backend is ready.
+ * Donation history API calls.
  */
 
-const delay = (ms) => new Promise((res) => setTimeout(res, ms));
+import { apiClient } from '../api/client';
 
-const readDonations = () => {
+/** Fetch the current user's donation history records */
+export const fetchDonations = async (userId) => {
   try {
-    const raw = localStorage.getItem('ls_donations');
-    return raw ? JSON.parse(raw) : [];
-  } catch {
+    const endpoint = userId ? `/donations?userId=${userId}` : '/donations';
+    const response = await apiClient.get(endpoint);
+    return response.data || [];
+  } catch (err) {
+    console.error('Failed to fetch donations:', err);
     return [];
   }
 };
 
-/** Fetch the current user's donation history records */
-export const fetchDonations = async (userId) => {
-  await delay(400);
-  const all = readDonations();
-  // If userId provided, return only that user's donations; otherwise return all (seed data)
-  if (userId) return all.filter((d) => d.userId === userId);
-  return all;
+/** Create a new donation record */
+export const createDonation = async (data) => {
+  try {
+    const response = await apiClient.post('/donations', data);
+    return { ok: true, data: response.data };
+  } catch (err) {
+    const errorMessage = err instanceof Error ? err.message : 'Failed to create donation record.';
+    return { ok: false, error: errorMessage };
+  }
 };

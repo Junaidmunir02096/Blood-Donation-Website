@@ -363,7 +363,7 @@ const SearchBloodPage = () => {
                       onClick={() => handleSortSelect('distance')}
                       id="sort-by-distance"
                     >
-                      {sortBy === 'distance' && '✓ '}Sort by Distance
+                      Sort by Distance
                     </button>
                   </li>
                   <li role="none">
@@ -375,7 +375,7 @@ const SearchBloodPage = () => {
                       onClick={() => handleSortSelect('recent')}
                       id="sort-by-recent"
                     >
-                      {sortBy === 'recent' && '✓ '}Most Recent
+                      Most Recent
                     </button>
                   </li>
                 </ul>
