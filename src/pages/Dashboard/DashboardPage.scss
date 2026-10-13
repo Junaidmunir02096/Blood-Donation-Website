@@ -1,4 +1,4 @@
-@import '../../styles/variables';
+@use '../../styles/variables' as *;
 
 /* ── Full-screen shell ───────────────────────────────────── */
 .dashboard-page {
@@ -47,34 +47,6 @@
   @media (max-width: $bp-sm) {
     padding: 1rem;
   }
-}
-
-/* ── Messages tab: edge-to-edge ──────────────────────────── */
-.dashboard-main--chat {
-  padding: 0;
-  overflow: hidden;
-}
-
-/* ── Placeholder card ────────────────────────────────────── */
-.dashboard-placeholder {
-  background: $bg-white;
-  border-radius: $radius-xl;
-  border: 0.0625rem solid $border-color;
-  padding: 2.5rem;
-  box-shadow: $shadow-sm;
-  animation: dashboard-rise 0.4s ease both;
-}
-
-.dashboard-placeholder__title {
-  text-transform: capitalize;
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: $text-dark;
-  margin-bottom: 0.5rem;
-}
-
-.dashboard-placeholder__text {
-  color: $text-body;
 }
 
 /* ── Keyframes ───────────────────────────────────────────── */

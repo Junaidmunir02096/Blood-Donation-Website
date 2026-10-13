@@ -7,6 +7,7 @@ export const REQUEST_STATUS = {
 export const DONOR_STATUS = {
   pending: 'pending',
   verified: 'verified',
+  rejected: 'rejected',
 };
 
 export const normalizeRequestStatus = (status) => {

@@ -1,15 +1,19 @@
-import { useState } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import DashboardSidebar from '../../components/Dashboard/DashboardSidebar';
-import DashboardOverview from '../../components/Dashboard/DashboardOverview';
-import DonationHistory from '../../components/Dashboard/DonationHistory';
-import ActiveRequests from '../../components/Dashboard/ActiveRequests';
-import AdminPanel from '../../components/Dashboard/AdminPanel';
-import MyProfile from '../../components/Dashboard/MyProfile';
-import HelpCenter from '../../components/Dashboard/HelpCenter';
 import LogoutModal from '../../components/Dashboard/LogoutModal';
+import AppSpinner from '../../components/AppSpinner/AppSpinner';
+import { useAuth } from '../../hooks/useAuth';
 import usePageTitle from '../../hooks/usePageTitle';
 import './DashboardPage.scss';
+
+const DashboardOverview = lazy(() => import('../../components/Dashboard/DashboardOverview'));
+const CrmDashboard = lazy(() => import('../../components/Dashboard/Crm/CrmDashboard'));
+const DonationHistory = lazy(() => import('../../components/Dashboard/DonationHistory'));
+const ActiveRequests = lazy(() => import('../../components/Dashboard/ActiveRequests'));
+const AdminPanel = lazy(() => import('../../components/Dashboard/AdminPanel'));
+const MyProfile = lazy(() => import('../../components/Dashboard/MyProfile'));
+const HelpCenter = lazy(() => import('../../components/Dashboard/HelpCenter'));
 
 const TAB_TITLES = {
   'dashboard':        'Dashboard',
@@ -21,6 +25,8 @@ const TAB_TITLES = {
 };
 
 const DashboardPage = () => {
+  const { currentUser } = useAuth();
+  const isAdmin = currentUser?.role === 'admin';
   const [params, setParams] = useSearchParams();
   const initialTab = TAB_TITLES[params.get('tab')] ? params.get('tab') : 'dashboard';
   const [activeTab, setActiveTab] = useState(initialTab);
@@ -39,7 +45,9 @@ const DashboardPage = () => {
   const renderContent = () => {
     switch (activeTab) {
       case 'dashboard':
-        return <DashboardOverview onTabChange={handleTabChange} />;
+        return isAdmin
+          ? <CrmDashboard onTabChange={handleTabChange} />
+          : <DashboardOverview onTabChange={handleTabChange} />;
       case 'donation-history':
         return <DonationHistory />;
       case 'active-requests':
@@ -51,7 +59,9 @@ const DashboardPage = () => {
       case 'help-center':
         return <HelpCenter />;
       default:
-        return <DashboardOverview onTabChange={handleTabChange} />;
+        return isAdmin
+          ? <CrmDashboard onTabChange={handleTabChange} />
+          : <DashboardOverview onTabChange={handleTabChange} />;
     }
   };
 
@@ -60,7 +70,9 @@ const DashboardPage = () => {
       <div className="dashboard-layout">
         <DashboardSidebar activeTab={activeTab} onTabChange={handleTabChange} />
         <div className="dashboard-main" aria-live="polite">
-          {renderContent()}
+          <Suspense fallback={<AppSpinner label="Loading dashboard section…" />}>
+            {renderContent()}
+          </Suspense>
         </div>
       </div>
 

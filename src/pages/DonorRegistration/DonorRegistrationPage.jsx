@@ -1,14 +1,17 @@
-import { useState, useRef, useEffect } from 'react';
+import { lazy, Suspense, useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './DonorRegistrationPage.scss';
-import MapPickerModal from '../../components/MapPicker/MapPickerModal';
-import CustomCalendar, { formatDisplayDate } from '../../components/CustomCalendar/CustomCalendar';
-import { useAuth } from '../../context/AuthContext';
-import { useAppData } from '../../context/AppDataContext';
+import CustomCalendar from '../../components/CustomCalendar/CustomCalendar';
+import AppSpinner from '../../components/AppSpinner/AppSpinner';
+import { formatDateInputValue, formatDisplayDate } from '../../utils/dateFormat';
+import { useAuth } from '../../hooks/useAuth';
+import { useAppData } from '../../hooks/useAppData';
 import usePageTitle from '../../hooks/usePageTitle';
 import { BLOOD_GROUPS } from '../../constants/blood';
 import { PAKISTAN_CITIES, isValidPakistanPhone } from '../../constants/pakistan';
 import { DONOR_STATUS } from '../../utils/status';
+
+const MapPickerModal = lazy(() => import('../../components/MapPicker/MapPickerModal'));
 
 // ─── Application Status Banner ────────────────────────────────────────────────
 const StatusBanner = ({ status }) => {
@@ -33,6 +36,16 @@ const StatusBanner = ({ status }) => {
       message: 'Your donor profile is active. You may update your details at any time.',
       modifier: 'status-banner--approved',
     },
+    rejected: {
+      icon: (
+        <svg viewBox="0 0 24 24" className="status-banner__icon" aria-hidden="true">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4 13.59L14.59 17 12 14.41 9.41 17 8 15.59 10.59 13 8 10.41 9.41 9 12 11.59 14.59 9 16 10.41 13.41 13 16 15.59z"/>
+        </svg>
+      ),
+      label: 'Application Status: Changes Requested',
+      message: 'Update your details and submit again for another review.',
+      modifier: 'status-banner--pending',
+    },
   };
 
   if (!config[status]) return null;
@@ -54,12 +67,20 @@ const DonorRegistrationPage = () => {
   usePageTitle('Donor Registration');
   const navigate = useNavigate();
   const { currentUser, updateCurrentUser } = useAuth();
-  const { addDonor, addDonation } = useAppData();
+  const {
+    addDonor,
+    updateDonor,
+    addDonation,
+    getDonorsByUserId,
+    getDonationsByUserId,
+  } = useAppData();
+  const existingDonor = currentUser?.id ? getDonorsByUserId(currentUser.id)[0] : null;
+  const existingDonations = currentUser?.id ? getDonationsByUserId(currentUser.id) : [];
 
   const [formData, setFormData] = useState({
     fullName: currentUser?.fullName ?? '',
-    phone: '',
-    city: '',
+    phone: currentUser?.phone || existingDonor?.phone || '',
+    city: currentUser?.city || existingDonor?.city || '',
     country: '',
     bloodGroup: currentUser?.bloodGroup ?? 'O+',
     lastDonationDate: '',
@@ -76,10 +97,10 @@ const DonorRegistrationPage = () => {
   const [showCalendar, setShowCalendar] = useState(false);
   const dateFieldRef                    = useRef(null); // wraps trigger + inline calendar
 
-  // Show the pending status banner only when user already has a submitted registration.
-  // For now this is tied to role: in future replace with a real API check.
-  // role === 'donor' means they've completed registration before (mock logic).
-  const showBanner = currentUser?.hasPendingRegistration === true || currentUser?.donorStatus === DONOR_STATUS.pending;
+  // Existing local donor records drive the status banner and update flow.
+  const registrationStatus = existingDonor?.status || currentUser?.donorStatus;
+  const bannerStatus = registrationStatus === DONOR_STATUS.verified ? 'approved' : registrationStatus;
+  const showBanner = Boolean(existingDonor || currentUser?.hasPendingRegistration || registrationStatus);
 
   // Close calendar when clicking outside the entire date field
   useEffect(() => {
@@ -120,6 +141,11 @@ const DonorRegistrationPage = () => {
     setErrors((prev) => ({ ...prev, bloodGroup: '' }));
   };
 
+  const handleEligibilityChange = (field, checked) => {
+    setEligibility((previous) => ({ ...previous, [field]: checked }));
+    setErrors((previous) => ({ ...previous, eligibility: '' }));
+  };
+
   // Called when user confirms a location in the map modal
   const handleMapConfirm = ({ city, country }) => {
     setFormData((prev) => ({ ...prev, city, country }));
@@ -142,36 +168,48 @@ const DonorRegistrationPage = () => {
       .toUpperCase()
       .slice(0, 2);
 
-    addDonor({
+    const nextStatus = existingDonor?.status === DONOR_STATUS.verified
+      ? DONOR_STATUS.verified
+      : DONOR_STATUS.pending;
+    const donorData = {
       name:        formData.fullName,
       bloodGroup:  formData.bloodGroup,
       city:        formData.city + (formData.country ? `, ${formData.country}` : ''),
       phone:       formData.phone,
       km:          null,
-      lastDonated: formData.lastDonationDate ? formatDisplayDate(formData.lastDonationDate) : 'Recently',
+      lastDonated: formData.lastDonationDate
+        ? formatDisplayDate(formData.lastDonationDate)
+        : (existingDonor?.lastDonated || 'Not recorded'),
       avatar:      initials,
       userId:      currentUser?.id ?? null,
-      canContact:  false,
-    });
+    };
+
+    if (existingDonor) {
+      updateDonor(existingDonor.id, { ...donorData, status: nextStatus });
+    } else {
+      addDonor(donorData);
+    }
 
     updateCurrentUser({
-      hasPendingRegistration: true,
-      donorStatus: DONOR_STATUS.pending,
+      hasPendingRegistration: nextStatus === DONOR_STATUS.pending,
+      donorStatus: nextStatus,
       phone: formData.phone,
       city: formData.city,
       bloodGroup: formData.bloodGroup,
     });
 
     /* Also add a donation record if they have a last donation date */
-    if (formData.lastDonationDate) {
-      const dateObj = new Date(formData.lastDonationDate);
+    const donationAlreadyRecorded = existingDonations.some(
+      (donation) => donation.rawDate === formData.lastDonationDate
+    );
+    if (formData.lastDonationDate && !donationAlreadyRecorded) {
       addDonation({
         location: formData.city + (formData.country ? `, ${formData.country}` : ''),
         type:     'Whole Blood',
         volume:   '450ml',
         volumeMl: 450,
-        date:     dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-        rawDate:  dateObj.toISOString().split('T')[0],
+        date:     formatDisplayDate(formData.lastDonationDate),
+        rawDate:  formData.lastDonationDate,
         userId:   currentUser?.id ?? null,
       });
     }
@@ -196,8 +234,10 @@ const DonorRegistrationPage = () => {
             <div className="donor-reg-page__success-icon" aria-hidden="true">🎉</div>
             <h2>Registration Submitted!</h2>
             <p>
-              Thank you, <strong>{formData.fullName}</strong>! Your donor registration is now under review.
-              Our medical team will verify your details within 24–48 hours.
+              Thank you, <strong>{formData.fullName}</strong>!{' '}
+              {existingDonor?.status === DONOR_STATUS.verified
+                ? 'Your verified donor details have been updated.'
+                : 'Your donor registration is now under review. Our medical team will verify your details within 24–48 hours.'}
             </p>
             <div className="donor-reg-page__success-detail">
               <span className="donor-reg-page__success-tag">
@@ -244,7 +284,7 @@ const DonorRegistrationPage = () => {
           <div className="donor-reg-card__divider" aria-hidden="true" />
 
           {/* Status Banner */}
-          {showBanner && <StatusBanner status="pending" />}
+          {showBanner && <StatusBanner status={bannerStatus} />}
 
           {/* Form */}
           <form
@@ -265,8 +305,10 @@ const DonorRegistrationPage = () => {
                 value={formData.fullName}
                 onChange={handleChange}
                 autoComplete="name"
+                aria-invalid={Boolean(errors.fullName)}
+                aria-describedby={errors.fullName ? 'donor-fullname-error' : undefined}
               />
-              {errors.fullName && <span className="donor-reg-form__error">{errors.fullName}</span>}
+              {errors.fullName && <span className="donor-reg-form__error" id="donor-fullname-error" role="alert">{errors.fullName}</span>}
             </div>
 
             {/* Phone + City */}
@@ -286,9 +328,11 @@ const DonorRegistrationPage = () => {
                     value={formData.phone}
                     onChange={handleChange}
                     autoComplete="tel"
+                    aria-invalid={Boolean(errors.phone)}
+                    aria-describedby={errors.phone ? 'donor-phone-error' : undefined}
                   />
                 </div>
-                {errors.phone && <span className="donor-reg-form__error">{errors.phone}</span>}
+                {errors.phone && <span className="donor-reg-form__error" id="donor-phone-error" role="alert">{errors.phone}</span>}
               </div>
 
               {/* ── City: Map Picker field ── */}
@@ -304,6 +348,8 @@ const DonorRegistrationPage = () => {
                   value={formData.city}
                   onChange={handleChange}
                   autoComplete="address-level2"
+                  aria-invalid={Boolean(errors.city)}
+                  aria-describedby={errors.city ? 'donor-city-error' : undefined}
                 />
                 <datalist id="pk-cities">
                   {PAKISTAN_CITIES.map((city) => <option key={city} value={city} />)}
@@ -311,7 +357,7 @@ const DonorRegistrationPage = () => {
                 <button type="button" className="donor-reg-form__map-link" onClick={() => setIsMapOpen(true)}>
                   Or pick on map
                 </button>
-                {errors.city && <span className="donor-reg-form__error" role="alert">{errors.city}</span>}
+                {errors.city && <span className="donor-reg-form__error" id="donor-city-error" role="alert">{errors.city}</span>}
               </div>
             </div>
 
@@ -348,19 +394,15 @@ const DonorRegistrationPage = () => {
               </label>
 
               {/* Trigger button */}
-              <div
+              <button
+                type="button"
                 className={`donor-reg-form__date-trigger ${
                   formData.lastDonationDate ? 'donor-reg-form__date-trigger--filled' : ''
                 } ${
                   showCalendar ? 'donor-reg-form__date-trigger--open' : ''
                 }`}
                 id="donor-last-date-trigger"
-                role="button" 
-                tabIndex={0}
                 onClick={() => setShowCalendar((v) => !v)}
-                onKeyDown={(e) =>
-                  (e.key === 'Enter' || e.key === ' ') && setShowCalendar((v) => !v)
-                }
                 aria-label={
                   formData.lastDonationDate
                     ? `Last donation: ${formatDisplayDate(formData.lastDonationDate)}. Click to change.`
@@ -392,14 +434,14 @@ const DonorRegistrationPage = () => {
                 >
                   <path d="M7 10l5 5 5-5z"/>
                 </svg>
-              </div>
+              </button>
 
               {/* Inline Calendar — expands inside the card, no portal needed */}
               {showCalendar && (
                 <div className="donor-reg-form__cal-inline">
                   <CustomCalendar
                     value={formData.lastDonationDate}
-                    maxDate={new Date().toISOString().split('T')[0]}
+                    maxDate={formatDateInputValue()}
                     onChange={(dateStr) =>
                       setFormData((prev) => ({ ...prev, lastDonationDate: dateStr }))
                     }
@@ -412,15 +454,15 @@ const DonorRegistrationPage = () => {
             <div className="donor-reg-form__field">
               <p className="donor-reg-form__label">Eligibility checklist</p>
               <label className="donor-reg-check">
-                <input type="checkbox" checked={eligibility.age} onChange={(e) => setEligibility((p) => ({ ...p, age: e.target.checked }))} />
+                <input type="checkbox" checked={eligibility.age} onChange={(e) => handleEligibilityChange('age', e.target.checked)} />
                 I am 18–65 years old
               </label>
               <label className="donor-reg-check">
-                <input type="checkbox" checked={eligibility.weight} onChange={(e) => setEligibility((p) => ({ ...p, weight: e.target.checked }))} />
+                <input type="checkbox" checked={eligibility.weight} onChange={(e) => handleEligibilityChange('weight', e.target.checked)} />
                 I weigh at least 50 kg
               </label>
               <label className="donor-reg-check">
-                <input type="checkbox" checked={eligibility.well} onChange={(e) => setEligibility((p) => ({ ...p, well: e.target.checked }))} />
+                <input type="checkbox" checked={eligibility.well} onChange={(e) => handleEligibilityChange('well', e.target.checked)} />
                 I feel well and have not donated whole blood in the last 12 weeks
               </label>
               {errors.eligibility && <span className="donor-reg-form__error" role="alert">{errors.eligibility}</span>}
@@ -452,12 +494,16 @@ const DonorRegistrationPage = () => {
       </div>
 
       {/* Map Picker Modal */}
-      <MapPickerModal
-        isOpen={isMapOpen}
-        onClose={() => setIsMapOpen(false)}
-        onConfirm={handleMapConfirm}
-        initialCity={formData.city}
-      />
+      {isMapOpen && (
+        <Suspense fallback={<AppSpinner label="Loading map…" />}>
+          <MapPickerModal
+            isOpen
+            onClose={() => setIsMapOpen(false)}
+            onConfirm={handleMapConfirm}
+            initialCity={formData.city}
+          />
+        </Suspense>
+      )}
     </>
   );
 };

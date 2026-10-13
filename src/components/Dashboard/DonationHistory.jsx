@@ -11,19 +11,18 @@ import './DonationHistory.scss';
 import AppSpinner from '../AppSpinner/AppSpinner';
 import { columns } from '../../data/donations.data';
 import { fetchDonations } from '../../api/services';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../hooks/useAuth';
+import { rowsToCsv } from '../../utils/csv';
 
 
 // ── CSV Export ────────────────────────────────────────────────────────────────
 const exportToCSV = (rows) => {
   const headers = ['Date', 'Location', 'Donation Type', 'Volume', 'Status'];
-  const csvRows = [
-    headers.join(','),
-    ...rows.map((r) =>
-      [r.date, `"${r.location}"`, r.type, r.volume, r.status].join(',')
-    ),
-  ];
-  const blob = new Blob([csvRows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+  const csv = rowsToCsv([
+    headers,
+    ...rows.map((row) => [row.date, row.location, row.type, row.volume, row.status]),
+  ]);
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
   const url  = URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.href     = url;
@@ -126,8 +125,16 @@ const DonationHistory = () => {
                 {columns.map((col) => (
                   <th
                     key={col.key}
+                    scope="col"
                     className={`dh-table__th${col.sortable ? ' dh-table__th--sortable' : ''}${sortKey === col.key ? ' dh-table__th--sorted' : ''}`}
                     onClick={() => handleSort(col.key)}
+                    onKeyDown={(event) => {
+                      if (col.sortable && (event.key === 'Enter' || event.key === ' ')) {
+                        event.preventDefault();
+                        handleSort(col.key);
+                      }
+                    }}
+                    tabIndex={col.sortable ? 0 : undefined}
                     aria-sort={
                       sortKey === col.key
                         ? sortDir === 'asc' ? 'ascending' : 'descending'

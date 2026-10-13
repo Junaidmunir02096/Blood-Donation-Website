@@ -50,7 +50,7 @@ const ForgotPasswordPage = () => {
               for <strong>{email}</strong> to try the next screen.
             </p>
             <Link
-              to="/reset-password?token=demo"
+              to={`/reset-password?token=demo&email=${encodeURIComponent(email.trim())}`}
               className="forgot-pw__submit"
               id="continue-demo-reset"
               style={{ textDecoration: 'none' }}

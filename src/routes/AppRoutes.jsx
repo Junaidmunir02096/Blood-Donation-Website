@@ -10,6 +10,7 @@ import Hero       from '../components/Hero/Hero';
 import Stats      from '../components/Stats/Stats';
 import HowItWorks from '../components/HowItWorks/HowItWorks';
 import HomeExtras from '../components/HomeExtras/HomeExtras';
+import usePageTitle from '../hooks/usePageTitle';
 
 // ── Lazy-loaded page bundles (each becomes a separate JS chunk) ───────────────
 const AuthPage               = lazy(() => import('../pages/Auth/AuthPage'));
@@ -36,14 +37,17 @@ const PageLoader = () => (
   </div>
 );
 
-const LandingPage = () => (
-  <>
-    <Hero />
-    <Stats />
-    <HowItWorks />
-    <HomeExtras />
-  </>
-);
+const LandingPage = () => {
+  usePageTitle(null);
+  return (
+    <>
+      <Hero />
+      <Stats />
+      <HowItWorks />
+      <HomeExtras />
+    </>
+  );
+};
 
 const AppRoutes = () => {
   return (

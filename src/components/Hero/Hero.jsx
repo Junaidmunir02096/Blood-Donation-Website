@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { useAppData } from '../../context/AppDataContext';
+import { useAppData } from '../../hooks/useAppData';
 import './Hero.scss';
 
 const Hero = () => {
@@ -46,9 +46,12 @@ const Hero = () => {
             <div className="hero__image-decoration-2" aria-hidden="true"></div>
             <div className="hero__image-card">
               <img
-                src="/hero-image.png"
+                src="/hero-image.jpg"
                 alt="Medical blood donation equipment on a clinical table"
                 loading="eager"
+                fetchPriority="high"
+                width="768"
+                height="768"
               />
             </div>
           </div>

@@ -3,7 +3,7 @@
  * Bump KEYS.seeded when seed shape changes so demos pick up new Pakistan data.
  */
 
-import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { createContext, useState, useEffect, useCallback } from 'react';
 import { DONOR_STATUS, REQUEST_STATUS } from '../utils/status';
 import { getInitials } from '../utils/avatar';
 
@@ -209,8 +209,7 @@ export const AppDataProvider = ({ children }) => {
     setDonors((prev) => prev.map((d) => {
       if (d.id !== id) return d;
       const next = { ...d, ...updates };
-      if (next.status === DONOR_STATUS.verified) next.canContact = true;
-      if (next.status === DONOR_STATUS.pending) next.canContact = false;
+      next.canContact = next.status === DONOR_STATUS.verified;
       return next;
     }));
   }, []);
@@ -266,17 +265,15 @@ export const AppDataProvider = ({ children }) => {
   }, []);
 
   const getDonorsByUserId    = useCallback((uid) => donors.filter((d) => d.userId === uid), [donors]);
-  const getRequestsByUserId  = useCallback((uid) => requests.filter((r) => r.userId === uid), [requests]);
   const getDonationsByUserId = useCallback((uid) => donations.filter((d) => d.userId === uid), [donations]);
   const getUserByEmail       = useCallback((email) => users.find((u) => u.email?.toLowerCase() === email?.toLowerCase()), [users]);
-  const getDonorById         = useCallback((id) => donors.find((d) => String(d.id) === String(id)), [donors]);
 
   const value = {
     users, donors, requests, donations,
     getStats,
     addUser, deleteUser, updateUser, getUserByEmail,
-    addDonor, updateDonor, deleteDonor, getDonorsByUserId, getDonorById,
-    addRequest, updateRequest, deleteRequest, getRequestsByUserId,
+    addDonor, updateDonor, deleteDonor, getDonorsByUserId,
+    addRequest, updateRequest, deleteRequest,
     addDonation, getDonationsByUserId,
   };
 
@@ -285,12 +282,6 @@ export const AppDataProvider = ({ children }) => {
       {children}
     </AppDataContext.Provider>
   );
-};
-
-export const useAppData = () => {
-  const ctx = useContext(AppDataContext);
-  if (!ctx) throw new Error('useAppData must be used inside <AppDataProvider>');
-  return ctx;
 };
 
 export default AppDataContext;

@@ -67,7 +67,7 @@ class ErrorBoundary extends React.Component {
 
           <h1 className="error-boundary__title">Something went wrong</h1>
           <p className="error-boundary__message">
-            An unexpected error occurred. Our team has been notified.
+            An unexpected error occurred. Please retry or return to the home page.
           </p>
 
           {/* Show technical detail only in development */}
