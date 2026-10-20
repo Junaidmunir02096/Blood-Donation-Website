@@ -60,7 +60,7 @@ export default defineConfig({
   // locally so this also works while `npm run dev` is already running.
   webServer: {
     command: 'npm run dev -- --host 127.0.0.1',
-    cwd: '..',
+    cwd: '../client',
     url: frontendUrl,
     reuseExistingServer: !process.env.CI,
     timeout: 120000,

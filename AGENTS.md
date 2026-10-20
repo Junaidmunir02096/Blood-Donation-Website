@@ -1,6 +1,6 @@
 # LifeStream — Agent & Contributor Reference
 
-> **Last updated:** 2026-10-20  
+> **Last updated:** 2026-10-20 (Monorepo restructure complete)  
 > **Product:** LifeStream Blood Donation Network  
 > **Target Market:** Pakistan-focused healthcare SaaS (B2B + voluntary donor consumer)
 
@@ -10,27 +10,36 @@
 
 LifeStream is a blood donation matching platform that connects voluntary blood donors with patients and hospitals across Pakistan.
 
-**Architecture (current):** React 19 frontend (Vite) + Express 5 backend (Node.js, ES Modules) + MongoDB (Mongoose). Session-based authentication with HTTP-only cookies.
+**Architecture (current):** Full-stack monorepo — `client/` (React 19, Vite) + `server/` (Express 5, Node.js ESM) + MongoDB (Mongoose). Root orchestrated with npm workspaces + concurrently. Session-based authentication with HTTP-only cookies.
 
 **Architecture (target):** Full-stack SaaS with multi-tenant Hospital/BloodBank accounts, role-based access control, subscription billing, and SMS/email notification dispatch.
 
 ### Repository Structure
 
 ```
-Blood-Donation-website/          ← Monorepo root
-├── src/                         ← React 19 frontend (Vite)
-│   ├── api/                     ← Fetch client (client.js) + service exports
-│   ├── components/              ← Reusable UI components (BEM/SCSS)
-│   ├── context/                 ← AuthContext (backend session), AppDataContext (localStorage mock – to be retired)
-│   ├── constants/               ← Blood groups, Pakistan cities/phones
-│   ├── data/                    ← Static seed / FAQ data
-│   ├── hooks/                   ← useAuth, useAppData, usePageTitle, etc.
-│   ├── pages/                   ← Route-level page components
-│   ├── routes/                  ← AppRoutes.jsx (React Router v6)
-│   ├── services/                ← Domain service modules (donor, request, dashboard, etc.)
-│   ├── styles/                  ← global.scss, _variables.scss
-│   └── utils/                   ← avatar, csv, dateFormat, navigation, object, status
-├── server/                      ← Express 5 backend (Node.js ESM)
+Blood-Donation-website/          ← Monorepo root (npm workspaces)
+├── client/                      ← React 19 frontend (Vite) — workspace: lifestream-client
+│   ├── src/
+│   │   ├── api/                 ← Fetch client (client.js) + service exports
+│   │   ├── components/          ← Reusable UI components (BEM/SCSS)
+│   │   ├── context/             ← AuthContext (backend session), AppDataContext (localStorage mock – to be retired)
+│   │   ├── constants/           ← Blood groups, Pakistan cities/phones
+│   │   ├── data/                ← Static seed / FAQ data
+│   │   ├── hooks/               ← useAuth, useAppData, usePageTitle, etc.
+│   │   ├── pages/               ← Route-level page components
+│   │   ├── routes/              ← AppRoutes.jsx (React Router v6)
+│   │   ├── services/            ← Domain service modules (donor, request, dashboard, etc.)
+│   │   ├── styles/              ← global.scss, _variables.scss
+│   │   └── utils/               ← avatar, csv, dateFormat, navigation, object, status
+│   ├── public/                  ← Static assets (favicons, etc.)
+│   ├── tests/
+│   │   └── utils.test.js        ← Frontend utility unit tests (Node:test)
+│   ├── index.html               ← Vite entry
+│   ├── vite.config.js
+│   ├── eslint.config.js
+│   ├── .env                     ← VITE_API_BASE_URL (never commit real values)
+│   └── package.json             ← name: "lifestream-client"
+├── server/                      ← Express 5 backend (Node.js ESM) — workspace: lifestream-api
 │   ├── src/
 │   │   ├── app.js               ← Express factory (helmet, cors, session, routes)
 │   │   ├── server.js            ← Entry point, DB connect, graceful shutdown
@@ -44,19 +53,21 @@ Blood-Donation-website/          ← Monorepo root
 │   │   ├── services/            ← auth.service.js
 │   │   └── utils/               ← AppError.js, asyncHandler.js, sessionPromises.js, userResponse.js
 │   ├── tests/
-│   │   ├── auth.test.js         ← Node:test + Supertest integration tests
+│   │   ├── auth.test.js         ← Node:test + Supertest integration tests (23 tests)
 │   │   └── e2e/
 │   │       ├── auth.api.ts      ← Playwright API tests (requires live server)
 │   │       └── frontend.e2e.ts  ← Playwright browser E2E tests (Chromium, mocked API)
+│   ├── .env                     ← Backend secrets (never commit real values)
 │   └── package.json             ← name: "lifestream-api"
-├── tests/
-│   └── utils.test.js            ← Frontend utility unit tests (Node:test)
-├── public/                      ← Static assets (favicons, etc.)
-├── index.html                   ← Vite entry
-├── vite.config.js
-├── eslint.config.js
-├── package.json                 ← Root; name: "blood-donation-website"
-└── AGENTS.md                    ← This file
+├── .gemini/skills/              ← AI agent skill files
+│   ├── saas-architecture/SKILL.md
+│   ├── fullstack-testing/SKILL.md
+│   └── pakistan-health-reg/SKILL.md
+├── .github/workflows/
+│   └── ci.yml                   ← CI: frontend lint+test+build, backend tests, Playwright E2E
+├── AGENTS.md                    ← This file
+├── .gitignore
+└── package.json                 ← Root monorepo orchestrator (workspaces + concurrently)
 ```
 
 ---
@@ -198,7 +209,7 @@ PUT  /api/v1/admin/users/:id        ← Update user role/status [admin only]
 
 ## 7. Environment Variables
 
-### Frontend (`/.env`)
+### Frontend (`/client/.env`)
 ```env
 VITE_API_BASE_URL=http://localhost:5000/api/v1
 ```
@@ -224,14 +235,19 @@ LOG_LEVEL=info
 
 ### Running Tests
 ```bash
-# Root — Frontend utility unit tests (5 tests, ~1s, no server needed)
-npm test
+# From monorepo root — run all tests
+npm run test          # client unit tests (5) + server integration tests (23)
+npm run test:all      # all three: client + server + Playwright E2E
 
-# Root — Frontend browser E2E tests (5 tests, Playwright + Chromium + Vite auto-start)
-npm run test:e2e
+# Individual workspaces
+npm run test:client   # Frontend utility unit tests (5 tests, ~1s, no server needed)
+npm run test:server   # Backend integration tests (23 tests, uses mongodb-memory-server)
+npm run test:e2e      # Playwright E2E (5 tests, Chromium + Vite auto-start from client/)
 
-# Server — Backend integration tests (requires: server/node_modules installed)
+# Or directly in each workspace
+npm --prefix client test
 npm --prefix server test
+npm --prefix server run test:e2e
 ```
 
 ### Test Acceptance Criteria
@@ -247,9 +263,10 @@ Every new **React component** with significant logic must have:
 
 ### Before Committing Code
 ```bash
-npm test          # Must pass: 5/5
-npm run test:e2e  # Must pass: 5/5
-npx eslint src    # Must report 0 errors
+npm run test:client   # Must pass: 5/5
+npm run test:server   # Must pass: 23/23
+npm run test:e2e      # Must pass: 5/5
+npm run lint          # Must report 0 errors (runs client eslint)
 ```
 
 ---
@@ -275,12 +292,12 @@ npx eslint src    # Must report 0 errors
 
 | # | Issue | Severity | Status |
 |---|-------|----------|--------|
-| 1 | `server/tests/auth.test.js` fails: `mongodb-memory-server` and `supertest` missing from `server/package.json` | 🔴 Critical | Open |
-| 2 | Split-brain: `SearchBloodPage` calls `/api/v1/donors` (404), while `DonorRegistrationPage` saves to `localStorage` | 🔴 Critical | Open |
-| 3 | ESLint hangs when run from root (traverses `server/node_modules`). Add ignore pattern. | 🟡 High | Open |
-| 4 | 4 ESLint `no-unused-vars` errors in `src/` (unused `omitKey`, `delay` leftovers) | 🟡 High | Open |
-| 5 | `AdminPanel.jsx` performs admin operations only in localStorage — no server-side RBAC enforcement | 🟠 Medium | Open |
-| 6 | Password reset flow (`ForgotPasswordPage`, `ResetPasswordPage`) has no backend API endpoints | 🟠 Medium | Open |
+| 1 | `server/tests/auth.test.js` fails: `mongodb-memory-server` and `supertest` missing from `server/package.json` | 🔴 Critical | ✅ Fixed |
+| 2 | Split-brain: `SearchBloodPage` calls `/api/v1/donors` (404), while `DonorRegistrationPage` saves to `localStorage` | 🔴 Critical | Open — Stage 2 |
+| 3 | ESLint hangs when run from root (traverses `server/node_modules`). Add ignore pattern. | 🟡 High | ✅ Fixed (eslint now runs from `client/`) |
+| 4 | 4 ESLint `no-unused-vars` errors in `src/` (unused `omitKey`, `delay` leftovers) | 🟡 High | ✅ Fixed |
+| 5 | `AdminPanel.jsx` performs admin operations only in localStorage — no server-side RBAC enforcement | 🟠 Medium | Open — Stage 3 |
+| 6 | Password reset flow (`ForgotPasswordPage`, `ResetPasswordPage`) has no backend API endpoints | 🟠 Medium | Open — Stage 3 |
 | 7 | React Router v6 future flag warnings in Playwright logs (`v7_startTransition`, `v7_relativeSplatPath`) | 🟢 Low | Open |
 
 ---

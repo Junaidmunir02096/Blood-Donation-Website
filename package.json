@@ -1,39 +1,22 @@
 {
-  "name": "blood-donation-website",
+  "name": "lifestream",
   "private": true,
   "version": "0.0.0",
-  "type": "module",
+  "workspaces": [
+    "client",
+    "server"
+  ],
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "lint": "eslint .",
-    "test": "node --test \"tests/**/*.test.js\"",
-    "test:e2e": "npm --prefix server run test:e2e",
-    "test:e2e:headed": "npm --prefix server run test:e2e:headed",
-    "test:e2e:ui": "npm --prefix server run test:ui",
-    "preview": "vite preview"
-  },
-  "dependencies": {
-    "@fortawesome/fontawesome-svg-core": "^6.7.2",
-    "@fortawesome/free-solid-svg-icons": "^6.7.2",
-    "@fortawesome/react-fontawesome": "^0.2.2",
-    "leaflet": "^1.9.4",
-    "react": "^19.2.6",
-    "react-dom": "^19.2.6",
-    "react-leaflet": "^5.0.0",
-    "react-router-dom": "^6.30.3",
-    "recharts": "^3.10.1"
+    "dev": "concurrently --names CLIENT,SERVER --prefix-colors cyan,yellow \"npm run dev --workspace=client\" \"npm run dev --workspace=server\"",
+    "build": "npm run build --workspace=client",
+    "lint": "npm run lint --workspace=client",
+    "test:client": "npm run test --workspace=client",
+    "test:server": "npm run test --workspace=server",
+    "test:e2e": "npm run test:e2e --workspace=server",
+    "test": "npm run test:client && npm run test:server",
+    "test:all": "npm run test:client && npm run test:server && npm run test:e2e"
   },
   "devDependencies": {
-    "@eslint/js": "^10.0.1",
-    "@types/react": "^19.2.14",
-    "@types/react-dom": "^19.2.3",
-    "@vitejs/plugin-react": "^6.0.1",
-    "eslint": "^10.3.0",
-    "eslint-plugin-react-hooks": "^7.1.1",
-    "eslint-plugin-react-refresh": "^0.5.2",
-    "globals": "^17.6.0",
-    "sass": "^1.105.1",
-    "vite": "^8.0.12"
+    "concurrently": "^9.1.2"
   }
 }
