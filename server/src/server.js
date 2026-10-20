@@ -10,6 +10,8 @@ const startServer = async () => {
   const config = loadEnvironment();
   const logger = pino({ level: config.logLevel });
 
+  logger.info('Starting LifeStream API...');
+
   await connectDatabase(config.mongoUri);
   logger.info('MongoDB connected');
 
@@ -17,7 +19,11 @@ const startServer = async () => {
   const app = createApp(config, sessionStore);
   const server = createServer(app);
 
-  server.listen(config.port, () => {
+  server.on('error', (err) => {
+    logger.fatal({ err }, 'Server error');
+  });
+
+  server.listen(config.port, '::', () => {
     logger.info({ port: config.port }, 'LifeStream API started');
   });
 
@@ -45,6 +51,16 @@ const startServer = async () => {
       }
     });
   };
+
+  // Handle unhandled promise rejections
+  process.on('unhandledRejection', (reason, promise) => {
+    logger.fatal({ err: reason, promise }, 'Unhandled promise rejection');
+  });
+
+  process.on('uncaughtException', (error) => {
+    logger.fatal({ err: error }, 'Uncaught exception');
+    process.exit(1);
+  });
 
   process.once('SIGINT', () => shutdown('SIGINT'));
   process.once('SIGTERM', () => shutdown('SIGTERM'));

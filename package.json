@@ -8,6 +8,9 @@
     "build": "vite build",
     "lint": "eslint .",
     "test": "node --test",
+    "test:e2e": "npm --prefix server run test:e2e",
+    "test:e2e:headed": "npm --prefix server run test:e2e:headed",
+    "test:e2e:ui": "npm --prefix server run test:ui",
     "preview": "vite preview"
   },
   "dependencies": {

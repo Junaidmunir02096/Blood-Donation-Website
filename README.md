@@ -73,9 +73,27 @@ Quality checks:
 
 ```bash
 npm test
+npm run test:e2e
 npm run lint
 npm run build
 ```
+
+### Playwright browser tests
+
+Playwright is installed in `server/` and can be run from the project root. The
+test command starts the Vite frontend automatically and uses Chromium:
+
+```bash
+cd server
+npm install
+npm run playwright:install
+cd ..
+npm run test:e2e
+```
+
+Use `npm run test:e2e:headed` to watch the browser or `npm run test:e2e:ui` for
+Playwright's interactive test runner. The frontend tests mock API responses, so
+MongoDB and the Express server are not required.
 
 ---
 
