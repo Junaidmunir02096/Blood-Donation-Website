@@ -8,7 +8,9 @@ import { asyncHandler } from '../utils/asyncHandler.js';
 export const createAuthRouter = (config) => {
   const router = Router();
   const controller = createAuthController(config);
-  const limiters = createAuthLimiters({ disabled: config.isTest });
+  const limiters = createAuthLimiters({
+    disabled: () => (config.rateLimitDisabled !== undefined ? config.rateLimitDisabled : config.isTest),
+  });
 
   router.post(
     '/register',

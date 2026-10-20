@@ -1,5 +1,4 @@
 import { createContext, useState, useEffect, useCallback } from 'react';
-import { omitKey } from '../utils/object';
 import { authApi, ApiError } from '../api/client';
 
 /* ──────────────────────────────────────────────────────────────

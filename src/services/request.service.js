@@ -6,8 +6,6 @@
 
 import { apiClient } from '../api/client';
 
-const delay = (ms) => new Promise((res) => setTimeout(res, ms));
-
 /** Fetch the current user's blood requests */
 export const fetchRequests = async (userId) => {
   try {

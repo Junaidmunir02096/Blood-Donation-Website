@@ -1,33 +1,86 @@
-name: CI
+name: CI — LifeStream
 
 on:
-  pull_request:
-    branches:
-      - main
   push:
-    branches:
-      - main
+    branches: [main, master, optimized-project]
+  pull_request:
+    branches: [main, master, optimized-project]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  ci:
-    name: CI
+  frontend:
+    name: Frontend (Lint · Unit Tests · Build)
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Setup Node.js 22
         uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
 
-      - name: Install dependencies
+      - name: Install root dependencies
         run: npm ci
 
       - name: Lint
         run: npm run lint
 
-      - name: Build
+      - name: Unit tests (utils)
+        run: npm test
+
+      - name: Production build
         run: npm run build
+
+  backend:
+    name: Backend (Integration Tests)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: server/package-lock.json
+
+      - name: Install server dependencies
+        run: npm --prefix server ci
+
+      - name: Run backend integration tests
+        run: npm --prefix server test
+
+  e2e:
+    name: E2E Tests (Playwright · Chromium)
+    runs-on: ubuntu-latest
+    needs: [frontend]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install root dependencies
+        run: npm ci
+
+      - name: Install server dependencies
+        run: npm --prefix server ci
+
+      - name: Install Playwright Chromium
+        run: npx --prefix server playwright install chromium --with-deps
+
+      - name: Run Playwright E2E tests
+        run: npm run test:e2e

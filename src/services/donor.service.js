@@ -6,8 +6,6 @@
 
 import { apiClient } from '../api/client';
 
-const delay = (ms) => new Promise((res) => setTimeout(res, ms));
-
 /** Fetch all registered donors (Search Blood page) */
 export const fetchDonors = async () => {
   try {

@@ -6,8 +6,6 @@
 
 import { apiClient } from '../api/client';
 
-const delay = (ms) => new Promise((res) => setTimeout(res, ms));
-
 /** Fetch summary data shown on the Dashboard Overview widget */
 export const fetchDashboardData = async () => {
   try {

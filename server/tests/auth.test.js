@@ -30,6 +30,7 @@ describe('Authentication API', () => {
       BCRYPT_ROUNDS: '10',
       LOG_LEVEL: 'silent',
     });
+    config.rateLimitDisabled = true;
     await connectDatabase(config.mongoUri);
     sessionStore = createSessionStore(config);
     const app = createApp(config, sessionStore);
@@ -37,6 +38,7 @@ describe('Authentication API', () => {
     server.listen(0);
     const port = server.address().port;
     request = supertest(`http://localhost:${port}`);
+    request.app = server;
   });
 
   after(async () => {
@@ -319,6 +321,14 @@ describe('Authentication API', () => {
   });
 
   describe('Rate limiting', () => {
+    beforeEach(() => {
+      config.rateLimitDisabled = false;
+    });
+
+    afterEach(() => {
+      config.rateLimitDisabled = true;
+    });
+
     it('limits register attempts', async () => {
       const agent = supertest.agent(request.app);
       for (let i = 0; i < 5; i++) {
@@ -337,11 +347,13 @@ describe('Authentication API', () => {
     });
 
     it('limits login attempts', async () => {
+      config.rateLimitDisabled = true;
       const agent = supertest.agent(request.app);
       await agent
         .post(`${API_PREFIX}/auth/register`)
         .send(validRegistration)
         .expect(201);
+      config.rateLimitDisabled = false;
 
       for (let i = 0; i < 10; i++) {
         await agent

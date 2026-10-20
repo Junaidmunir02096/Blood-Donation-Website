@@ -24,6 +24,7 @@ export const registerBodySchema = z.object({
     z.string().trim().regex(PAKISTAN_PHONE_REGEX, 'Enter a valid Pakistani mobile number.').optional(),
   ),
   city: optionalText(80),
+  role: z.string().optional(),
 }).strict().superRefine((data, context) => {
   if (data.confirmPassword !== undefined && data.confirmPassword !== data.password) {
     context.addIssue({

@@ -17,7 +17,10 @@ const createAuthLimiter = (limit, skip) => rateLimit({
   skip,
 });
 
+const evaluateDisabled = (disabled, req, res) =>
+  (typeof disabled === 'function' ? Boolean(disabled(req, res)) : Boolean(disabled));
+
 export const createAuthLimiters = ({ disabled = false } = {}) => ({
-  register: createAuthLimiter(5, () => disabled),
-  login: createAuthLimiter(10, () => disabled),
+  register: createAuthLimiter(5, (req, res) => evaluateDisabled(disabled, req, res)),
+  login: createAuthLimiter(10, (req, res) => evaluateDisabled(disabled, req, res)),
 });

@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 const environmentSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
-  PORT: z.coerce.number().int().min(1).max(65535).default(5000),
+  PORT: z.coerce.number().int().min(0).max(65535).default(5000),
   MONGODB_URI: z.string().min(1, 'MONGODB_URI is required.'),
   CLIENT_ORIGIN: z.string().url('CLIENT_ORIGIN must be a valid URL.'),
   SESSION_SECRET: z.string().min(32, 'SESSION_SECRET must contain at least 32 characters.'),
