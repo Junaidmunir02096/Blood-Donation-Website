@@ -1,0 +1,41 @@
+{
+  "name": "lifestream-api",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "nodemon src/server.js",
+    "start": "node src/server.js",
+    "test": "node --test --test-concurrency=1",
+    "test:coverage": "node --test --test-concurrency=1 --experimental-test-coverage",
+    "test:api": "playwright test --config=playwright.config.ts tests/e2e/auth.api.ts",
+    "test:api:headed": "playwright test --config=playwright.config.ts tests/e2e/auth.api.ts --headed",
+    "test:e2e": "playwright test --config=playwright.config.ts tests/e2e/frontend.e2e.ts",
+    "test:e2e:headed": "playwright test --config=playwright.config.ts tests/e2e/frontend.e2e.ts --headed",
+    "test:all": "playwright test --config=playwright.config.ts",
+    "test:ui": "playwright test --config=playwright.config.ts --ui",
+    "playwright:install": "playwright install",
+    "playwright:install:deps": "playwright install-deps"
+  },
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "connect-mongo": "^6.0.0",
+    "cors": "^2.8.6",
+    "dotenv": "^18.0.7",
+    "express": "^5.3.0",
+    "express-rate-limit": "^8.7.1",
+    "express-session": "^1.19.0",
+    "helmet": "^8.3.0",
+    "mongoose": "^9.11.2",
+    "pino": "^10.4.0",
+    "pino-http": "^11.0.0",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.64.0",
+    "@types/node": "^26.6.5"
+  }
+}

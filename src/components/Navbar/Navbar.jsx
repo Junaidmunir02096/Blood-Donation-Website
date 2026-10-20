@@ -13,7 +13,7 @@ import {
   faGaugeHigh,
   faRightFromBracket,
 } from '@fortawesome/free-solid-svg-icons';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../hooks/useAuth';
 import { getInitials } from '../../utils/avatar';
 import './Navbar.scss';
 
@@ -32,6 +32,7 @@ const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled]  = useState(false);
   const triggerRef = useRef(null);
+  const drawerRef = useRef(null);
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
@@ -48,15 +49,39 @@ const Navbar = () => {
   }, []);
 
   useEffect(() => {
-    document.body.style.overflow = menuOpen ? 'hidden' : '';
-    return () => { document.body.style.overflow = ''; };
+    if (!menuOpen) return;
+    const trigger = triggerRef.current;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    drawerRef.current?.querySelector('button')?.focus();
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      trigger?.focus();
+    };
   }, [menuOpen]);
 
   useEffect(() => {
-    const handler = (e) => { if (e.key === 'Escape') setMenuOpen(false); };
+    const handler = (event) => {
+      if (event.key === 'Escape') {
+        setMenuOpen(false);
+        return;
+      }
+      if (!menuOpen || event.key !== 'Tab' || !drawerRef.current) return;
+      const focusable = [...drawerRef.current.querySelectorAll('button, [href], input, [tabindex]:not([tabindex="-1"])')]
+        .filter((element) => !element.disabled);
+      const first = focusable[0];
+      const last = focusable.at(-1);
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last?.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first?.focus();
+      }
+    };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  }, []);
+  }, [menuOpen]);
 
   useEffect(() => {
     setMenuOpen(false);
@@ -198,6 +223,8 @@ const Navbar = () => {
         aria-hidden={!menuOpen}
         role="dialog"
         aria-modal="true"
+        inert={!menuOpen ? true : undefined}
+        ref={drawerRef}
       >
         <div className="nav-drawer__header">
           <div className="nav-drawer__brand">

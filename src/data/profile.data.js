@@ -1,17 +1,13 @@
 /**
  * src/data/profile.data.js
  * ─────────────────────────────────────────────────────────────────────────────
- * Mock data for the My Profile screen — lifestyle tracker, donation timeline,
- * achievement badges, and notification preference seeds.
+ * Mock data for the My Profile screen — achievement badges and notification
+ * preference seeds. Donation history comes from the local data store.
  * Consumed by: MyProfile.jsx
- * Next step  : wrap in src/services/profile.service.js with fake async API.
+ * Consumed through: src/services/profile.service.js.
  */
 
 import {
-  faGlassWater,
-  faBed,
-  faPersonRunning,
-  faAppleWhole,
   faLeaf,
   faHeart,
   faFire,
@@ -20,23 +16,6 @@ import {
   faBell,
   faCalendarCheck,
 } from '@fortawesome/free-solid-svg-icons';
-
-// ── Lifestyle Tracker ─────────────────────────────────────────────────────────
-export const lifestyleItems = [
-  { id: 'ls-water',    icon: faGlassWater,    label: 'Hydration',   value: '2.4L',   target: '3L',    pct: 80,  color: '#0ea5e9' },
-  { id: 'ls-sleep',    icon: faBed,           label: 'Sleep',       value: '7h',     target: '8h',    pct: 87,  color: '#8b5cf6' },
-  { id: 'ls-exercise', icon: faPersonRunning, label: 'Activity',    value: '5.2km',  target: '8km',   pct: 65,  color: '#f59e0b' },
-  { id: 'ls-diet',     icon: faAppleWhole,    label: 'Diet Score',  value: '82/100', target: '100',   pct: 82,  color: '#10b981' },
-  { id: 'ls-iron',     icon: faLeaf,          label: 'Iron Level',  value: 'Good',   target: 'Great', pct: 70,  color: '#c0392b' },
-];
-
-// ── Donation Timeline ─────────────────────────────────────────────────────────
-export const timelineEvents = [
-  { id: 'tl-1', date: 'Oct 10, 2025', hospital: 'City General Hospital',   units: '450ml', blood: 'O+', badge: 'Whole Blood' },
-  { id: 'tl-2', date: 'Jul 02, 2025', hospital: "Metro Children's Clinic", units: '450ml', blood: 'O+', badge: 'Whole Blood' },
-  { id: 'tl-3', date: 'Mar 15, 2025', hospital: 'Westside General',        units: '450ml', blood: 'O+', badge: 'Whole Blood' },
-  { id: 'tl-4', date: 'Nov 20, 2024', hospital: 'Sunrise Medical Hub',     units: '450ml', blood: 'O+', badge: 'Platelet'    },
-];
 
 // ── Achievement Badges ────────────────────────────────────────────────────────
 export const achievements = [

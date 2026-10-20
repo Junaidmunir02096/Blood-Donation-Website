@@ -1,34 +1,54 @@
 /**
  * src/services/request.service.js
  * ─────────────────────────────────────────────────────────────────────────────
- * Reads blood requests from localStorage (ls_requests) — populated by AppDataContext.
- * Swap for real API calls when backend is ready.
+ * Fetches blood requests from the backend API.
  */
+
+import { apiClient } from '../api/client';
 
 const delay = (ms) => new Promise((res) => setTimeout(res, ms));
 
-const readRequests = () => {
+/** Fetch the current user's blood requests */
+export const fetchRequests = async (userId) => {
   try {
-    const raw = localStorage.getItem('ls_requests');
-    return raw ? JSON.parse(raw) : [];
-  } catch {
+    const endpoint = userId ? `/requests?userId=${userId}` : '/requests';
+    const response = await apiClient.get(endpoint);
+    return response.data || [];
+  } catch (err) {
+    console.error('Failed to fetch requests:', err);
     return [];
   }
 };
 
-/** Fetch the current user's blood requests (Active Requests dashboard tab) */
-export const fetchRequests = async (userId) => {
-  await delay(400);
-  const all = readRequests();
-  // If userId provided, return only that user's requests; otherwise return all
-  if (userId) {
-    const users = (() => {
-      try { return JSON.parse(localStorage.getItem('ls_users') || '[]'); }
-      catch { return []; }
-    })();
-    const user = users.find((u) => u.id === userId);
-    const email = user?.email?.toLowerCase();
-    return all.filter((r) => r.userId === userId || (email && r.email?.toLowerCase() === email));
+/** Create a new blood request */
+export const createRequest = async (data) => {
+  try {
+    const response = await apiClient.post('/requests', data);
+    return { ok: true, data: response.data };
+  } catch (err) {
+    const errorMessage = err instanceof Error ? err.message : 'Failed to create request.';
+    return { ok: false, error: errorMessage };
   }
-  return all;
+};
+
+/** Update a blood request */
+export const updateRequest = async (id, data) => {
+  try {
+    const response = await apiClient.put(`/requests/${id}`, data);
+    return { ok: true, data: response.data };
+  } catch (err) {
+    const errorMessage = err instanceof Error ? err.message : 'Failed to update request.';
+    return { ok: false, error: errorMessage };
+  }
+};
+
+/** Delete a blood request */
+export const deleteRequest = async (id) => {
+  try {
+    await apiClient.delete(`/requests/${id}`);
+    return { ok: true };
+  } catch (err) {
+    const errorMessage = err instanceof Error ? err.message : 'Failed to delete request.';
+    return { ok: false, error: errorMessage };
+  }
 };

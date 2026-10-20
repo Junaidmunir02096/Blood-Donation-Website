@@ -2,10 +2,11 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import './RequestPage.scss';
 import usePageTitle from '../../hooks/usePageTitle';
-import { useAppData } from '../../context/AppDataContext';
-import { useAuth } from '../../context/AuthContext';
+import { useAppData } from '../../hooks/useAppData';
+import { useAuth } from '../../hooks/useAuth';
 import { BLOOD_GROUPS, BLOOD_COMPONENTS } from '../../constants/blood';
 import { PAKISTAN_CITIES, isValidPakistanPhone } from '../../constants/pakistan';
+import { formatDateInputValue, formatDisplayDate } from '../../utils/dateFormat';
 
 const URGENCY_OPTIONS = [
   { id: 'routine', label: 'Routine', detail: 'Within 48–72 hours' },
@@ -35,6 +36,7 @@ const RequestPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [submittedId, setSubmittedId] = useState('');
+  const today = formatDateInputValue();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -55,6 +57,7 @@ const RequestPage = () => {
     const units = Number(formData.units);
     if (!units || units < 1 || units > 10) e.units = 'Enter 1–10 units.';
     if (!formData.neededBy) e.neededBy = 'Needed-by date is required.';
+    else if (formData.neededBy < today) e.neededBy = 'Needed-by date cannot be in the past.';
     if (!acceptedTerms) e.terms = 'Please accept the Terms and Privacy Policy.';
     return e;
   };
@@ -79,9 +82,7 @@ const RequestPage = () => {
       component: formData.component,
       urgency: urgencyLabel,
       note: formData.note || urgencyLabel,
-      neededBy: new Date(formData.neededBy).toLocaleDateString('en-PK', {
-        day: 'numeric', month: 'short', year: 'numeric',
-      }),
+      neededBy: formatDisplayDate(formData.neededBy),
       userId: currentUser?.id ?? null,
     });
 
@@ -233,16 +234,16 @@ const RequestPage = () => {
                 <div className="request-field">
                   <label className="request-field__label" htmlFor="patient-name">Patient name</label>
                   <div className={`request-field__input ${errors.patientName ? 'error' : ''}`}>
-                    <input id="patient-name" name="patientName" value={formData.patientName} onChange={handleChange} type="text" placeholder="Full name" aria-invalid={Boolean(errors.patientName)} />
+                    <input id="patient-name" name="patientName" value={formData.patientName} onChange={handleChange} type="text" placeholder="Full name" autoComplete="name" aria-invalid={Boolean(errors.patientName)} aria-describedby={errors.patientName ? 'patient-name-error' : undefined} />
                   </div>
-                  {errors.patientName && <span className="request-field__error" role="alert">{errors.patientName}</span>}
+                  {errors.patientName && <span className="request-field__error" id="patient-name-error" role="alert">{errors.patientName}</span>}
                 </div>
                 <div className="request-field">
                   <label className="request-field__label" htmlFor="contact-number">Contact number</label>
                   <div className={`request-field__input ${errors.contactNumber ? 'error' : ''}`}>
-                    <input id="contact-number" name="contactNumber" value={formData.contactNumber} onChange={handleChange} type="tel" placeholder="0300-1234567" aria-invalid={Boolean(errors.contactNumber)} />
+                    <input id="contact-number" name="contactNumber" value={formData.contactNumber} onChange={handleChange} type="tel" placeholder="0300-1234567" autoComplete="tel" aria-invalid={Boolean(errors.contactNumber)} aria-describedby={errors.contactNumber ? 'contact-number-error' : undefined} />
                   </div>
-                  {errors.contactNumber && <span className="request-field__error" role="alert">{errors.contactNumber}</span>}
+                  {errors.contactNumber && <span className="request-field__error" id="contact-number-error" role="alert">{errors.contactNumber}</span>}
                 </div>
               </div>
 
@@ -250,9 +251,9 @@ const RequestPage = () => {
                 <div className="request-field">
                   <label className="request-field__label" htmlFor="request-email">Email (required for guests)</label>
                   <div className={`request-field__input ${errors.email ? 'error' : ''}`}>
-                    <input id="request-email" name="email" value={formData.email} onChange={handleChange} type="email" placeholder="you@example.com" aria-invalid={Boolean(errors.email)} />
+                    <input id="request-email" name="email" value={formData.email} onChange={handleChange} type="email" placeholder="you@example.com" autoComplete="email" aria-invalid={Boolean(errors.email)} aria-describedby={errors.email ? 'request-email-error' : undefined} />
                   </div>
-                  {errors.email && <span className="request-field__error" role="alert">{errors.email}</span>}
+                  {errors.email && <span className="request-field__error" id="request-email-error" role="alert">{errors.email}</span>}
                   <p className="request-field__error" style={{ color: '#5c5c6a', fontWeight: 400 }}>
                     <Link to="/auth?mode=login&redirect=%2Frequest">Log in</Link> to track this request in your dashboard.
                   </p>
@@ -270,9 +271,9 @@ const RequestPage = () => {
                 <div className="request-field">
                   <label className="request-field__label" htmlFor="needed-by">Needed by</label>
                   <div className={`request-field__input ${errors.neededBy ? 'error' : ''}`}>
-                    <input id="needed-by" name="neededBy" type="date" value={formData.neededBy} onChange={handleChange} />
+                    <input id="needed-by" name="neededBy" type="date" min={today} value={formData.neededBy} onChange={handleChange} aria-invalid={Boolean(errors.neededBy)} aria-describedby={errors.neededBy ? 'needed-by-error' : undefined} />
                   </div>
-                  {errors.neededBy && <span className="request-field__error" role="alert">{errors.neededBy}</span>}
+                  {errors.neededBy && <span className="request-field__error" id="needed-by-error" role="alert">{errors.neededBy}</span>}
                 </div>
               </div>
 

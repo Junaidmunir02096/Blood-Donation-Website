@@ -1,4 +1,4 @@
-@import '../../styles/variables';
+@use '../../styles/variables' as *;
 
 .info-page {
   padding: $spacing-16 0 $spacing-20;
@@ -69,10 +69,17 @@
     border-radius: $radius-md;
     font-family: $font-family;
     font-size: $font-size-sm;
+    background: $bg-white;
+    color: $text-dark;
+    outline: none;
+    box-shadow: none;
+    transition: border-color $transition-fast;
 
-    &:focus {
-      outline: 3px solid rgba($primary, 0.25);
-      border-color: $primary;
+    &:focus,
+    &:focus-visible {
+      outline: none;
+      box-shadow: none;
+      border-color: $border-color;
     }
   }
 

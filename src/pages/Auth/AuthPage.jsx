@@ -1,11 +1,14 @@
 import { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faDroplet } from '@fortawesome/free-solid-svg-icons';
+import { useAuth } from '../../hooks/useAuth';
 import usePageTitle from '../../hooks/usePageTitle';
 import './AuthPage.scss';
-import authHero from '../../assets/auth-hero.png';
+import authHero from '../../assets/auth-hero.jpg';
 
 import { BLOOD_GROUPS } from '../../constants/blood';
+import { getSafeInternalPath } from '../../utils/navigation';
 
 // ─── SVG Icons ────────────────────────────────────────────────────────────────
 const EyeIcon = () => (
@@ -120,7 +123,7 @@ const RegisterForm = ({ onSwitch, onSuccess }) => {
       <p className="auth__subtitle">Register as a donor or medical coordinator.</p>
 
       <form className="auth__form" onSubmit={handleSubmit} noValidate>
-        {serverError && <div className="auth__server-error">{serverError}</div>}
+        {serverError && <div className="auth__server-error" role="alert">{serverError}</div>}
         
         {/* Full Name */}
 
@@ -162,9 +165,11 @@ const RegisterForm = ({ onSwitch, onSuccess }) => {
               value={formData.email}
               onChange={handleChange}
               autoComplete="email"
+              aria-invalid={Boolean(errors.email)}
+              aria-describedby={errors.email ? 'reg-email-error' : undefined}
             />
           </div>
-          {errors.email && <span className="auth__error">{errors.email}</span>}
+          {errors.email && <span className="auth__error" id="reg-email-error" role="alert">{errors.email}</span>}
         </div>
 
         {/* Password */}
@@ -183,6 +188,8 @@ const RegisterForm = ({ onSwitch, onSuccess }) => {
               value={formData.password}
               onChange={handleChange}
               autoComplete="new-password"
+              aria-invalid={Boolean(errors.password)}
+              aria-describedby={errors.password ? 'reg-password-error' : undefined}
             />
             <button
               type="button"
@@ -213,7 +220,7 @@ const RegisterForm = ({ onSwitch, onSuccess }) => {
             </div>
           )}
 
-          {errors.password && <span className="auth__error">{errors.password}</span>}
+          {errors.password && <span className="auth__error" id="reg-password-error" role="alert">{errors.password}</span>}
         </div>
 
         {/* Confirm Password */}
@@ -232,6 +239,8 @@ const RegisterForm = ({ onSwitch, onSuccess }) => {
               value={formData.confirmPassword}
               onChange={handleChange}
               autoComplete="new-password"
+              aria-invalid={Boolean(errors.confirmPassword)}
+              aria-describedby={errors.confirmPassword ? 'reg-confirm-error' : undefined}
             />
             <button
               type="button"
@@ -243,7 +252,7 @@ const RegisterForm = ({ onSwitch, onSuccess }) => {
               {showConfirmPassword ? <EyeOffIcon /> : <EyeIcon />}
             </button>
           </div>
-          {errors.confirmPassword && <span className="auth__error">{errors.confirmPassword}</span>}
+          {errors.confirmPassword && <span className="auth__error" id="reg-confirm-error" role="alert">{errors.confirmPassword}</span>}
         </div>
 
         {/* Blood Group */}
@@ -356,7 +365,7 @@ const LoginForm = ({ onSwitch, onSuccess }) => {
       <p className="auth__subtitle">Log in to your LifeStream account.</p>
 
       <form className="auth__form" onSubmit={handleSubmit} noValidate>
-        {serverError && <div className="auth__server-error">{serverError}</div>}
+        {serverError && <div className="auth__server-error" role="alert">{serverError}</div>}
         <div className={`auth__field ${errors.email ? 'auth__field--error' : ''}`}>
 
           <label htmlFor="login-email" className="auth__label">Email Address</label>
@@ -373,9 +382,11 @@ const LoginForm = ({ onSwitch, onSuccess }) => {
               value={formData.email}
               onChange={handleChange}
               autoComplete="email"
+              aria-invalid={Boolean(errors.email)}
+              aria-describedby={errors.email ? 'login-email-error' : undefined}
             />
           </div>
-          {errors.email && <span className="auth__error">{errors.email}</span>}
+          {errors.email && <span className="auth__error" id="login-email-error" role="alert">{errors.email}</span>}
         </div>
 
         <div className={`auth__field ${errors.password ? 'auth__field--error' : ''}`}>
@@ -398,6 +409,8 @@ const LoginForm = ({ onSwitch, onSuccess }) => {
               value={formData.password}
               onChange={handleChange}
               autoComplete="current-password"
+              aria-invalid={Boolean(errors.password)}
+              aria-describedby={errors.password ? 'login-password-error' : undefined}
             />
             <button
               type="button"
@@ -409,7 +422,7 @@ const LoginForm = ({ onSwitch, onSuccess }) => {
               {showPassword ? <EyeOffIcon /> : <EyeIcon />}
             </button>
           </div>
-          {errors.password && <span className="auth__error">{errors.password}</span>}
+          {errors.password && <span className="auth__error" id="login-password-error" role="alert">{errors.password}</span>}
         </div>
 
         <button
@@ -441,8 +454,7 @@ const AuthPage = () => {
   const [mode, setMode] = useState(initialMode);
   usePageTitle(mode === 'login' ? 'Login' : 'Create Account');
 
-  const redirectTo = searchParams.get('redirect') || '/dashboard';
-  const safeRedirect = redirectTo.startsWith('/') ? redirectTo : '/dashboard';
+  const safeRedirect = getSafeInternalPath(searchParams.get('redirect'));
 
   const goHome = () => navigate('/');
   const onSuccess = () => navigate(safeRedirect, { replace: true });
@@ -471,16 +483,16 @@ const AuthPage = () => {
             onClick={goHome}
             aria-label="Go to home"
           >
-            <svg viewBox="0 0 24 24" className="auth__brand-icon" aria-hidden="true">
-              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/>
-            </svg>
+            <span className="auth__brand-icon-wrap" aria-hidden="true">
+              <FontAwesomeIcon icon={faDroplet} className="auth__brand-icon" />
+            </span>
             Life<span>Stream</span>
           </button>
         </div>
 
         {/* Hero Image */}
         <div className="auth__hero-img-wrap">
-          <img src={authHero} alt="LifeStream hero – be a safe hero" className="auth__hero-img" />
+          <img src={authHero} alt="LifeStream hero – be a safe hero" className="auth__hero-img" width="768" height="768" />
         </div>
 
         {/* Text overlay */}

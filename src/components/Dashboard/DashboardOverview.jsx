@@ -11,7 +11,7 @@ import {
 import './DashboardOverview.scss';
 import AppSpinner from '../AppSpinner/AppSpinner';
 import { fetchDashboardData } from '../../api/services';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../hooks/useAuth';
 import EmptyState from '../EmptyState/EmptyState';
 
 
@@ -196,7 +196,7 @@ const DashboardOverview = ({ onTabChange }) => {
                 key={donor.id}
                 type="button"
                 className="dashboard-donor"
-                onClick={() => navigate(`/donor/${donor.id}`)}
+                onClick={() => navigate(`/donor/${encodeURIComponent(String(donor.id))}`)}
               >
                 <div className="dashboard-donor__avatar" aria-hidden="true">
                   {donor.initials}

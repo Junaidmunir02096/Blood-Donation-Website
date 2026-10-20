@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import '../ForgotPassword/ForgotPasswordPage.scss';
 import usePageTitle from '../../hooks/usePageTitle';
+import { useAuth } from '../../hooks/useAuth';
 
 /* ── Password strength checker ── */
 const getStrength = (pw) => {
@@ -27,12 +28,15 @@ const ResetPasswordPage = () => {
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const token = params.get('token');
+  const email = params.get('email')?.trim() || '';
+  const { resetPassword } = useAuth();
 
   const [formData, setFormData] = useState({ password: '', confirm: '' });
   const [showPw, setShowPw]     = useState({ password: false, confirm: false });
   const [errors, setErrors]     = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [done, setDone]         = useState(false);
+  const [serverError, setServerError] = useState('');
 
   const strength = getStrength(formData.password);
 
@@ -57,19 +61,23 @@ const ResetPasswordPage = () => {
     if (Object.keys(errs).length) { setErrors(errs); return; }
 
     setIsLoading(true);
-    // Simulate API call (replace with real backend call)
-    await new Promise((res) => setTimeout(res, 1200));
+    setServerError('');
+    const result = await resetPassword({ email, newPassword: formData.password });
     setIsLoading(false);
+    if (!result.ok) {
+      setServerError(result.error);
+      return;
+    }
     setDone(true);
   };
 
-  if (!token) {
+  if (!token || !email) {
     return (
       <div className="forgot-pw" id="reset-password-page">
         <div className="forgot-pw__card">
           <h1 className="forgot-pw__title">Reset link required</h1>
           <p className="forgot-pw__subtitle">
-            This demo does not send email. Start from Forgot Password, or open the mock link with a token.
+            Start from Forgot Password so the demo can identify the local account to update.
           </p>
           <Link to="/forgot-password" className="forgot-pw__submit" style={{ textDecoration: 'none' }}>
             Go to Forgot Password
@@ -86,7 +94,7 @@ const ResetPasswordPage = () => {
           <div className="forgot-pw__success">
             <span className="forgot-pw__success-icon" role="img" aria-label="Success">🎉</span>
             <h2>Password Updated!</h2>
-            <p>Your password has been reset successfully. You can now log in with your new password.</p>
+            <p>Your local demo password has been updated. You can now log in with the new password.</p>
             <button
               type="button"
               className="forgot-pw__submit"
@@ -132,7 +140,7 @@ const ResetPasswordPage = () => {
 
         <h1 className="forgot-pw__title">Set a new password</h1>
         <p className="forgot-pw__subtitle">
-          Demo reset (token present). Choose a password of at least 8 characters. This does not update a real account unless you are already signed in.
+          Demo reset for <strong>{email}</strong>. Choose a password of at least 8 characters. This only updates the account stored in this browser.
         </p>
 
         <form className="forgot-pw__form" onSubmit={handleSubmit} noValidate id="reset-pw-form">
@@ -226,6 +234,8 @@ const ResetPasswordPage = () => {
             </div>
             {errors.confirm && <span className="forgot-pw__error-msg" role="alert">{errors.confirm}</span>}
           </div>
+
+          {serverError && <p className="forgot-pw__error-msg" role="alert">{serverError}</p>}
 
           <button
             type="submit"

@@ -17,11 +17,13 @@ import {
   faShieldHalved,
   faLock,
   faTrash,
+  faArrowTrendUp,
 } from '@fortawesome/free-solid-svg-icons';
 import './AdminPanel.scss';
 import AppSpinner from '../AppSpinner/AppSpinner';
-import { useAuth } from '../../context/AuthContext';
-import { useAppData } from '../../context/AppDataContext';
+import { useAuth } from '../../hooks/useAuth';
+import { useAppData } from '../../hooks/useAppData';
+import { omitKey } from '../../utils/object';
 import {
   fetchAdminRequests,
   fetchAdminDonors,
@@ -322,7 +324,7 @@ const DonorsTable = () => {
   const paged = filtered.slice((page - 1) * PER_PAGE, page * PER_PAGE);
 
   const handleAction = (id, action) => {
-    const status = action === 'approve' ? DONOR_STATUS.verified : DONOR_STATUS.pending;
+    const status = action === 'approve' ? DONOR_STATUS.verified : DONOR_STATUS.rejected;
     updateDonor(id, { status, canContact: status === DONOR_STATUS.verified });
     setData((prev) =>
       prev.map((d) =>
@@ -450,14 +452,14 @@ const UsersTable = () => {
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const { currentUser } = useAuth();
-  const { deleteUser } = useAppData();
+  const { deleteUser, updateUser } = useAppData();
   const PER_PAGE = 4;
 
   const reload = async () => {
     setLoading(true);
     const rows = await fetchAdminUsers();
     // Show all users except passwords
-    setData(rows.map(({ password: _pw, ...u }) => u));
+    setData(rows.map((u) => omitKey(u, 'password')));
     setLoading(false);
   };
 
@@ -475,9 +477,11 @@ const UsersTable = () => {
   const paged = filtered.slice((page - 1) * PER_PAGE, page * PER_PAGE);
 
   const handleAction = (id, action) => {
+    const status = action === 'approve' ? 'active' : 'inactive';
+    updateUser(id, { status });
     setData((prev) =>
       prev.map((u) =>
-        u.id === id ? { ...u, status: action === 'approve' ? 'active' : 'inactive' } : u
+        u.id === id ? { ...u, status } : u
       )
     );
   };

@@ -283,7 +283,7 @@
     align-items: center;
     gap: $spacing-2;
     padding: $spacing-2 $spacing-4;
-    background: transparent;
+    background: $bg-white;
     border: 1.5px solid $border-color;
     border-radius: $radius-full;
     font-family: $font-family;
@@ -292,10 +292,25 @@
     color: $primary;
     cursor: pointer;
     transition: all $transition-fast;
+    box-shadow: $shadow-sm;
 
     &:hover {
       background: $primary-lighter;
       border-color: $primary;
+      box-shadow: $shadow-sm;
+    }
+
+    &:focus-visible {
+      outline: none;
+      box-shadow: $shadow-sm, 0 0 0 3px rgba($primary, 0.15);
+      border-color: $primary;
+    }
+
+    &[aria-expanded="true"] {
+      background: $primary-lighter;
+      border-color: $primary;
+      border-bottom-left-radius: $radius-md;
+      border-bottom-right-radius: $radius-md;
     }
   }
 
@@ -303,15 +318,19 @@
     width: 16px;
     height: 16px;
     fill: $primary;
+    flex-shrink: 0;
   }
 
   &__chevron {
     width: 18px;
     height: 18px;
     fill: $primary;
+    flex-shrink: 0;
     transition: transform $transition-fast;
 
-    &--up { transform: rotate(180deg); }
+    &--up {
+      transform: rotate(180deg);
+    }
   }
 
   &__sort-menu {
@@ -325,24 +344,97 @@
     min-width: 180px;
     list-style: none;
     margin: 0;
-    padding: $spacing-2 0;
+    padding: $spacing-1 0;
     z-index: 50;
     animation: dropdown-in 0.15s ease;
+    overflow: hidden; /* Prevent child background overflow */
+
+    /* Focus trap for keyboard navigation */
+    &:focus-within {
+      box-shadow: $shadow-md, 0 0 0 3px rgba($primary, 0.15);
+    }
   }
 
   &__sort-option {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: $spacing-3;
+    width: 100%;
     padding: $spacing-3 $spacing-5;
     font-size: $font-size-sm;
     font-weight: 500;
     color: $text-body;
+    background: transparent;
+    border: none;
+    border-radius: 0; /* Remove individual radius, let menu handle it */
+    margin: 0;
     cursor: pointer;
-    transition: background $transition-fast;
+    transition: all $transition-fast;
+    text-align: left;
 
-    &:hover { background: $bg-light; }
+    &:hover,
+    &:focus {
+      background: $primary-lighter;
+      color: $primary;
+      outline: none;
+    }
+
+    &:focus-visible {
+      box-shadow: inset 3px 0 0 $primary;
+      background: $primary-lighter;
+      color: $primary;
+    }
 
     &--active {
-      color: $primary;
-      font-weight: 700;
+      background: $primary;
+      color: $text-light;
+      font-weight: 600;
+
+      &:hover,
+      &:focus {
+        background: $primary-dark;
+        color: $text-light;
+      }
+    }
+
+    /* Checkmark icon for active state - positioned at end */
+    &::after {
+      content: '';
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+      margin-left: auto;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'%3E%3C/polyline%3E%3C/svg%3E");
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      opacity: 0;
+      transform: scale(0.7);
+      transition: all $transition-fast;
+    }
+
+    &--active::after {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    &:not(&--active)::after {
+      background-image: none;
+    }
+
+    /* First/last child radius for menu containment */
+    &:first-child {
+      border-radius: $radius-sm $radius-sm 0 0;
+    }
+
+    &:last-child {
+      border-radius: 0 0 $radius-sm $radius-sm;
+    }
+
+    /* Only one option - full radius */
+    &:only-child {
+      border-radius: $radius-sm;
     }
   }
 }

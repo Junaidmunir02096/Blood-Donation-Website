@@ -13,19 +13,6 @@ export const PAKISTAN_CITIES = [
   'Bahawalpur',
 ];
 
-export const DEMO_HOSPITALS = [
-  'Mayo Hospital, Lahore',
-  'Shaukat Khanum Memorial Hospital, Lahore',
-  'Jinnah Hospital, Lahore',
-  'Aga Khan University Hospital, Karachi',
-  'Jinnah Postgraduate Medical Centre, Karachi',
-  'PIMS, Islamabad',
-  'Holy Family Hospital, Rawalpindi',
-  'Lady Reading Hospital, Peshawar',
-  'Nishtar Hospital, Multan',
-  'Sandeman Provincial Hospital, Quetta',
-];
-
 export const PK_PHONE_REGEX = /^(\+92|0)?3\d{2}[-\s]?\d{7}$/;
 
 export const isValidPakistanPhone = (value) => PK_PHONE_REGEX.test((value || '').trim());

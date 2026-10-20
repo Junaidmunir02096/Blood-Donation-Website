@@ -1,4 +1,4 @@
-@import '../../styles/variables';
+@use '../../styles/variables' as *;
 
 /* ══════════════════════════════════════════════════════════
    My Profile — Page Wrapper
@@ -1070,7 +1070,12 @@
 
   &__edit-row {
     display: flex;
+    flex-wrap: wrap;
     gap: 0.5rem;
+
+    .profile-field__error {
+      flex-basis: 100%;
+    }
   }
 
   &__input {

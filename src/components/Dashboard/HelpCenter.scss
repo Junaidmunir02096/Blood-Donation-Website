@@ -1,4 +1,5 @@
-@import '../../styles/variables';
+@use 'sass:list';
+@use '../../styles/variables' as *;
 
 /* ══════════════════════════════════════════════════════════
    HELP CENTER
@@ -192,9 +193,9 @@ $cat-colors: (
 
   // Generate per-color modifiers from map
   @each $name, $colors in $cat-colors {
-    $main:   nth($colors, 1);
-    $light:  nth($colors, 2);
-    $lighter: nth($colors, 3);
+    $main:   list.nth($colors, 1);
+    $light:  list.nth($colors, 2);
+    $lighter: list.nth($colors, 3);
 
     &--#{$name} {
       border-color: rgba($main, 0.2);

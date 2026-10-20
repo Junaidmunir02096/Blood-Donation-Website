@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faPenToSquare,
@@ -21,16 +21,22 @@ import {
 import './MyProfile.scss';
 import AppSpinner from '../AppSpinner/AppSpinner';
 import { fetchProfileData, fetchDonations } from '../../api/services';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../hooks/useAuth';
 import { getInitials } from '../../utils/avatar';
 import { PAKISTAN_CITIES, isValidPakistanPhone } from '../../constants/pakistan';
 
-const EditableField = ({ label, value, type = 'text', id, onSave, listId, options }) => {
+const EditableField = ({ label, value, type = 'text', id, onSave, validate, listId, options }) => {
   const [editing, setEditing] = useState(false);
   const [val, setVal] = useState(value);
   const [saved, setSaved] = useState(false);
+  const [fieldError, setFieldError] = useState('');
 
   const handleSave = () => {
+    const validationError = validate?.(val) || '';
+    if (validationError) {
+      setFieldError(validationError);
+      return;
+    }
     onSave?.(val);
     setEditing(false);
     setSaved(true);
@@ -39,6 +45,7 @@ const EditableField = ({ label, value, type = 'text', id, onSave, listId, option
 
   const startEdit = () => {
     setVal(value);
+    setFieldError('');
     setEditing(true);
   };
 
@@ -53,8 +60,10 @@ const EditableField = ({ label, value, type = 'text', id, onSave, listId, option
             className="profile-field__input"
             value={val}
             list={listId}
-            onChange={(e) => setVal(e.target.value)}
+            onChange={(e) => { setVal(e.target.value); setFieldError(''); }}
             autoFocus
+            aria-invalid={Boolean(fieldError)}
+            aria-describedby={fieldError ? `${id}-error` : undefined}
           />
           {options && (
             <datalist id={listId}>
@@ -64,6 +73,7 @@ const EditableField = ({ label, value, type = 'text', id, onSave, listId, option
           <button className="profile-field__save-btn" type="button" onClick={handleSave} id={`${id}-save`}>
             <FontAwesomeIcon icon={faCheck} /> Save
           </button>
+          {fieldError && <span className="profile-field__error" id={`${id}-error`} role="alert">{fieldError}</span>}
         </div>
       ) : (
         <div className="profile-field__view-row">
@@ -146,10 +156,25 @@ const Achievements = ({ achievements }) => (
   </div>
 );
 
-const NotificationSettings = ({ notifPrefs }) => {
-  const [prefs, setPrefs] = useState(
-    notifPrefs.reduce((acc, p) => ({ ...acc, [p.id]: p.default }), {})
-  );
+const NotificationSettings = ({ notifPrefs, userId }) => {
+  const storageKey = `ls_notification_preferences_${userId || 'guest'}`;
+  const defaults = notifPrefs.reduce((acc, pref) => ({ ...acc, [pref.id]: pref.default }), {});
+  const [prefs, setPrefs] = useState(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem(storageKey) || '{}');
+      return { ...defaults, ...saved };
+    } catch {
+      return defaults;
+    }
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(storageKey, JSON.stringify(prefs));
+    } catch {
+      /* Preferences remain available for the current session. */
+    }
+  }, [prefs, storageKey]);
 
   return (
     <div className="profile-notif">
@@ -222,25 +247,75 @@ const MyProfile = ({ onLogout }) => {
   const [profileData, setProfileData] = useState(null);
   const [donations, setDonations] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
+  const passwordModalRef = useRef(null);
 
   useEffect(() => {
     const load = async () => {
       setLoading(true);
-      const [data, history] = await Promise.all([
-        fetchProfileData(),
-        fetchDonations(currentUser?.id),
-      ]);
-      setProfileData(data);
-      setDonations(history);
-      setLoading(false);
+      setLoadError('');
+      try {
+        const [data, history] = await Promise.all([
+          fetchProfileData(),
+          fetchDonations(currentUser?.id),
+        ]);
+        setProfileData(data);
+        setDonations(history);
+      } catch {
+        setLoadError('Could not load your profile. Please try again.');
+      } finally {
+        setLoading(false);
+      }
     };
     load();
   }, [currentUser?.id]);
 
-  if (loading || !profileData) {
+  useEffect(() => {
+    if (!showPasswordModal) return;
+    const previouslyFocused = document.activeElement;
+    const modal = passwordModalRef.current;
+    modal?.querySelector('input')?.focus();
+
+    const onKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        setShowPasswordModal(false);
+        return;
+      }
+      if (event.key !== 'Tab' || !modal) return;
+      const focusable = [...modal.querySelectorAll('input, button, [href], [tabindex]:not([tabindex="-1"])')]
+        .filter((element) => !element.disabled);
+      if (!focusable.length) return;
+      const first = focusable[0];
+      const last = focusable.at(-1);
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('keydown', onKeyDown);
+      previouslyFocused?.focus?.();
+    };
+  }, [showPasswordModal]);
+
+  if (loading) {
     return (
       <section className="my-profile" aria-labelledby="my-profile-title">
         <AppSpinner label="Loading profile..." />
+      </section>
+    );
+  }
+
+  if (loadError || !profileData) {
+    return (
+      <section className="my-profile" aria-labelledby="my-profile-title">
+        <h1 className="my-profile__title" id="my-profile-title">My Profile</h1>
+        <p className="profile-field__error" role="alert">{loadError || 'Profile data is unavailable.'}</p>
       </section>
     );
   }
@@ -357,18 +432,24 @@ const MyProfile = ({ onLogout }) => {
                 value={currentUser?.city || ''}
                 listId="profile-cities"
                 options={PAKISTAN_CITIES}
+                validate={(city) => city.trim() ? '' : 'City is required.'}
                 onSave={(city) => updateCurrentUser({ city })}
               />
-              <EditableField id="field-email" label="Email Address" value={email} type="email" onSave={(nextEmail) => updateCurrentUser({ email: nextEmail })} />
+              <EditableField
+                id="field-email"
+                label="Email Address"
+                value={email}
+                type="email"
+                validate={(nextEmail) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(nextEmail) ? '' : 'Enter a valid email address.'}
+                onSave={(nextEmail) => updateCurrentUser({ email: nextEmail.trim().toLowerCase() })}
+              />
               <EditableField
                 id="field-phone"
                 label="Phone Number"
                 value={currentUser?.phone || ''}
                 type="tel"
-                onSave={(phone) => {
-                  if (phone && !isValidPakistanPhone(phone)) return;
-                  updateCurrentUser({ phone });
-                }}
+                validate={(phone) => phone && !isValidPakistanPhone(phone) ? 'Use a Pakistani mobile number.' : ''}
+                onSave={(phone) => updateCurrentUser({ phone })}
               />
             </div>
           ) : (
@@ -437,7 +518,7 @@ const MyProfile = ({ onLogout }) => {
 
       <div className="my-profile__bottom-row">
         <DonationTimeline timelineEvents={timelineEvents} />
-        <NotificationSettings notifPrefs={profileData.notifPrefs} />
+        <NotificationSettings notifPrefs={profileData.notifPrefs} userId={currentUser?.id} />
       </div>
 
       <div className="profile-security-card" id="profile-account-security">
@@ -480,7 +561,7 @@ const MyProfile = ({ onLogout }) => {
           aria-labelledby="modal-title"
           onClick={(e) => e.target === e.currentTarget && setShowPasswordModal(false)}
         >
-          <div className="profile-modal">
+          <div className="profile-modal" ref={passwordModalRef}>
             <h3 className="profile-modal__title" id="modal-title">
               <FontAwesomeIcon icon={faKey} /> Change Password
             </h3>

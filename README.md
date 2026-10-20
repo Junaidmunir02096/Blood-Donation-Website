@@ -36,12 +36,11 @@ Hospital names (Mayo, Shaukat Khanum, PIMS, Aga Khan, and others) are **illustra
 
 * **Vite + React 19 + React Router 6**, SCSS/BEM, Context + services
 * Mock data is seeded from `AppDataContext` into `localStorage`
-* `src/api/apiClient.js` is unused until a backend and HTTP client exist — do not import it yet
 * Domain services in `src/services/` are ready to swap for real APIs later
 
 ```text
 src/
-├── api/             # Unused HTTP stub (do not import until backend)
+├── api/             # Service compatibility exports and mock-delay helper
 ├── assets/
 ├── components/
 ├── constants/       # Blood groups, Pakistan cities/phones
@@ -59,7 +58,7 @@ src/
 
 ## Run locally
 
-Requires [Node.js](https://nodejs.org/) v18+.
+Requires [Node.js](https://nodejs.org/) v20.19+ or v22.12+ (Vite 8 requirement).
 
 ```bash
 git clone https://github.com/your-username/blood-donation-website.git
@@ -70,11 +69,37 @@ npm run dev
 
 Open `http://localhost:5173`. Production build: `npm run build`.
 
+Quality checks:
+
+```bash
+npm test
+npm run test:e2e
+npm run lint
+npm run build
+```
+
+### Playwright browser tests
+
+Playwright is installed in `server/` and can be run from the project root. The
+test command starts the Vite frontend automatically and uses Chromium:
+
+```bash
+cd server
+npm install
+npm run playwright:install
+cd ..
+npm run test:e2e
+```
+
+Use `npm run test:e2e:headed` to watch the browser or `npm run test:e2e:ui` for
+Playwright's interactive test runner. The frontend tests mock API responses, so
+MongoDB and the Express server are not required.
+
 ---
 
 ## Honesty notes (FYP)
 
 * Passwords in the demo are stored in the browser, not hashed on a server
-* Forgot-password does not send email; use the on-screen demo reset
+* Forgot-password does not send email; reset tokens and account updates are local demo behavior only
 * No Google sign-in, live chat, or inventory/appointment product
 * Eligibility and compatibility screens are educational, not medical advice
