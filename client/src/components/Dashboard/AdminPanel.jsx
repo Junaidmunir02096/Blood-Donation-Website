@@ -3,7 +3,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faDroplet,
   faUserGroup,
-  faFlask,
   faMagnifyingGlass,
   faFilter,
   faCheck,
@@ -26,8 +25,15 @@ import { useAppData } from '../../hooks/useAppData';
 import { omitKey } from '../../utils/object';
 import {
   fetchAdminRequests,
+  updateAdminRequestStatus,
+  deleteAdminRequest,
   fetchAdminDonors,
+  updateAdminDonorStatus,
+  deleteAdminDonor,
   fetchAdminUsers,
+  updateAdminUser,
+  deleteAdminUser,
+  fetchAdminStats,
 } from '../../api/services';
 import {
   isPendingRequest,
@@ -128,8 +134,6 @@ const RequestsTable = () => {
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
-  const { currentUser } = useAuth();
-  const { deleteRequest, updateRequest } = useAppData();
   const [statusFilter, setStatusFilter] = useState('All');
   const PER_PAGE = 3;
 
@@ -156,17 +160,17 @@ const RequestsTable = () => {
   const total = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
   const paged = filtered.slice((page - 1) * PER_PAGE, page * PER_PAGE);
 
-  const handleAction = (id, action) => {
+  const handleAction = async (id, action) => {
     const status = normalizeRequestStatus(action);
-    updateRequest(id, { status });
+    await updateAdminRequestStatus(id, status);
     setData((prev) =>
       prev.map((r) => (r.id === id ? { ...r, status } : r))
     );
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (!window.confirm('Delete this request permanently?')) return;
-    deleteRequest(id, currentUser);
+    await deleteAdminRequest(id);
     setData((prev) => prev.filter((r) => r.id !== id));
   };
 
@@ -299,8 +303,6 @@ const DonorsTable = () => {
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
-  const { currentUser } = useAuth();
-  const { deleteDonor, updateDonor } = useAppData();
   const PER_PAGE = 4;
 
   const reload = async () => {
@@ -323,9 +325,9 @@ const DonorsTable = () => {
   const total = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
   const paged = filtered.slice((page - 1) * PER_PAGE, page * PER_PAGE);
 
-  const handleAction = (id, action) => {
+  const handleAction = async (id, action) => {
     const status = action === 'approve' ? DONOR_STATUS.verified : DONOR_STATUS.rejected;
-    updateDonor(id, { status, canContact: status === DONOR_STATUS.verified });
+    await updateAdminDonorStatus(id, status, status === DONOR_STATUS.verified);
     setData((prev) =>
       prev.map((d) =>
         d.id === id ? { ...d, status, canContact: status === DONOR_STATUS.verified } : d
@@ -333,9 +335,9 @@ const DonorsTable = () => {
     );
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (!window.confirm('Delete this donor permanently?')) return;
-    deleteDonor(id, currentUser);
+    await deleteAdminDonor(id);
     setData((prev) => prev.filter((d) => d.id !== id));
   };
 
@@ -451,8 +453,6 @@ const UsersTable = () => {
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
-  const { currentUser } = useAuth();
-  const { deleteUser, updateUser } = useAppData();
   const PER_PAGE = 4;
 
   const reload = async () => {
@@ -476,9 +476,9 @@ const UsersTable = () => {
   const total = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
   const paged = filtered.slice((page - 1) * PER_PAGE, page * PER_PAGE);
 
-  const handleAction = (id, action) => {
+  const handleAction = async (id, action) => {
     const status = action === 'approve' ? 'active' : 'inactive';
-    updateUser(id, { status });
+    await updateAdminUser(id, { status });
     setData((prev) =>
       prev.map((u) =>
         u.id === id ? { ...u, status } : u
@@ -486,9 +486,9 @@ const UsersTable = () => {
     );
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (!window.confirm('Delete this user permanently?')) return;
-    deleteUser(id, currentUser);
+    await deleteAdminUser(id);
     setData((prev) => prev.filter((u) => u.id !== id));
   };
 
@@ -607,7 +607,18 @@ const AdminPanel = () => {
   const { currentUser } = useAuth();
   const { getStats } = useAppData();
   const [activeTab, setActiveTab] = useState('Requests');
+  const [adminStats, setAdminStats] = useState(null);
   const live = getStats();
+
+  useEffect(() => {
+    const loadStats = async () => {
+      const s = await fetchAdminStats();
+      if (s) setAdminStats(s);
+    };
+    if (currentUser?.role === 'admin') {
+      loadStats();
+    }
+  }, [currentUser?.role]);
 
   // ── Role guard ─────────────────────────────────────────────────
   if (currentUser?.role !== 'admin') {
@@ -630,23 +641,22 @@ const AdminPanel = () => {
   const stats = [
     {
       label: 'Pending Requests',
-      value: String(live.activeRequests),
+      value: String(adminStats?.pendingRequests ?? live.activeRequests),
       icon: faDroplet,
       iconClass: 'red',
       id: 'stat-pending',
     },
     {
       label: 'Verified Donors',
-      value: String(live.totalDonors),
+      value: String(adminStats?.verifiedDonors ?? live.totalDonors),
       icon: faUserGroup,
       iconClass: 'teal',
       id: 'stat-donors',
     },
     {
-      label: 'Blood logged',
-      value: String(live.totalLitres),
-      unit: 'L donated (demo)',
-      icon: faFlask,
+      label: 'Total Platform Users',
+      value: String(adminStats?.totalUsers ?? live.totalUsers ?? 0),
+      icon: faUserGroup,
       iconClass: 'indigo',
       id: 'stat-units',
     },

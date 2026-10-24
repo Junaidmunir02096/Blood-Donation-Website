@@ -118,6 +118,18 @@ POST   /api/v1/requests               ← Create blood request [guests or logged
 GET    /api/v1/requests/:id           ← Request detail
 PUT    /api/v1/requests/:id           ← Update request status [owner or admin]
 DELETE /api/v1/requests/:id           ← Cancel request [owner or admin]
+
+─── Admin (RBAC: admin only) ────────────────────────────────
+GET    /api/v1/admin/stats            ← Overview counts for admin
+GET    /api/v1/admin/users            ← List all users [admin only]
+PUT    /api/v1/admin/users/:id        ← Update user role/status [admin only]
+DELETE /api/v1/admin/users/:id        ← Delete user account [admin only]
+GET    /api/v1/admin/donors           ← List all donors [admin only]
+PUT    /api/v1/admin/donors/:id       ← Update donor verification/status [admin only]
+DELETE /api/v1/admin/donors/:id       ← Delete donor profile [admin only]
+GET    /api/v1/admin/requests         ← List all blood requests [admin only]
+PUT    /api/v1/admin/requests/:id     ← Approve/reject/update request [admin only]
+DELETE /api/v1/admin/requests/:id     ← Delete blood request [admin only]
 ```
 
 ### Planned Endpoints (NOT yet implemented — build these in order)
@@ -125,12 +137,6 @@ DELETE /api/v1/requests/:id           ← Cancel request [owner or admin]
 ─── Dashboard / Stats ───────────────────────────────────────
 GET  /api/v1/dashboard/summary      ← Active requests + nearby donors
 GET  /api/v1/dashboard/stats        ← Aggregate counts
-
-─── Admin ───────────────────────────────────────────────────
-GET  /api/v1/admin/users            ← List all users [admin only]
-GET  /api/v1/admin/donors           ← List all donors [admin only]
-GET  /api/v1/admin/requests         ← List all requests [admin only]
-PUT  /api/v1/admin/users/:id        ← Update user role/status [admin only]
 ```
 
 ---
@@ -298,7 +304,7 @@ npm run lint          # Must report 0 errors (runs client eslint)
 | 2 | Split-brain: `SearchBloodPage` calls `/api/v1/donors` (404), while `DonorRegistrationPage` saves to `localStorage` | 🔴 Critical | ✅ Fixed (Stage 2) |
 | 3 | ESLint hangs when run from root (traverses `server/node_modules`). Add ignore pattern. | 🟡 High | ✅ Fixed (eslint now runs from `client/`) |
 | 4 | 4 ESLint `no-unused-vars` errors in `src/` (unused `omitKey`, `delay` leftovers) | 🟡 High | ✅ Fixed |
-| 5 | `AdminPanel.jsx` performs admin operations only in localStorage — no server-side RBAC enforcement | 🟠 Medium | Open — Stage 3 |
+| 5 | `AdminPanel.jsx` performs admin operations only in localStorage — no server-side RBAC enforcement | 🟠 Medium | ✅ Fixed (Stage 3) |
 | 6 | Password reset flow (`ForgotPasswordPage`, `ResetPasswordPage`) has no backend API endpoints | 🟠 Medium | Open — Stage 3 |
 | 7 | React Router v6 future flag warnings in Playwright logs (`v7_startTransition`, `v7_relativeSplatPath`) | 🟢 Low | Open |
 
