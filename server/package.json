@@ -8,8 +8,9 @@
   },
   "scripts": {
     "dev": "nodemon src/server.js",
+    "seed": "node src/seeds/seed.js",
     "start": "node src/server.js",
-    "test": "node --test --test-concurrency=1",
+    "test": "node --test --test-concurrency=1 \"tests/*.test.js\"",
     "test:coverage": "node --test --test-concurrency=1 --experimental-test-coverage",
     "test:api": "playwright test --config=playwright.config.ts tests/e2e/auth.api.ts",
     "test:api:headed": "playwright test --config=playwright.config.ts tests/e2e/auth.api.ts --headed",

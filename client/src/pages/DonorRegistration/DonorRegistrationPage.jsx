@@ -10,6 +10,7 @@ import usePageTitle from '../../hooks/usePageTitle';
 import { BLOOD_GROUPS } from '../../constants/blood';
 import { PAKISTAN_CITIES, isValidPakistanPhone } from '../../constants/pakistan';
 import { DONOR_STATUS } from '../../utils/status';
+import { registerDonor } from '../../services/donor.service';
 
 const MapPickerModal = lazy(() => import('../../components/MapPicker/MapPickerModal'));
 
@@ -158,36 +159,33 @@ const DonorRegistrationPage = () => {
     if (Object.keys(errs).length) { setErrors(errs); return; }
 
     setIsSubmitting(true);
-    await new Promise(resolve => setTimeout(resolve, 1200));
-
-    /* Save donor to localStorage via AppDataContext */
-    const initials = formData.fullName
-      .split(' ')
-      .map(w => w[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2);
-
-    const nextStatus = existingDonor?.status === DONOR_STATUS.verified
-      ? DONOR_STATUS.verified
-      : DONOR_STATUS.pending;
-    const donorData = {
-      name:        formData.fullName,
-      bloodGroup:  formData.bloodGroup,
-      city:        formData.city + (formData.country ? `, ${formData.country}` : ''),
-      phone:       formData.phone,
-      km:          null,
-      lastDonated: formData.lastDonationDate
-        ? formatDisplayDate(formData.lastDonationDate)
-        : (existingDonor?.lastDonated || 'Not recorded'),
-      avatar:      initials,
-      userId:      currentUser?.id ?? null,
+    /* Register via backend API */
+    const fullCity = formData.city + (formData.country ? `, ${formData.country}` : '');
+    const donorPayload = {
+      name: formData.fullName,
+      bloodGroup: formData.bloodGroup,
+      city: fullCity,
+      phone: formData.phone,
+      canContact: true,
+      lastDonationDate: formData.lastDonationDate || undefined,
     };
 
+    const result = await registerDonor(donorPayload);
+
+    if (!result.ok) {
+      setIsSubmitting(false);
+      setErrors(result.fields || { general: result.error });
+      return;
+    }
+
+    const savedDonor = result.data;
+    const nextStatus = savedDonor?.status || DONOR_STATUS.pending;
+
+    /* Optimistic local store sync */
     if (existingDonor) {
-      updateDonor(existingDonor.id, { ...donorData, status: nextStatus });
+      updateDonor(existingDonor.id, { ...savedDonor, id: existingDonor.id });
     } else {
-      addDonor(donorData);
+      addDonor({ ...savedDonor, id: savedDonor?.id || `dnr-${Date.now()}` });
     }
 
     updateCurrentUser({

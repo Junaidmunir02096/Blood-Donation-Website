@@ -7,6 +7,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { BLOOD_GROUPS, BLOOD_COMPONENTS } from '../../constants/blood';
 import { PAKISTAN_CITIES, isValidPakistanPhone } from '../../constants/pakistan';
 import { formatDateInputValue, formatDisplayDate } from '../../utils/dateFormat';
+import { createRequest } from '../../services/request.service';
 
 const URGENCY_OPTIONS = [
   { id: 'routine', label: 'Routine', detail: 'Within 48–72 hours' },
@@ -68,26 +69,42 @@ const RequestPage = () => {
     if (Object.keys(errs).length) { setErrors(errs); return; }
 
     setIsSubmitting(true);
-    await new Promise((resolve) => setTimeout(resolve, 700));
 
     const urgencyLabel = urgency.charAt(0).toUpperCase() + urgency.slice(1);
-    const newRequest = addRequest({
+    const requestPayload = {
       bloodGroup: selectedGroup,
       hospital: formData.hospitalName,
       patient: formData.patientName,
       location: formData.location,
       contactNumber: formData.contactNumber,
-      email: formData.email || currentUser?.email,
+      email: formData.email || currentUser?.email || undefined,
       units: Number(formData.units),
       component: formData.component,
       urgency: urgencyLabel,
       note: formData.note || urgencyLabel,
+      neededBy: formData.neededBy,
+    };
+
+    const result = await createRequest(requestPayload);
+
+    if (!result.ok) {
+      setIsSubmitting(false);
+      setErrors(result.fields || { general: result.error });
+      return;
+    }
+
+    const savedRequest = result.data;
+
+    /* Optimistic local store sync */
+    addRequest({
+      ...savedRequest,
+      id: savedRequest?.id || `req-${Date.now()}`,
       neededBy: formatDisplayDate(formData.neededBy),
       userId: currentUser?.id ?? null,
     });
 
     setIsSubmitting(false);
-    setSubmittedId(newRequest.id);
+    setSubmittedId(savedRequest?.id || 'SUBMITTED');
     setSubmitted(true);
   };
 

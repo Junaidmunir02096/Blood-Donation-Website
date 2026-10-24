@@ -99,27 +99,29 @@ Blood-Donation-website/          ← Monorepo root (npm workspaces)
 
 ### Backend (Express — `server/`)
 ```
-GET  /api/v1/health                 ← Database health check
-POST /api/v1/auth/register          ← Create account (rate limited: 5/15min)
-POST /api/v1/auth/login             ← Authenticate (rate limited: 10/15min)
-POST /api/v1/auth/logout            ← Destroy session
-GET  /api/v1/auth/session           ← Rehydrate session (used on page load)
+─── Health & Auth ──────────────────────────────────────────
+GET    /api/v1/health                 ← Database health check
+POST   /api/v1/auth/register          ← Create account (rate limited: 5/15min)
+POST   /api/v1/auth/login             ← Authenticate (rate limited: 10/15min)
+POST   /api/v1/auth/logout            ← Destroy session
+GET    /api/v1/auth/session           ← Rehydrate session (used on page load)
+
+─── Donor ───────────────────────────────────────────────────
+GET    /api/v1/donors                 ← Search/list verified donors (masked phones for public)
+GET    /api/v1/donors/:id             ← Donor detail
+POST   /api/v1/donors                 ← Register/update donor profile [auth required]
+PUT    /api/v1/donors/:id             ← Update donor profile [owner or admin]
+
+─── Blood Requests ──────────────────────────────────────────
+GET    /api/v1/requests               ← List requests (filtered by user or public)
+POST   /api/v1/requests               ← Create blood request [guests or logged-in users]
+GET    /api/v1/requests/:id           ← Request detail
+PUT    /api/v1/requests/:id           ← Update request status [owner or admin]
+DELETE /api/v1/requests/:id           ← Cancel request [owner or admin]
 ```
 
 ### Planned Endpoints (NOT yet implemented — build these in order)
 ```
-─── Donor ───────────────────────────────────────────────────
-GET  /api/v1/donors                 ← Search/list verified donors
-GET  /api/v1/donors/:id             ← Donor detail
-POST /api/v1/donors                 ← Register as donor [auth required]
-PUT  /api/v1/donors/:id             ← Update donor profile [auth required]
-
-─── Blood Requests ──────────────────────────────────────────
-GET  /api/v1/requests               ← List requests (filtered by user or public)
-POST /api/v1/requests               ← Create blood request [auth optional for guests]
-PUT  /api/v1/requests/:id           ← Update request status [auth required]
-DELETE /api/v1/requests/:id         ← Cancel request [auth required, own only]
-
 ─── Dashboard / Stats ───────────────────────────────────────
 GET  /api/v1/dashboard/summary      ← Active requests + nearby donors
 GET  /api/v1/dashboard/stats        ← Aggregate counts
@@ -293,7 +295,7 @@ npm run lint          # Must report 0 errors (runs client eslint)
 | # | Issue | Severity | Status |
 |---|-------|----------|--------|
 | 1 | `server/tests/auth.test.js` fails: `mongodb-memory-server` and `supertest` missing from `server/package.json` | 🔴 Critical | ✅ Fixed |
-| 2 | Split-brain: `SearchBloodPage` calls `/api/v1/donors` (404), while `DonorRegistrationPage` saves to `localStorage` | 🔴 Critical | Open — Stage 2 |
+| 2 | Split-brain: `SearchBloodPage` calls `/api/v1/donors` (404), while `DonorRegistrationPage` saves to `localStorage` | 🔴 Critical | ✅ Fixed (Stage 2) |
 | 3 | ESLint hangs when run from root (traverses `server/node_modules`). Add ignore pattern. | 🟡 High | ✅ Fixed (eslint now runs from `client/`) |
 | 4 | 4 ESLint `no-unused-vars` errors in `src/` (unused `omitKey`, `delay` leftovers) | 🟡 High | ✅ Fixed |
 | 5 | `AdminPanel.jsx` performs admin operations only in localStorage — no server-side RBAC enforcement | 🟠 Medium | Open — Stage 3 |

@@ -1,31 +1,35 @@
 /**
  * src/services/request.service.js
  * ─────────────────────────────────────────────────────────────────────────────
- * Fetches blood requests from the backend API.
+ * Fetches and manages blood requests via the backend API.
  */
 
 import { apiClient } from '../api/client';
 
-/** Fetch the current user's blood requests */
+/** Fetch the blood requests (optionally filtered by userId) */
 export const fetchRequests = async (userId) => {
   try {
     const endpoint = userId ? `/requests?userId=${userId}` : '/requests';
     const response = await apiClient.get(endpoint);
-    return response.data || [];
+    const result = response.data;
+    if (result && Array.isArray(result.requests)) {
+      return result.requests;
+    }
+    return Array.isArray(result) ? result : [];
   } catch (err) {
     console.error('Failed to fetch requests:', err);
     return [];
   }
 };
 
-/** Create a new blood request */
+/** Create a new blood request (guest or authenticated) */
 export const createRequest = async (data) => {
   try {
     const response = await apiClient.post('/requests', data);
     return { ok: true, data: response.data };
   } catch (err) {
-    const errorMessage = err instanceof Error ? err.message : 'Failed to create request.';
-    return { ok: false, error: errorMessage };
+    const errorMessage = err?.message || 'Failed to create request.';
+    return { ok: false, error: errorMessage, fields: err?.fields };
   }
 };
 
@@ -35,18 +39,18 @@ export const updateRequest = async (id, data) => {
     const response = await apiClient.put(`/requests/${id}`, data);
     return { ok: true, data: response.data };
   } catch (err) {
-    const errorMessage = err instanceof Error ? err.message : 'Failed to update request.';
-    return { ok: false, error: errorMessage };
+    const errorMessage = err?.message || 'Failed to update request.';
+    return { ok: false, error: errorMessage, fields: err?.fields };
   }
 };
 
-/** Delete a blood request */
+/** Cancel a blood request */
 export const deleteRequest = async (id) => {
   try {
-    await apiClient.delete(`/requests/${id}`);
-    return { ok: true };
+    const response = await apiClient.delete(`/requests/${id}`);
+    return { ok: true, data: response.data };
   } catch (err) {
-    const errorMessage = err instanceof Error ? err.message : 'Failed to delete request.';
+    const errorMessage = err?.message || 'Failed to cancel request.';
     return { ok: false, error: errorMessage };
   }
 };
